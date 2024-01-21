@@ -9,4 +9,4 @@ def signup(request):
             form.save()
             return redirect('login')
 
-    return render(request, 'account/register.html', {'form': form})
+    return render(request, 'account/forms.html', {'form': form, 'title': 'Sign Up'})
