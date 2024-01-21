@@ -9,6 +9,16 @@ class ProfileType(models.TextChoices):
     DIVINE = "D", "Divine"
 
 
+class AboutUser(models.Model):
+    height = models.CharField(max_length=50, blank=True, null=True)
+    weight = models.CharField(max_length=50, blank=True, null=True)
+    politics = models.CharField(max_length=50, blank=True, null=True)
+    dish = models.CharField(max_length=50, blank=True, null=True)
+    film = models.CharField(max_length=50, blank=True, null=True)
+    song = models.CharField(max_length=50, blank=True, null=True)
+    idol = models.CharField(max_length=50, blank=True, null=True)
+
+
 class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -20,7 +30,10 @@ class Profile(models.Model):
     type_of_profile = models.TextField(choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1)
     created = models.DateTimeField(auto_now_add=True)
 
+    about_me = models.OneToOneField(AboutUser, on_delete=models.CASCADE)
+
     # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES
     #country =
     #voivodeship =
+
 
