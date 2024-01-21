@@ -30,10 +30,12 @@ class Profile(models.Model):
     type_of_profile = models.TextField(choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1)
     created = models.DateTimeField(auto_now_add=True)
 
-    about_me = models.OneToOneField(AboutUser, on_delete=models.CASCADE)
+    about_me = models.OneToOneField(AboutUser, on_delete=models.CASCADE, blank=True, null=True)
+
+    is_confirm = models.BooleanField(default=False)
 
     # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES
     #country =
     #voivodeship =
 
-
+    #mood
