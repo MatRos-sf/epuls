@@ -34,6 +34,7 @@ class Profile(models.Model):
 
     is_confirm = models.BooleanField(default=False)
 
+    xyz = models.CharField(blank=True, null=True)
     # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES
     #country =
     #voivodeship =
