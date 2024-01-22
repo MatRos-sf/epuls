@@ -40,3 +40,10 @@ class Profile(models.Model):
     #voivodeship =
 
     #mood
+
+
+class Visitor(models.Model):
+    date_of_visit = models.DateTimeField(auto_now_add=True)
+    visitor = models.ForeignKey(User, on_delete=models.CASCADE, help_text='The user who visited someone profile.', related_name='visitors')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, help_text='The user who had been visited.')
+

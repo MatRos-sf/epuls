@@ -24,9 +24,4 @@ class ProfileView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         username = self.kwargs.get('slag')
         if username != self.request.user.username:
-            # TODO
-
-            # add to Stalker/Visitor
-            # Stalker/Visitor -> (date, visitor, receiver)
-            # czy to jest optymalne ?
             pass
