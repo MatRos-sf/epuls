@@ -2,10 +2,10 @@
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 
 from .forms import UserSignupForm
-from .models import Profile, Visitor
+from .models import AboutUser, Profile, Visitor
 
 
 def signup(request) -> HttpResponse:
@@ -32,3 +32,23 @@ class ProfileView(DetailView):
             # user is Visitor
             Visitor.objects.create(visitor=self.request.user, receiver=user_instance)
         return user_instance
+
+
+class ProfileUpdateView(UpdateView):
+    template_name = "account/forms.html"
+    model = Profile
+    slug_field = "username"
+    slug_url_kwarg = "username"
+
+    def get_object(self, queryset=None):
+        username = self.kwargs.get("username")
+        return get_object_or_404(User, username=username)
+
+
+class AboutUserView(UpdateView):
+    template_name = "account/forms.html"
+    model = AboutUser
+
+    def get_object(self, queryset=None):
+        username = self.kwargs.get("username")
+        return get_object_or_404(User, username=username)
