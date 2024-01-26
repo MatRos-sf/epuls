@@ -19,10 +19,10 @@ urlpatterns = [
             [
                 path("", ProfileView.as_view(), name="profile"),
                 path(
-                    "update/profile", ProfileUpdateView.as_view(), name="update-profile"
+                    "update/profile", ProfileUpdateView.as_view(), name="profile-update"
                 ),
                 path(
-                    "update/aboutuser", AboutUserView.as_view(), name="update-aboutuser"
+                    "update/aboutuser", AboutUserView.as_view(), name="aboutuser-update"
                 ),
             ]
         ),

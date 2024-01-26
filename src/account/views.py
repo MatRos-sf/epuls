@@ -1,6 +1,8 @@
-# from django.contrib.auth.mixins import LoginRequiredMixin
+from http import HTTPStatus
+
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView, UpdateView
 
@@ -34,7 +36,18 @@ class ProfileView(DetailView):
         return user_instance
 
 
-class ProfileUpdateView(UpdateView):
+class UserSettings(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.get_object().username == self.request.user.username
+
+    def handle_no_permission(self):
+        return JsonResponse(
+            {"message": "You do not have permission to update this user."},
+            status=HTTPStatus.FORBIDDEN,
+        )
+
+
+class ProfileUpdateView(UserSettings, UpdateView):
     template_name = "account/forms.html"
     model = Profile
     slug_field = "username"
@@ -46,6 +59,15 @@ class ProfileUpdateView(UpdateView):
         username = self.kwargs.get("username")
         return get_object_or_404(User, username=username)
 
+    def test_func(self):
+        return self.get_object().username == self.request.user.username
+
+    def handle_no_permission(self):
+        return JsonResponse(
+            {"message": "You do not have permission to update this user."},
+            status=HTTPStatus.FORBIDDEN,
+        )
+
 
 class AboutUserView(UpdateView):
     template_name = "account/forms.html"
@@ -56,3 +78,5 @@ class AboutUserView(UpdateView):
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
         return get_object_or_404(User, username=username)
+
+    # TODO tutaj będzie sprawdzać czy wszystkie pola są uzupełnione jak nie to wpisuje punkty

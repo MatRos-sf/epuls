@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h1> {{ object.name }}</h1>
-<p>Information</p>
-...
-
-<p></p>
-<h4>About me!</h4>
-...
-<p>{% if object.aboutuser.height %}{{ object.aboutuser.height }}{% else %}0{% endif %}</p>
-<p></p>
-<h4>Presentation section</h4>
-
-
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <h1>{{ object.name }}</h1>
+        <p>Information</p>
+        ...
+        <a href="{% url 'account:profile-update' object.username %}"
+           class="button">Edit</a>
+        <h4>About me!</h4>
+        ...
+        <p>
+            {% if object.aboutuser.height %}
+                {{ object.aboutuser.height }}
+            {% else %}
+                0
+            {% endif %}
+        </p>
+        <a href="{% url 'account:aboutuser-update' object.username %}"
+           class="button">Edit</a>
+        <h4>Presentation section</h4>
+    </body>
 </html>
