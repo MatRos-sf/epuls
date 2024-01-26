@@ -24,8 +24,6 @@ def signup(request) -> HttpResponse:
 class ProfileView(DetailView):
     model = Profile
     template_name = "account/profile.html"
-    slug_field = "username"  # TODO ?
-    slug_url_kwarg = "username"  # TODO ?
 
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
@@ -50,8 +48,6 @@ class UserSettings(LoginRequiredMixin, UserPassesTestMixin):
 class ProfileUpdateView(UserSettings, UpdateView):
     template_name = "account/forms.html"
     model = Profile
-    slug_field = "username"
-    slug_url_kwarg = "username"
     form_class = ProfileForm
     extra_context = {"title": "Update Profile"}
 
