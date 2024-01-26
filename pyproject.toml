@@ -11,6 +11,14 @@ django = "^5.0.1"
 django-environ = "^0.11.2"
 factory-boy = "^3.3.0"
 
+[tool.djlint]
+profile="django"
+
+[tool.ruff]
+line-length = 88
+ignore = [
+    "F403"
+]
 
 [build-system]
 requires = ["poetry-core"]
