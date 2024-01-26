@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView, UpdateView
 
-from .forms import UserSignupForm
+from .forms import AboutUserForm, ProfileForm, UserSignupForm
 from .models import AboutUser, Profile, Visitor
 
 
@@ -39,6 +39,8 @@ class ProfileUpdateView(UpdateView):
     model = Profile
     slug_field = "username"
     slug_url_kwarg = "username"
+    form_class = ProfileForm
+    extra_context = {"title": "Update Profile"}
 
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
@@ -48,6 +50,8 @@ class ProfileUpdateView(UpdateView):
 class AboutUserView(UpdateView):
     template_name = "account/forms.html"
     model = AboutUser
+    form_class = AboutUserForm
+    extra_context = {"title": "About User"}
 
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
