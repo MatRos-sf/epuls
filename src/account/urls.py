@@ -13,17 +13,13 @@ urlpatterns = [
         name="logout",
     ),
     path("signup/", signup, name="signup"),
+    path("<str:username>/", ProfileView.as_view(), name="profile"),
     path(
-        "<str:username>/",
+        "accounts/edit/",
         include(
             [
-                path("", ProfileView.as_view(), name="profile"),
-                path(
-                    "update/profile", ProfileUpdateView.as_view(), name="profile-update"
-                ),
-                path(
-                    "update/aboutuser", AboutUserView.as_view(), name="aboutuser-update"
-                ),
+                path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
+                path("aboutuser/", AboutUserView.as_view(), name="update-about"),
             ]
         ),
     ),
