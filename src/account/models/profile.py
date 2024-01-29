@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class ProfileType(models.TextChoices):
@@ -20,30 +20,39 @@ class AboutUser(models.Model):
 
 
 class Profile(models.Model):
-
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     date_of_birth = models.DateField(blank=True, null=True)
 
     short_description = models.TextField(blank=True, null=True, max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    type_of_profile = models.TextField(choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1)
+    type_of_profile = models.TextField(
+        choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1
+    )
     created = models.DateTimeField(auto_now_add=True)
 
-    about_me = models.OneToOneField(AboutUser, on_delete=models.CASCADE, blank=True, null=True)
+    about_me = models.OneToOneField(
+        AboutUser, on_delete=models.CASCADE, blank=True, null=True
+    )
 
     is_confirm = models.BooleanField(default=False)
 
     # xyz = models.CharField(blank=True, null=True)
     # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES
-    #country =
-    #voivodeship =
+    # country =
+    # voivodeship =
 
-    #mood
+    # mood
 
 
 class Visitor(models.Model):
     date_of_visit = models.DateTimeField(auto_now_add=True)
-    visitor = models.ForeignKey(User, on_delete=models.CASCADE, help_text='The user who visited someone profile.', related_name='visitors')
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, help_text='The user who had been visited.')
-
+    visitor = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        help_text="The user who visited someone profile.",
+        related_name="visitors",
+    )
+    receiver = models.ForeignKey(
+        User, on_delete=models.CASCADE, help_text="The user who had been visited."
+    )

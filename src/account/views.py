@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.generic import DetailView, UpdateView
 
 from .forms import AboutUserForm, ProfileForm, UserSignupForm
-from .models import AboutUser, Profile, Visitor
+from .models.profile import AboutUser, Profile, Visitor
 
 
 def signup(request) -> HttpResponse:
