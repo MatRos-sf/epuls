@@ -1,1 +1,2 @@
-from profile import *
+from .guestbook import *
+from .profile import *
