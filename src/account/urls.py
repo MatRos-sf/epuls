@@ -1,7 +1,16 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
-from .views import AboutUserView, GuestbookView, ProfileUpdateView, ProfileView, signup
+from .views import (
+    AboutUserView,
+    DiaryCreateView,
+    DiaryDetailView,
+    DiaryUpdateView,
+    GuestbookView,
+    ProfileUpdateView,
+    ProfileView,
+    signup,
+)
 
 app_name = "account"
 
@@ -19,6 +28,28 @@ urlpatterns = [
             [
                 path("", ProfileView.as_view(), name="profile"),
                 path("gb/", GuestbookView.as_view(), name="guestbook"),
+                path(
+                    "diary/",
+                    include(
+                        [
+                            path(
+                                "create/",
+                                DiaryCreateView.as_view(),
+                                name="diary-create",
+                            ),
+                            path(
+                                "<int:pk>/",
+                                DiaryDetailView.as_view(),
+                                name="diary-detail",
+                            ),
+                            path(
+                                "<int:pk>/update/",
+                                DiaryUpdateView.as_view(),
+                                name="diary-update",
+                            ),
+                        ]
+                    ),
+                ),
             ]
         ),
     ),

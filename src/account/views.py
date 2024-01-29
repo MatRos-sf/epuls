@@ -4,10 +4,23 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.views.generic import DetailView, ListView, UpdateView
+from django.urls import reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
-from .forms import AboutUserForm, GuestbookUserForm, ProfileForm, UserSignupForm
-from .models import AboutUser, Guestbook, Profile, Visitor
+from .forms import (
+    AboutUserForm,
+    DiaryForm,
+    GuestbookUserForm,
+    ProfileForm,
+    UserSignupForm,
+)
+from .models import AboutUser, Diary, Guestbook, Profile, Visitor
 
 
 def signup(request) -> HttpResponse:
@@ -93,3 +106,39 @@ class GuestbookView(ListView):
             instance.save()
 
         return self.get(request, *args, **kwargs)
+
+
+# CRUD
+class DiaryCreateView(CreateView):
+    template_name = "account/diary/create.html"
+    model = Diary
+    form_class = DiaryForm
+    # success_url = reverse_lazy("account:diary-detail", kwargs={"username": self.request.user.username, "pk": instance.pk})
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.author = self.request.user
+        instance.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        instance = self.get_object()
+        return reverse_lazy(
+            "account:diary-detail",
+            kwargs={"username": self.request.user.username, "pk": instance.pk},
+        )
+
+
+class DiaryDetailView(DetailView):
+    template_name = "account/diary/detail.html"
+    model = Diary
+
+
+class DiaryUpdateView(UpdateView):
+    template_name = "account/diary/create.html"
+    model = Diary
+    form_class = DiaryForm
+
+
+class DeleteDiaryView(DeleteView):
+    model = Diary
