@@ -1,0 +1,4 @@
+.custom-list-gr:hover {
+  background-color: green;
+  color: white; /* opcjonalnie, aby tekst był czytelny na zielonym tle */
+}
