@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models.profile import AboutUser, Profile
+from .models import AboutUser, Guestbook, Profile
 
 
 class UserSignupForm(UserCreationForm):
@@ -36,3 +36,9 @@ class AboutUserForm(forms.ModelForm):
     class Meta:
         model = AboutUser
         fields = "__all__"
+
+
+class GuestbookUserForm(forms.ModelForm):
+    class Meta:
+        model = Guestbook
+        fields = ["entry"]

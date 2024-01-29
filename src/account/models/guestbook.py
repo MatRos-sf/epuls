@@ -17,3 +17,6 @@ class Guestbook(models.Model):
     )
     entry = models.TextField(help_text="Say hello!")
     created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]

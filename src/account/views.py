@@ -4,10 +4,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.views.generic import DetailView, UpdateView
+from django.views.generic import DetailView, ListView, UpdateView
 
-from .forms import AboutUserForm, ProfileForm, UserSignupForm
-from .models.profile import AboutUser, Profile, Visitor
+from .forms import AboutUserForm, GuestbookUserForm, ProfileForm, UserSignupForm
+from .models import AboutUser, Guestbook, Profile, Visitor
 
 
 def signup(request) -> HttpResponse:
@@ -72,3 +72,24 @@ class AboutUserView(UserSettings, UpdateView):
         return self.get_object()
 
     # TODO tutaj będzie sprawdzać czy wszystkie pola są uzupełnione jak nie to wpisuje punkty
+
+
+class GuestbookView(ListView):
+    template_name = "account/guestbook.html"
+    model = Guestbook
+    extra_context = {"form": GuestbookUserForm}
+
+    def get_queryset(self):
+        username = self.kwargs.get("username")
+        return Guestbook.objects.filter(receiver__username=username)
+
+    def post(self, request, *args, **kwargs):
+        form = GuestbookUserForm(request.POST)
+        if form.is_valid():
+            username = self.kwargs.get("username")
+            instance = form.save(commit=False)
+            instance.sender = self.request.user
+            instance.receiver = User.objects.get(username=username)
+            instance.save()
+
+        return self.get(request, *args, **kwargs)
