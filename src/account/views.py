@@ -112,20 +112,12 @@ class DiaryCreateView(CreateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
-    # success_url = reverse_lazy("account:diary-detail", kwargs={"username": self.request.user.username, "pk": instance.pk})
 
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.author = self.request.user
         instance.save()
         return super().form_valid(form)
-
-    # def get_success_url(self):
-    #     instance = self.get_object()
-    #     return reverse_lazy(
-    #         "account:diary-detail",
-    #         kwargs={"username": self.request.user.username, "pk": instance.pk},
-    #     )
 
 
 class DiaryDetailView(DetailView):
