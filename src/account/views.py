@@ -137,6 +137,7 @@ class DiaryUpdateView(UpdateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
+    extra_context = {"action": "Update"}
 
 
 class DeleteDiaryView(DeleteView):
