@@ -119,6 +119,7 @@ class DiaryCreateView(CreateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
+    extra_context = {"action": "Edit"}
 
     def form_valid(self, form):
         instance = form.save(commit=False)
