@@ -9,6 +9,7 @@ class Diary(models.Model):
     content = models.TextField()
 
     created = models.DateTimeField(auto_now_add=True)
+    is_hide = models.BooleanField(default=False, verbose_name="hide")
 
     def get_absolute_url(self):
         return reverse(

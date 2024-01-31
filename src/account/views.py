@@ -108,24 +108,24 @@ class GuestbookView(ListView):
 
 
 # CRUD
+class DiaryListView(ListView):
+    template_name = "account/diary/list.html"
+
+    def get_queryset(self):
+        return Diary.objects.filter(author=self.request.user)
+
+
 class DiaryCreateView(CreateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
-    # success_url = reverse_lazy("account:diary-detail", kwargs={"username": self.request.user.username, "pk": instance.pk})
+    extra_context = {"action": "Edit"}
 
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.author = self.request.user
         instance.save()
         return super().form_valid(form)
-
-    # def get_success_url(self):
-    #     instance = self.get_object()
-    #     return reverse_lazy(
-    #         "account:diary-detail",
-    #         kwargs={"username": self.request.user.username, "pk": instance.pk},
-    #     )
 
 
 class DiaryDetailView(DetailView):
@@ -137,14 +137,13 @@ class DiaryUpdateView(UpdateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
+    extra_context = {"action": "Update"}
 
 
-class DeleteDiaryView(DeleteView):
+class DiaryDeleteView(DeleteView):
     model = Diary
+    template_name = "account/diary/confirm_delete.html"
 
-
-class DiaryListView(ListView):
-    template_name = "account/diary/list.html"
-
-    def get_queryset(self):
-        return Diary.objects.filter(author=self.request.user)
+    def get_success_url(self):
+        username = self.request.user.username
+        return reverse("account:diary", kwargs={"username": username})

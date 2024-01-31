@@ -2,7 +2,28 @@
 {% block content %}
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
         <div class="container overflow-hidden text-center">
-            <h1>Hello</h1>
+            <!-- Date -->
+            <div class="row">
+                <div class="col text-end">{{ object.created|date:"j.m.Y" }}</div>
+            </div>
+            <!-- content -->
+            <div class="row justify-content-center">
+                <div class="col">
+                    <h1>{{ object.title }}</h1>
+                    <p>{{ object.content }}</p>
+                </div>
+            </div>
+            <!-- buttons -->
+            {% if user == object.author %}
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <a href="{% url 'account:diary-update' user.username object.pk %}"
+                       class="btn btn-success">Edit</a>
+                    <a href="{% url 'account:diary-delete' user.username object.pk %}"
+                       class="btn btn-success ">Delete</a>
+                    <a href="{% url 'account:diary' user.username %}"
+                       class="btn btn-success">Back</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
