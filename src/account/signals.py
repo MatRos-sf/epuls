@@ -1,8 +1,8 @@
+from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from django.contrib.auth.models import User
-from .models import Profile, AboutUser
+from .models.profile import AboutUser, Profile
 
 
 @receiver(post_save, sender=User)

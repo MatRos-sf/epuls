@@ -1,7 +1,17 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
-from .views import AboutUserView, ProfileUpdateView, ProfileView, signup
+from .views import (
+    AboutUserView,
+    DiaryCreateView,
+    DiaryDetailView,
+    DiaryListView,
+    DiaryUpdateView,
+    GuestbookView,
+    ProfileUpdateView,
+    ProfileView,
+    signup,
+)
 
 app_name = "account"
 
@@ -13,7 +23,38 @@ urlpatterns = [
         name="logout",
     ),
     path("signup/", signup, name="signup"),
-    path("<str:username>/", ProfileView.as_view(), name="profile"),
+    path(
+        "<str:username>/",
+        include(
+            [
+                path("", ProfileView.as_view(), name="profile"),
+                path("gb/", GuestbookView.as_view(), name="guestbook"),
+                path(
+                    "diary/",
+                    include(
+                        [
+                            path("", DiaryListView.as_view(), name="diary"),
+                            path(
+                                "create/",
+                                DiaryCreateView.as_view(),
+                                name="diary-create",
+                            ),
+                            path(
+                                "<int:pk>/",
+                                DiaryDetailView.as_view(),
+                                name="diary-detail",
+                            ),
+                            path(
+                                "<int:pk>/update/",
+                                DiaryUpdateView.as_view(),
+                                name="diary-update",
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        ),
+    ),
     path(
         "accounts/edit/",
         include(
