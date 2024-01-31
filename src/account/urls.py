@@ -4,6 +4,7 @@ from django.urls import include, path
 from .views import (
     AboutUserView,
     DiaryCreateView,
+    DiaryDeleteView,
     DiaryDetailView,
     DiaryListView,
     DiaryUpdateView,
@@ -48,6 +49,11 @@ urlpatterns = [
                                 "<int:pk>/update/",
                                 DiaryUpdateView.as_view(),
                                 name="diary-update",
+                            ),
+                            path(
+                                "<int:pk>/delete/",
+                                DiaryDeleteView.as_view(),
+                                name="diary-delete",
                             ),
                         ]
                     ),

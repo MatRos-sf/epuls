@@ -18,7 +18,8 @@
                 <div class="btn-group" role="group" aria-label="Basic outlined example">
                     <a href="{% url 'account:diary-update' user.username object.pk %}"
                        class="btn btn-success">Edit</a>
-                    <a type="button" class="btn btn-success">Delete</a>
+                    <a href="{% url 'account:diary-delete' user.username object.pk %}"
+                       class="btn btn-success ">Delete</a>
                     <a href="{% url 'account:diary' user.username %}"
                        class="btn btn-success">Back</a>
                 </div>

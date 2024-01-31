@@ -140,5 +140,10 @@ class DiaryUpdateView(UpdateView):
     extra_context = {"action": "Update"}
 
 
-class DeleteDiaryView(DeleteView):
+class DiaryDeleteView(DeleteView):
     model = Diary
+    template_name = "account/diary/confirm_delete.html"
+
+    def get_success_url(self):
+        username = self.request.user.username
+        return reverse("account:diary", kwargs={"username": username})
