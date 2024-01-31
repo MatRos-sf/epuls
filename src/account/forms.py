@@ -47,4 +47,4 @@ class GuestbookUserForm(forms.ModelForm):
 class DiaryForm(forms.ModelForm):
     class Meta:
         model = Diary
-        fields = ["title", "content"]
+        fields = ["title", "content", "is_hide"]
