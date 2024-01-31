@@ -108,6 +108,13 @@ class GuestbookView(ListView):
 
 
 # CRUD
+class DiaryListView(ListView):
+    template_name = "account/diary/list.html"
+
+    def get_queryset(self):
+        return Diary.objects.filter(author=self.request.user)
+
+
 class DiaryCreateView(CreateView):
     template_name = "account/diary/create.html"
     model = Diary
@@ -133,10 +140,3 @@ class DiaryUpdateView(UpdateView):
 
 class DeleteDiaryView(DeleteView):
     model = Diary
-
-
-class DiaryListView(ListView):
-    template_name = "account/diary/list.html"
-
-    def get_queryset(self):
-        return Diary.objects.filter(author=self.request.user)
