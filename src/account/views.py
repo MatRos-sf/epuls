@@ -4,7 +4,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -121,12 +120,12 @@ class DiaryCreateView(CreateView):
         instance.save()
         return super().form_valid(form)
 
-    def get_success_url(self):
-        instance = self.get_object()
-        return reverse_lazy(
-            "account:diary-detail",
-            kwargs={"username": self.request.user.username, "pk": instance.pk},
-        )
+    # def get_success_url(self):
+    #     instance = self.get_object()
+    #     return reverse_lazy(
+    #         "account:diary-detail",
+    #         kwargs={"username": self.request.user.username, "pk": instance.pk},
+    #     )
 
 
 class DiaryDetailView(DetailView):
@@ -142,3 +141,10 @@ class DiaryUpdateView(UpdateView):
 
 class DeleteDiaryView(DeleteView):
     model = Diary
+
+
+class DiaryListView(ListView):
+    template_name = "account/diary/list.html"
+
+    def get_queryset(self):
+        return Diary.objects.filter(author=self.request.user)

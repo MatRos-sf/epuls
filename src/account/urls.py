@@ -5,6 +5,7 @@ from .views import (
     AboutUserView,
     DiaryCreateView,
     DiaryDetailView,
+    DiaryListView,
     DiaryUpdateView,
     GuestbookView,
     ProfileUpdateView,
@@ -32,6 +33,7 @@ urlpatterns = [
                     "diary/",
                     include(
                         [
+                            path("", DiaryListView.as_view(), name="diary"),
                             path(
                                 "create/",
                                 DiaryCreateView.as_view(),
