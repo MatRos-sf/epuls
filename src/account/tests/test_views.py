@@ -56,3 +56,42 @@ class ProfileUpdateViewTests(TestCase):
         message = response.content
 
         self.assertJSONEqual(str(message, encoding="utf-8"), expected)
+
+
+# Library
+@tag("d_c")
+class DiaryCreateViewTestCase(TestCase):
+    def setUp(self):
+        self.url_name = "account:diary-create"
+        self.user = UserFactory(username="test")
+
+    def test_endpoint_returns_302_status_code(self):
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": self.user.username})
+        )
+        self.assertEquals(response.status_code, HTTPStatus.FOUND)
+
+    def test_endpoint_returns_200_status_code(self):
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": self.user.username})
+        )
+
+        self.assertEquals(response.status_code, HTTPStatus.OK)
+
+    def test_endpoint_returns_403_status_code(self):
+        new_user = UserFactory(username="new_user")
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": new_user.username})
+        )
+        self.assertEquals(response.status_code, HTTPStatus.FORBIDDEN)
+
+    def test_template_should_return_appropriate_template(self):
+        expected_template = "account/diary/create.html"
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": self.user})
+        )
+
+        self.assertTemplateUsed(response, expected_template)
