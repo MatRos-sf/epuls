@@ -2,8 +2,10 @@ from http import HTTPStatus
 
 from django.shortcuts import reverse
 from django.test import TestCase, tag
+from parameterized import parameterized
 
 from account.factories import PASSWORD, UserFactory
+from account.models import Diary
 
 APP_NAME = "account:"
 
@@ -95,3 +97,55 @@ class DiaryCreateViewTestCase(TestCase):
         )
 
         self.assertTemplateUsed(response, expected_template)
+
+    def test_should_create_object_when_payload_is_correct(self):
+        payload = {"title": "test_diary", "content": "test_content"}
+        self.client.login(username=self.user.username, password=PASSWORD)
+        self.client.post(
+            reverse(self.url_name, kwargs={"username": self.user}), data=payload
+        )
+
+        self.assertEquals(Diary.objects.count(), 1)
+
+        # author should be currently user
+        diary = Diary.objects.first()
+        self.assertEquals(diary.author, self.user)
+
+    def test_should_redirect_when_object_is_create(self):
+        payload = {
+            "author": self.user,
+            "title": "test_diary",
+            "content": "test_content",
+        }
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"username": self.user}), data=payload
+        )
+
+        self.assertEquals(response.status_code, HTTPStatus.FOUND)
+
+    @parameterized.expand(
+        [({"title": "test_diary"},), ({"content": "test_content"},), ({},)]
+    )
+    def test_should_not_create_object_when_payload_is_incorrect(self, payload):
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"username": self.user}), data=payload
+        )
+        self.assertEquals(response.status_code, HTTPStatus.OK)
+        self.assertEquals(Diary.objects.count(), 0)
+
+    def test_should_not_create_object_when_user_is_not_owner(self):
+        new_user = UserFactory(username="new_user")
+        payload = {
+            "author": self.user,
+            "title": "test_diary",
+            "content": "test_content",
+        }
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"username": new_user.username}), data=payload
+        )
+
+        self.assertEquals(response.status_code, HTTPStatus.FORBIDDEN)
+        self.assertFalse(Diary.objects.count())
