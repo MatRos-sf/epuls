@@ -149,3 +149,32 @@ class DiaryCreateViewTestCase(TestCase):
 
         self.assertEquals(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertFalse(Diary.objects.count())
+
+
+@tag("d_r")
+class DiaryDetailViewTestCase(TestCase):
+    def setUp(self):
+        self.url_name = "account:diary-detail"
+        self.user = UserFactory(username="test")
+
+    def test_endpoint_returns_302_status_code(self):
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": self.user.username})
+        )
+        self.assertEquals(response.status_code, HTTPStatus.FOUND)
+
+    def test_endpoint_returns_200_status_code(self):
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": self.user.username})
+        )
+
+        self.assertEquals(response.status_code, HTTPStatus.OK)
+
+    def test_endpoint_returns_403_status_code(self):
+        new_user = UserFactory(username="new_user")
+        self.client.login(username=self.user.username, password=PASSWORD)
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"username": new_user.username})
+        )
+        self.assertEquals(response.status_code, HTTPStatus.FORBIDDEN)
