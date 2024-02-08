@@ -207,3 +207,10 @@ class DiaryListView(LoginRequiredMixin, ListView):
         if user == self.request.user:
             return Diary.objects.filter(author=user)
         return Diary.objects.filter(author=user, is_hide=False)
+
+
+# class FriendsListView(LoginRequiredMixin, ListView):
+#     template_name = "account/friends.html"
+#
+#     def get_queryset(self):
+#         username = self.kwargs.get("username")
