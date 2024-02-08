@@ -57,7 +57,7 @@ class UserSettings(LoginRequiredMixin, UserPassesTestMixin):
         )
 
 
-class ProfileUpdateView(UserSettings, UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "account/forms.html"
     model = Profile
     form_class = ProfileForm
@@ -70,8 +70,17 @@ class ProfileUpdateView(UserSettings, UpdateView):
         user = self.get_object()
         return reverse("account:profile", kwargs={"username": user.username})
 
+    def test_func(self):
+        return self.get_object().username == self.request.user.username
 
-class AboutUserView(UserSettings, UpdateView):
+    def handle_no_permission(self):
+        return JsonResponse(
+            {"message": "You do not have permission to update this user."},
+            status=HTTPStatus.FORBIDDEN,
+        )
+
+
+class AboutUserView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "account/forms.html"
     model = AboutUser
     form_class = AboutUserForm
@@ -82,6 +91,15 @@ class AboutUserView(UserSettings, UpdateView):
 
     def get_success_url(self):
         return self.get_object()
+
+    def test_func(self):
+        return self.get_object().username == self.request.user.username
+
+    def handle_no_permission(self):
+        return JsonResponse(
+            {"message": "You do not have permission to update this user."},
+            status=HTTPStatus.FORBIDDEN,
+        )
 
     # TODO tutaj będzie sprawdzać czy wszystkie pola są uzupełnione jak nie to wpisuje punkty
 
@@ -130,11 +148,16 @@ class DiaryDetailView(LoginRequiredMixin, DetailView):
     model = Diary
 
     def get_object(self, queryset=None):
-        return get_object_or_404(
-            Diary,
-            author__username=self.kwargs.get("username"),
-            pk=int(self.kwargs.get("pk")),
-        )
+        username = self.kwargs.get("username")
+        pk = int(self.kwargs.get("pk"))
+
+        if username == self.request.user.username:
+            return Diary.objects.get(author__username=username, pk=pk)
+        else:
+            instance = Diary.objects.get(author__username=username, pk=pk)
+            if instance.is_hide:
+                return None
+            return instance
 
 
 class DiaryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

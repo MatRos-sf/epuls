@@ -25,6 +25,15 @@ urlpatterns = [
     ),
     path("signup/", signup, name="signup"),
     path(
+        "accounts/edit/",
+        include(
+            [
+                path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
+                path("aboutuser/", AboutUserView.as_view(), name="update-about"),
+            ]
+        ),
+    ),
+    path(
         "<str:username>/",
         include(
             [
@@ -58,15 +67,6 @@ urlpatterns = [
                         ]
                     ),
                 ),
-            ]
-        ),
-    ),
-    path(
-        "accounts/edit/",
-        include(
-            [
-                path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
-                path("aboutuser/", AboutUserView.as_view(), name="update-about"),
             ]
         ),
     ),
