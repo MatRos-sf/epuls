@@ -1,0 +1,14 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            {% for u in object_list %}
+                <ul class="list-group">
+                    <li class="list-group-item">{{ u.username }}</li>
+                </ul>
+            {% empty %}
+                <h1>User is Billy no-mates</h1>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

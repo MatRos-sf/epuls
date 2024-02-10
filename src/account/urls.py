@@ -8,6 +8,7 @@ from .views import (
     DiaryDetailView,
     DiaryListView,
     DiaryUpdateView,
+    FriendsListView,
     GuestbookView,
     ProfileUpdateView,
     ProfileView,
@@ -67,6 +68,7 @@ urlpatterns = [
                         ]
                     ),
                 ),
+                path("friends/", FriendsListView.as_view(), name="friends"),
             ]
         ),
     ),

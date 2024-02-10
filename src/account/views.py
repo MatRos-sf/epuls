@@ -33,7 +33,7 @@ def signup(request) -> HttpResponse:
     return render(request, "account/forms.html", {"form": form, "title": "Sign Up"})
 
 
-class ProfileView(DetailView):
+class ProfileView(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = "account/profile.html"
 
@@ -209,8 +209,11 @@ class DiaryListView(LoginRequiredMixin, ListView):
         return Diary.objects.filter(author=user, is_hide=False)
 
 
-# class FriendsListView(LoginRequiredMixin, ListView):
-#     template_name = "account/friends.html"
-#
-#     def get_queryset(self):
-#         username = self.kwargs.get("username")
+class FriendsListView(LoginRequiredMixin, ListView):
+    template_name = "account/friends.html"
+
+    def get_queryset(self):
+        username = self.kwargs.get("username")
+        user = get_object_or_404(User, username=username)
+
+        return user.profile.friends.all()

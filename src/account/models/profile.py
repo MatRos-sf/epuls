@@ -44,7 +44,9 @@ class Profile(models.Model):
     # voivodeship =
 
     def add_friends(self, friend: User):
-        self.friends.add(friend)
+        if friend.pk != self.pk:
+            self.friends.add(friend)
+
         self.save()
 
     def remove_friends(self, friend: User):
