@@ -35,6 +35,7 @@ class Profile(models.Model):
         AboutUser, on_delete=models.CASCADE, blank=True, null=True
     )
 
+    friends = models.ManyToManyField(User, blank=True, related_name="friends")
     is_confirm = models.BooleanField(default=False)
 
     # xyz = models.CharField(blank=True, null=True)
@@ -42,7 +43,15 @@ class Profile(models.Model):
     # country =
     # voivodeship =
 
-    # mood
+    def add_friends(self, friend: User):
+        if friend.pk != self.pk:
+            self.friends.add(friend)
+
+        self.save()
+
+    def remove_friends(self, friend: User):
+        self.friends.remove(friend)
+        self.save()
 
 
 class Visitor(models.Model):

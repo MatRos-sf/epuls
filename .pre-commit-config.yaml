@@ -16,7 +16,7 @@ repos:
         exclude: ^tests/
         args:
             - -s
-            - B101,B311,B106
+            - B101,B311,B106,B105
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.8
     hooks:

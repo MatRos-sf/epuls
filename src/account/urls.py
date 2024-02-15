@@ -2,12 +2,13 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
 from .views import (
-    AboutUserView,
+    AboutUserUpdateView,
     DiaryCreateView,
     DiaryDeleteView,
     DiaryDetailView,
     DiaryListView,
     DiaryUpdateView,
+    FriendsListView,
     GuestbookView,
     ProfileUpdateView,
     ProfileView,
@@ -24,6 +25,15 @@ urlpatterns = [
         name="logout",
     ),
     path("signup/", signup, name="signup"),
+    path(
+        "accounts/edit/",
+        include(
+            [
+                path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
+                path("aboutuser/", AboutUserUpdateView.as_view(), name="update-about"),
+            ]
+        ),
+    ),
     path(
         "<str:username>/",
         include(
@@ -58,15 +68,7 @@ urlpatterns = [
                         ]
                     ),
                 ),
-            ]
-        ),
-    ),
-    path(
-        "accounts/edit/",
-        include(
-            [
-                path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
-                path("aboutuser/", AboutUserView.as_view(), name="update-about"),
+                path("friends/", FriendsListView.as_view(), name="friends"),
             ]
         ),
     ),
