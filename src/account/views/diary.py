@@ -90,6 +90,7 @@ class DiaryListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         username = self.kwargs.get("username")
+        self.kwargs["username"] = username
         user = get_object_or_404(User, username=username)
         if user == self.request.user:
             return Diary.objects.filter(author=user)

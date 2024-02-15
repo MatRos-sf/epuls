@@ -2,7 +2,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
 from .views import (
-    AboutUserView,
+    AboutUserUpdateView,
     DiaryCreateView,
     DiaryDeleteView,
     DiaryDetailView,
@@ -30,7 +30,7 @@ urlpatterns = [
         include(
             [
                 path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
-                path("aboutuser/", AboutUserView.as_view(), name="update-about"),
+                path("aboutuser/", AboutUserUpdateView.as_view(), name="update-about"),
             ]
         ),
     ),
