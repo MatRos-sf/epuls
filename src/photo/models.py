@@ -1,14 +1,35 @@
 from django.db import models
+from django.utils import timezone
+from PIL import Image
 
 
 class ProfilePictureRequest(models.Model):
-    picture = models.ImageField(upload_to="profile_picture_request")
+    picture = models.ImageField(
+        upload_to="profile_picture_request", verbose_name="profile picture"
+    )
 
     is_accepted = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
 
-    date_accepted = models.DateTimeField(blank=True, null=True)
+    examination_date = models.DateTimeField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs) -> None:
+        super(ProfilePictureRequest, self).save(*args, **kwargs)
+
+        img = Image.open(self.picture.path)
+        if img.height > 300 or img.width > 300:
+            max_size = (300, 300)
+            img.thumbnail(max_size)
+            img.save(self.picture.path)
+
+    def accept(self):
+        self.is_accepted = True
+        self.examination_date = timezone.now()
+
+    def reject(self):
+        self.is_rejected = True
+        self.examination_date = timezone.now()
 
 
 class Gallery(models.Model):
