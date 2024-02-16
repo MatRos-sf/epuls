@@ -39,7 +39,7 @@ class Profile(models.Model):
     is_confirm = models.BooleanField(default=False)
 
     profile_picture = models.ImageField(
-        upload_to="profile_picture", default="default_photo_picture.jpg"
+        upload_to="profile_picture", default="profile_picture/default_photo_picture.jpg"
     )
 
     # xyz = models.CharField(blank=True, null=True)

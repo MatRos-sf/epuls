@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
 
@@ -35,8 +36,15 @@ class ProfilePictureRequest(models.Model):
 
 class Gallery(models.Model):
     name = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
     profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse(
+            "photo:gallery-detail",
+            kwargs={"username": self.profile.user.username, "pk": self.pk},
+        )
 
 
 class Picture(models.Model):

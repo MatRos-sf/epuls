@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import ProfilePictureRequest
+from .models import Gallery, ProfilePictureRequest
 
 
 class ProfilePictureRequestForm(forms.ModelForm):
@@ -14,3 +14,9 @@ class ProfilePictureRequestForm(forms.ModelForm):
     #
     #     if profile:
     #         self.fields['profile'].queryset = profile
+
+
+class GalleryForm(forms.ModelForm):
+    class Meta:
+        model = Gallery
+        fields = ("name", "description")
