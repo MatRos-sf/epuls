@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from photo.models import ProfilePicture
-
 
 class ProfileType(models.TextChoices):
     BASIC = "B", "Basic"
@@ -40,7 +38,9 @@ class Profile(models.Model):
     friends = models.ManyToManyField(User, blank=True, related_name="friends")
     is_confirm = models.BooleanField(default=False)
 
-    profile_picture = models.OneToOneField(ProfilePicture, on_delete=models.CASCADE)
+    profile_picture = models.ImageField(
+        upload_to="profile_picture", default="default_photo_picture.jpg"
+    )
 
     # xyz = models.CharField(blank=True, null=True)
     # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES

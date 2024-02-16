@@ -1,10 +1,8 @@
 from django.db import models
 
 
-class ProfilePicture(models.Model):
-    picture = models.ImageField(
-        upload_to="profile_picture", default="default_photo_picture.jpg"
-    )
+class ProfilePictureRequest(models.Model):
+    picture = models.ImageField(upload_to="profile_picture_request")
 
     is_accepted = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
