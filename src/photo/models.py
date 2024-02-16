@@ -21,6 +21,7 @@ class Picture(models.Model):
     description = models.TextField(max_length=250)
     picture = models.ImageField(upload_to="picture")
     gallery = models.ForeignKey(Gallery, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
 
     # likes
