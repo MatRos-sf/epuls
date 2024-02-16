@@ -1,4 +1,4 @@
-{% extends 'account/base.html' %}
+{% extends "account/base.html" %}
 {% block content %}
     <div class="container">
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
@@ -6,7 +6,7 @@
                 <!-- photo section -->
                 <div class="col-2">
                     <div class="container">
-                        <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?cs=srgb&dl=pexels-mohamed-abdelghaffar-771742.jpg&fm=jpg"
+                        <img src="{{ user.profile.profile_picture.url }}"
                              class="img-thumbnail"
                              alt="..."
                              width="250"
@@ -101,7 +101,9 @@
                     <a type="button"
                        class="btn btn-sm btn-success"
                        href="{% url 'account:update-profile' %}">Edit Profile</a>
-                    <a type="button" class="btn btn-sm btn-success end-0" href="#">Edit Profile Photo</a>
+                    <a type="button"
+                       class="btn btn-sm btn-success end-0"
+                       href="{% url 'photo:profile-picture' %}">Edit Profile Picture</a>
                 </div>
             {% endif %}
         </div>

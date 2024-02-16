@@ -36,7 +36,9 @@
                             <a type="button"
                                class="list-group-item list-group-item-action"
                                href="{% url 'account:friends' menu_user %}">Friends</a>
-                            <button type="button" class="list-group-item list-group-item-action" disabled>Photos</button>
+                            <a type="button"
+                               class="list-group-item list-group-item-action"
+                               href="{% url 'photo:gallery' menu_user %}">Gallery</a>
                             <button type="button" class="list-group-item list-group-item-action" disabled>Friends</button>
                             <button type="button" class="list-group-item list-group-item-action" disabled>kalsy i szkoły</button>
                             <button type="button" class="list-group-item list-group-item-action" disabled>Invite</button>
