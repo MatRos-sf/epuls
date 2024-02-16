@@ -7,7 +7,7 @@ class ProfilePictureRequest(models.Model):
     picture = models.ImageField(
         upload_to="profile_picture_request", verbose_name="profile picture"
     )
-
+    profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     is_accepted = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
 
@@ -17,6 +17,7 @@ class ProfilePictureRequest(models.Model):
     def save(self, *args, **kwargs) -> None:
         super(ProfilePictureRequest, self).save(*args, **kwargs)
 
+        # TODO celery
         img = Image.open(self.picture.path)
         if img.height > 300 or img.width > 300:
             max_size = (300, 300)
