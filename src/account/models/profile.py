@@ -38,6 +38,10 @@ class Profile(models.Model):
     friends = models.ManyToManyField(User, blank=True, related_name="friends")
     is_confirm = models.BooleanField(default=False)
 
+    profile_picture = models.ImageField(
+        upload_to="profile_picture", default="profile_picture/default_photo_picture.jpg"
+    )
+
     # xyz = models.CharField(blank=True, null=True)
     # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES
     # country =

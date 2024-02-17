@@ -7,6 +7,8 @@ from .models.profile import AboutUser, Profile
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
+    # when user is created should also create AboutUser, ProfilePicture
     if created:
         about_user = AboutUser.objects.create()
+
         Profile.objects.create(user=instance, about_me=about_user)

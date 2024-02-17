@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap4",
 ]
 
-INSTALLED_EXTENSIONS = ["account"]
+INSTALLED_EXTENSIONS = ["account", "photo"]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
 
@@ -130,3 +130,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 LOGIN_URL = "/login/"
 # LOGIN_REDIRECT_URL = '/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"

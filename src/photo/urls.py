@@ -1,0 +1,52 @@
+from django.urls import include, path
+
+from .views import (
+    GalleryCreateView,
+    GalleryDetailView,
+    GalleryListView,
+    PictureCreateView,
+    PictureDeleteView,
+    PictureDetailView,
+    PictureUpdateView,
+    PictureView,
+    profile_picture_request,
+)
+
+app_name = "photo"
+
+urlpatterns = [
+    path("profile_picture/", profile_picture_request, name="profile-picture"),
+    path(
+        "gallery/",
+        include(
+            [
+                path("create", GalleryCreateView.as_view(), name="gallery-create"),
+                path(
+                    "<str:username>/",
+                    include(
+                        [
+                            path("", GalleryListView.as_view(), name="gallery"),
+                            path(
+                                "<int:pk>/",
+                                GalleryDetailView.as_view(),
+                                name="gallery-detail",
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        ),
+    ),
+    path("", PictureView.as_view(), name="picture"),
+    path("create/", PictureCreateView.as_view(), name="picture-create"),
+    path(
+        "<int:pk>/",
+        include(
+            [
+                path("", PictureDetailView.as_view(), name="picture-detail"),
+                path("delete/", PictureDeleteView.as_view(), name="picture-delete"),
+                path("update/", PictureUpdateView.as_view(), name="picture-update"),
+            ]
+        ),
+    ),
+]
