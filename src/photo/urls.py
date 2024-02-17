@@ -4,6 +4,11 @@ from .views import (
     GalleryCreateView,
     GalleryDetailView,
     GalleryListView,
+    PictureCreateView,
+    PictureDeleteView,
+    PictureDetailView,
+    PictureUpdateView,
+    PictureView,
     profile_picture_request,
 )
 
@@ -29,6 +34,18 @@ urlpatterns = [
                         ]
                     ),
                 ),
+            ]
+        ),
+    ),
+    path("", PictureView.as_view(), name="picture"),
+    path("create/", PictureCreateView.as_view(), name="picture-create"),
+    path(
+        "<int:pk>/",
+        include(
+            [
+                path("", PictureDetailView.as_view(), name="picture-detail"),
+                path("delete/", PictureDeleteView.as_view(), name="picture-delete"),
+                path("update/", PictureUpdateView.as_view(), name="picture-update"),
             ]
         ),
     ),

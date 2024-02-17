@@ -51,8 +51,13 @@ class Picture(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(max_length=250)
     picture = models.ImageField(upload_to="picture")
-    gallery = models.ForeignKey(Gallery, on_delete=models.CASCADE)
+    gallery = models.ForeignKey(
+        Gallery, on_delete=models.CASCADE, related_name="pictures"
+    )
     profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
 
     # likes
+
+    def get_absolute_url(self):
+        return reverse("photo:picture-detail", kwargs={"pk": self.pk})

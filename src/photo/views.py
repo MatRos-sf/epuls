@@ -2,10 +2,16 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
-from .forms import GalleryForm, ProfilePictureRequestForm
-from .models import Gallery
+from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
+from .models import Gallery, Picture
 
 
 @login_required
@@ -55,3 +61,36 @@ class GalleryListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         username = self.kwargs.get("username")
         return Gallery.objects.filter(profile__user__username=username)
+
+
+# CRUD PHOTO
+class PictureCreateView(LoginRequiredMixin, CreateView):
+    model = Picture
+    template_name = "photo/gallery_form.html"
+    form_class = PictureForm
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.profile = self.request.user.profile
+        return super(PictureCreateView, self).form_valid(form)
+
+
+class PictureUpdateView(LoginRequiredMixin, UpdateView):
+    model = Picture
+    template_name = "photo/gallery_form.html"
+    form_class = PictureForm
+
+
+class PictureDetailView(LoginRequiredMixin, DetailView):
+    model = Picture
+    template_name = "photo/picture/detail.html"
+
+
+class PictureDeleteView(LoginRequiredMixin, DeleteView):
+    model = Picture
+    template_name = "photo"
+
+
+class PictureView(LoginRequiredMixin, ListView):
+    model = Picture
+    template_name = "photo/picture-list.html"

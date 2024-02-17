@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Gallery, ProfilePictureRequest
+from .models import Gallery, Picture, ProfilePictureRequest
 
 
 class ProfilePictureRequestForm(forms.ModelForm):
@@ -20,3 +20,9 @@ class GalleryForm(forms.ModelForm):
     class Meta:
         model = Gallery
         fields = ("name", "description")
+
+
+class PictureForm(forms.ModelForm):
+    class Meta:
+        model = Picture
+        exclude = ("profile", "date_created")

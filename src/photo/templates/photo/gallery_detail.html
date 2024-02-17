@@ -3,6 +3,23 @@
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
         <div class="container overflow-hidden text-center">
             <h1>Gallery Detail</h1>
+            <div class="container px-4 text-center">
+                <div class="row gx-5">
+                    {% for photo in object.pictures.all %}
+                        <div class="col">
+                            <div class="p-3">
+                                <a href="{% url 'photo:picture-detail' photo.pk %}">
+                                    <img src="{{ photo.picture.url }}"
+                                         class="rounded-1"
+                                         width="500"
+                                         height="600"
+                                         alt="picture">
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
