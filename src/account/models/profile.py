@@ -60,14 +60,8 @@ class Profile(models.Model):
         if not self.date_of_birth:
             return
         today = timezone.now().date()
-        return (
-            today.year
-            - self.date_of_birth.year
-            - (
-                (today.month, today.day)
-                < (self.date_of_birth.month, self.date_of_birth.day)
-            )
-        )
+        dob = self.date_of_birth
+        return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
     def add_friends(self, friend: User):
         if friend.pk != self.pk:
