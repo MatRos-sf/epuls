@@ -1,5 +1,8 @@
+from typing import Optional
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
 
@@ -47,6 +50,24 @@ class Profile(models.Model):
     voivodeship = models.CharField(
         choices=VOIVODESHIP_CHOICES, max_length=100, blank=True, null=True
     )
+
+    @property
+    def age(self) -> Optional[int]:
+        """
+        Returns the age of the user.
+        When date_of_birth is empty then return None.
+        """
+        if not self.date_of_birth:
+            return
+        today = timezone.now().date()
+        return (
+            today.year
+            - self.date_of_birth.year
+            - (
+                (today.month, today.day)
+                < (self.date_of_birth.month, self.date_of_birth.day)
+            )
+        )
 
     def add_friends(self, friend: User):
         if friend.pk != self.pk:
