@@ -60,8 +60,12 @@
                         {{ object.username }}
                     </h4>
                     <p class="mt-1">{{ object.profile.age }} years old!</p>
-                    <p class="mb-1">Country</p>
-                    <p class="mt-1">voivodeship</p>
+                    <!-- TODO Country section <p class="mb-1">Country</p> -->
+                    <p>
+                        Poland
+                        {% if object.profile.voivodeship %}> {{ object.profile.voivodeship }}{% endif %}
+                    </p>
+                    <!-- TODO city <p class="mt-1">voivodeship</p> -->
                     <p>
                         <b>Action: </b>
                     </p>

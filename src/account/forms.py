@@ -26,10 +26,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = (
-            "date_of_birth",
-            "short_description",
-        )
+        fields = ("date_of_birth", "short_description", "voivodeship")
 
 
 class AboutUserForm(forms.ModelForm):

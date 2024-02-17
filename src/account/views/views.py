@@ -2,10 +2,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
 from account.forms import GuestbookUserForm, UserSignupForm
 from account.models import Guestbook, Profile, Visitor
+from action.models import Action, ActionMessage
 
 
 def signup(request) -> HttpResponse:
@@ -30,6 +32,36 @@ class ProfileView(LoginRequiredMixin, DetailView):
             # user is Visitor
             Visitor.objects.create(visitor=self.request.user, receiver=user_instance)
         return user_instance
+
+    def __action(self) -> None:
+        username = self.kwargs.get("username")
+        whom = User.objects.get(username=username)
+        is_own_action = self.request.user == whom
+        action = (
+            ActionMessage.OWN_PROFILE if is_own_action else ActionMessage.SB_PROFILE
+        )
+
+        last_action = Action.objects.filter(who=self.request.user).first()
+
+        if not last_action or (
+            last_action.action != ActionMessage.OWN_PROFILE
+            or last_action.action != ActionMessage.SB_PROFILE
+        ):
+            Action.objects.create(
+                who=self.request.user,
+                action=action,
+                whom=whom if is_own_action else None,
+            )
+        elif last_action.action == action:
+            last_action.date = timezone.now()
+            last_action.save(update_fields=["date"])
+        else:
+            Action.objects.create(who=self.request.user, whom=whom, action=action)
+
+    def get(self, request, *args, **kwargs):
+        # ???
+        self.__action()
+        return super(ProfileView, self).get(request, *args, **kwargs)
 
 
 class GuestbookView(LoginRequiredMixin, ListView):
