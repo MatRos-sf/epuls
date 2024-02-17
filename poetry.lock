@@ -147,6 +147,21 @@ docs = ["furo (>=2021.8.17b43,<2021.9.dev0)", "sphinx (>=3.5.0)", "sphinx-notfou
 testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)"]
 
 [[package]]
+name = "django-localflavor"
+version = "4.0"
+description = "Country-specific Django helpers"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-localflavor-4.0.tar.gz", hash = "sha256:11859e522dba74aa6dde5a659242b1fbc5efb4dea08e9b77315402bdeca5194e"},
+    {file = "django_localflavor-4.0-py3-none-any.whl", hash = "sha256:7a5b1df03ca8e10df9d1b3c2e4314e43383067868183cdf41ab4e7a973694a8b"},
+]
+
+[package.dependencies]
+django = ">=3.2"
+python-stdnum = ">=1.6"
+
+[[package]]
 name = "factory-boy"
 version = "3.3.0"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
@@ -292,6 +307,22 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-stdnum"
+version = "1.19"
+description = "Python module to handle standardized numbers and codes"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-stdnum-1.19.tar.gz", hash = "sha256:133ec82f56390ea74c190569e98f2fb14b869808b1d54785708f22d0fead8b3f"},
+    {file = "python_stdnum-1.19-py2.py3-none-any.whl", hash = "sha256:1b5b401ad3f45b798b0317313b781a433f5d7a5ff2c9feb8054664f76f78644e"},
+]
+
+[package.extras]
+soap = ["zeep"]
+soap-alt = ["suds"]
+soap-fallback = ["PySimpleSOAP"]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -343,4 +374,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "89533cb83a29cbeb2e5e7b2b5808e13374d0e1b82ab37800cff43fab0f17e11e"
+content-hash = "4e3d47702913e1bc9fc764a4ae2d5b6e261cd3bf2f1b56023a021fda1b79420c"

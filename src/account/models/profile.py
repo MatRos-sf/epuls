@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
 
 class ProfileType(models.TextChoices):
@@ -42,10 +43,10 @@ class Profile(models.Model):
         upload_to="profile_picture", default="profile_picture/default_photo_picture.jpg"
     )
 
-    # xyz = models.CharField(blank=True, null=True)
-    # https://django-localflavor.readthedocs.io/en/latest/localflavor/pl/#localflavor.pl.pl_voivodeships.VOIVODESHIP_CHOICES
-    # country =
-    # voivodeship =
+    # country = models.CharField(max_length=)
+    voivodeship = models.CharField(
+        choices=VOIVODESHIP_CHOICES, max_length=100, blank=True, null=True
+    )
 
     def add_friends(self, friend: User):
         if friend.pk != self.pk:
