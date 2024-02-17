@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap4",
 ]
 
-INSTALLED_EXTENSIONS = ["account", "photo"]
+INSTALLED_EXTENSIONS = ["account", "action", "photo"]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
 
