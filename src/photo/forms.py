@@ -23,6 +23,15 @@ class GalleryForm(forms.ModelForm):
 
 
 class PictureForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop("user", None)
+        super(PictureForm, self).__init__(*args, **kwargs)
+
+        if user:
+            self.fields["gallery"].queryset = Gallery.objects.filter(
+                profile=user.profile
+            )
+
     class Meta:
         model = Picture
         exclude = ("profile", "date_created")

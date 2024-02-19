@@ -25,6 +25,9 @@ class ProfileView(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = "account/profile.html"
 
+    def __get_user_for_path(self):
+        return self.kwargs.get("username", None)
+
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
         user_instance = get_object_or_404(User, username=username)
@@ -33,25 +36,29 @@ class ProfileView(LoginRequiredMixin, DetailView):
             Visitor.objects.create(visitor=self.request.user, receiver=user_instance)
         return user_instance
 
-    def __action(self) -> None:
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context["action"] = Action.objects.filter(
+            who__username=self.__get_user_for_path()
+        ).first()
+        return context
+
+    def __action(self, activity: str = "PROFILE") -> None:
         username = self.kwargs.get("username")
         whom = User.objects.get(username=username)
         is_own_action = self.request.user == whom
+        if is_own_action:
+            whom = None
         action = (
-            ActionMessage.OWN_PROFILE if is_own_action else ActionMessage.SB_PROFILE
+            getattr(ActionMessage, f"OWN_{activity}")
+            if is_own_action
+            else getattr(ActionMessage, f"SB_{activity}")
         )
 
         last_action = Action.objects.filter(who=self.request.user).first()
 
-        if not last_action or (
-            last_action.action != ActionMessage.OWN_PROFILE
-            or last_action.action != ActionMessage.SB_PROFILE
-        ):
-            Action.objects.create(
-                who=self.request.user,
-                action=action,
-                whom=whom if is_own_action else None,
-            )
+        if not last_action:
+            Action.objects.create(who=self.request.user, action=action, whom=whom)
         elif last_action.action == action:
             last_action.date = timezone.now()
             last_action.save(update_fields=["date"])
@@ -59,9 +66,11 @@ class ProfileView(LoginRequiredMixin, DetailView):
             Action.objects.create(who=self.request.user, whom=whom, action=action)
 
     def get(self, request, *args, **kwargs):
-        # ???
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
         self.__action()
-        return super(ProfileView, self).get(request, *args, **kwargs)
+
+        return self.render_to_response(context)
 
 
 class GuestbookView(LoginRequiredMixin, ListView):

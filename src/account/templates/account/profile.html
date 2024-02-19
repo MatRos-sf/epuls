@@ -1,4 +1,5 @@
 {% extends "account/base.html" %}
+{% load action_tags %}
 {% block content %}
     <div class="container">
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
@@ -66,9 +67,7 @@
                         {% if object.profile.voivodeship %}> {{ object.profile.voivodeship }}{% endif %}
                     </p>
                     <!-- TODO city <p class="mt-1">voivodeship</p> -->
-                    <p>
-                        <b>Action: </b>
-                    </p>
+                    <p>{% action_tag action %}</p>
                 </div>
                 <div class="col-5">
                     <div class="text-end">

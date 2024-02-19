@@ -69,6 +69,11 @@ class PictureCreateView(LoginRequiredMixin, CreateView):
     template_name = "photo/gallery_form.html"
     form_class = PictureForm
 
+    def get_form_kwargs(self):
+        kwargs = super(PictureCreateView, self).get_form_kwargs()
+        kwargs.update({"user": self.request.user})
+        return kwargs
+
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.profile = self.request.user.profile
