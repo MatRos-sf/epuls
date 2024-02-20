@@ -13,6 +13,7 @@
                              width="250"
                              height="350">
                         <!-- section 'zaczepka' -->
+                        <!-- TODO implement zaczepki -->
                         <div class="btn-group m-2" role="group" aria-label="Basic example">
                             <button type="button" class="btn btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -74,13 +75,13 @@
                         <h5 class="mb-1">Puls</h5>
                         <h4 class="mt-1 mb-3">0</h4>
                         <p class="mb-1">
-                            <b>Ostatnio online:</b>
+                            <b>Last seen online:</b>
                         </p>
-                        <p class="mt-1">Dziś 07:54</p>
+                        <p class="mt-1">{{ object.last_login|date:"jS N" }}</p>
                         <p class="mb-1">
-                            <b>Na epulsie od:</b>
+                            <b>With us:</b>
                         </p>
-                        <p class="mt-1">2008-01-09</p>
+                        <p class="mt-1">{{ object.date_joined|date:"Y-m-d" }}</p>
                         <p class="mb-1">
                             <b>Razy na epulsie:</b>
                         </p>
