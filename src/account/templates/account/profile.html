@@ -1,4 +1,5 @@
 {% extends "account/base.html" %}
+{% load custom_tags %}
 {% load action_tags %}
 {% block content %}
     <div class="container">
@@ -96,7 +97,7 @@
                         <h5 class="m-2" style="color: #fcc39e">Describe:</h5>
                     </div>
                     <div class="col-11">
-                        <h5 class="fs-6 m-2" style="color: white">Wbijać hehehe</h5>
+                        <h5 class="fs-6 m-2" style="color: white">{{ object.profile.short_description }}</h5>
                     </div>
                 </div>
             </div>
@@ -112,62 +113,64 @@
             {% endif %}
         </div>
         <!-- section about -->
-        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-            <div class="container overflow-hidden text-start">
-                <h1 class="text-start">About me</h1>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">height:</p>
-                            <p class="mt-1">...</p>
+        {% with about=object.profile.about_me %}
+            <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+                <div class="container overflow-hidden text-start">
+                    <h1 class="text-start">About me</h1>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">height:</p>
+                                <p class="mt-1">{% get_about about.height %}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1 fw-bold">weight:</p>
+                            <p class="mt-1">{% get_about about.weight %}</p>
                         </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-1 fw-bold">weight:</p>
-                        <p class="mt-1">...</p>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">politics:</p>
-                            <p class="mt-1">...</p>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">politics:</p>
+                                <p class="mt-1">{% get_about about.politics %}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1 fw-bold">dish:</p>
+                            <p class="mt-1">{% get_about about.dish %}</p>
                         </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-1 fw-bold">dish:</p>
-                        <p class="mt-1">...</p>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">film:</p>
-                            <p class="mt-1">...</p>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">film:</p>
+                                <p class="mt-1">{% get_about about.film %}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1 fw-bold">song:</p>
+                            <p class="mt-1">{% get_about about.song %}</p>
                         </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-1 fw-bold">song:</p>
-                        <p class="mt-1">...</p>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">idol:</p>
-                            <p class="mt-1">...</p>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">idol:</p>
+                                <p class="mt-1">{% get_about about.idol %}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% if user != object.user %}
+                    <div class="container text-end m-1">
+                        <a type="button"
+                           class="btn btn-sm btn-success"
+                           href="{% url 'account:update-about' %}">Edit About</a>
+                    </div>
+                {% endif %}
             </div>
-            {% if user != object.user %}
-                <div class="container text-end m-1">
-                    <a type="button"
-                       class="btn btn-sm btn-success"
-                       href="{% url 'account:update-about' %}">Edit About</a>
-                </div>
-            {% endif %}
-        </div>
+        {% endwith %}
         <!-- section presentation -->
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
             <div>

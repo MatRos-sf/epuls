@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import UpdateView
@@ -28,14 +27,14 @@ class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     extra_context = {"title": "Update Profile", "action": "Save"}
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, username=self.request.user.username)
+        return get_object_or_404(Profile, user=self.request.user)
 
     def get_success_url(self):
-        user = self.get_object()
-        return reverse("account:profile", kwargs={"username": user.username})
+        profile = self.get_object()
+        return reverse("account:profile", kwargs={"username": profile.user.username})
 
     def test_func(self):
-        return self.get_object().username == self.request.user.username
+        return self.get_object().user == self.request.user
 
     def handle_no_permission(self):
         return JsonResponse(
@@ -48,16 +47,18 @@ class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "account/forms.html"
     model = AboutUser
     form_class = AboutUserForm
-    extra_context = {"title": "About User"}
+    extra_context = {"title": "About User", "action": "Save"}
 
     def get_object(self, queryset=None):
-        return get_object_or_404(User, username=self.request.user.username)
+        return get_object_or_404(AboutUser, profile__user=self.request.user)
 
     def get_success_url(self):
-        return self.get_object()
+        instance_owner = self.get_object().profile.user.username
+        return reverse("account:profile", kwargs={"username": instance_owner})
 
     def test_func(self):
-        return self.get_object().username == self.request.user.username
+        instance_owner = self.get_object().profile.user
+        return instance_owner == self.request.user
 
     def handle_no_permission(self):
         return JsonResponse(
