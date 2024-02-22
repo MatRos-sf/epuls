@@ -1,4 +1,6 @@
 {% extends "account/base.html" %}
+{% load custom_tags %}
+{% load action_tags %}
 {% block content %}
     <div class="container">
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
@@ -12,6 +14,7 @@
                              width="250"
                              height="350">
                         <!-- section 'zaczepka' -->
+                        <!-- TODO implement zaczepki -->
                         <div class="btn-group m-2" role="group" aria-label="Basic example">
                             <button type="button" class="btn btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -59,25 +62,27 @@
                         </svg>
                         {{ object.username }}
                     </h4>
-                    <p class="mt-1">{{ object.profile.date_of_birth }}</p>
-                    <p class="mb-1">Country</p>
-                    <p class="mt-1">voivodeship</p>
+                    <p class="mt-1">{{ object.profile.age }} years old!</p>
+                    <!-- TODO Country section <p class="mb-1">Country</p> -->
                     <p>
-                        <b>Action: </b>
+                        Poland
+                        {% if object.profile.voivodeship %}> {{ object.profile.voivodeship }}{% endif %}
                     </p>
+                    <!-- TODO city <p class="mt-1">voivodeship</p> -->
+                    <p>{% action_tag action %}</p>
                 </div>
                 <div class="col-5">
                     <div class="text-end">
                         <h5 class="mb-1">Puls</h5>
                         <h4 class="mt-1 mb-3">0</h4>
                         <p class="mb-1">
-                            <b>Ostatnio online:</b>
+                            <b>Last seen online:</b>
                         </p>
-                        <p class="mt-1">Dziś 07:54</p>
+                        <p class="mt-1">{{ object.last_login|date:"jS N" }}</p>
                         <p class="mb-1">
-                            <b>Na epulsie od:</b>
+                            <b>With us:</b>
                         </p>
-                        <p class="mt-1">2008-01-09</p>
+                        <p class="mt-1">{{ object.date_joined|date:"Y-m-d" }}</p>
                         <p class="mb-1">
                             <b>Razy na epulsie:</b>
                         </p>
@@ -92,7 +97,7 @@
                         <h5 class="m-2" style="color: #fcc39e">Describe:</h5>
                     </div>
                     <div class="col-11">
-                        <h5 class="fs-6 m-2" style="color: white">Wbijać hehehe</h5>
+                        <h5 class="fs-6 m-2" style="color: white">{{ object.profile.short_description }}</h5>
                     </div>
                 </div>
             </div>
@@ -108,62 +113,64 @@
             {% endif %}
         </div>
         <!-- section about -->
-        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-            <div class="container overflow-hidden text-start">
-                <h1 class="text-start">About me</h1>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">height:</p>
-                            <p class="mt-1">...</p>
+        {% with about=object.profile.about_me %}
+            <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+                <div class="container overflow-hidden text-start">
+                    <h1 class="text-start">About me</h1>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">height:</p>
+                                <p class="mt-1">{% get_about about.height %}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1 fw-bold">weight:</p>
+                            <p class="mt-1">{% get_about about.weight %}</p>
                         </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-1 fw-bold">weight:</p>
-                        <p class="mt-1">...</p>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">politics:</p>
-                            <p class="mt-1">...</p>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">politics:</p>
+                                <p class="mt-1">{% get_about about.politics %}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1 fw-bold">dish:</p>
+                            <p class="mt-1">{% get_about about.dish %}</p>
                         </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-1 fw-bold">dish:</p>
-                        <p class="mt-1">...</p>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">film:</p>
-                            <p class="mt-1">...</p>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">film:</p>
+                                <p class="mt-1">{% get_about about.film %}</p>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <p class="mb-1 fw-bold">song:</p>
+                            <p class="mt-1">{% get_about about.song %}</p>
                         </div>
                     </div>
-                    <div class="col">
-                        <p class="mb-1 fw-bold">song:</p>
-                        <p class="mt-1">...</p>
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col">
-                        <div class="p-1">
-                            <p class="mb-1 fw-bold">idol:</p>
-                            <p class="mt-1">...</p>
+                    <div class="row g-2">
+                        <div class="col">
+                            <div class="p-1">
+                                <p class="mb-1 fw-bold">idol:</p>
+                                <p class="mt-1">{% get_about about.idol %}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% if user != object.user %}
+                    <div class="container text-end m-1">
+                        <a type="button"
+                           class="btn btn-sm btn-success"
+                           href="{% url 'account:update-about' %}">Edit About</a>
+                    </div>
+                {% endif %}
             </div>
-            {% if user != object.user %}
-                <div class="container text-end m-1">
-                    <a type="button"
-                       class="btn btn-sm btn-success"
-                       href="{% url 'account:update-about' %}">Edit About</a>
-                </div>
-            {% endif %}
-        </div>
+        {% endwith %}
         <!-- section presentation -->
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
             <div>

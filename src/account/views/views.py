@@ -2,10 +2,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.generic import DetailView, ListView
 
 from account.forms import GuestbookUserForm, UserSignupForm
 from account.models import Guestbook, Profile, Visitor
+from action.models import Action, ActionMessage
 
 
 def signup(request) -> HttpResponse:
@@ -23,6 +25,9 @@ class ProfileView(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = "account/profile.html"
 
+    def __get_user_for_path(self):
+        return self.kwargs.get("username", None)
+
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
         user_instance = get_object_or_404(User, username=username)
@@ -30,6 +35,42 @@ class ProfileView(LoginRequiredMixin, DetailView):
             # user is Visitor
             Visitor.objects.create(visitor=self.request.user, receiver=user_instance)
         return user_instance
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context["action"] = Action.objects.filter(
+            who__username=self.__get_user_for_path()
+        ).first()
+        return context
+
+    def __action(self, activity: str = "PROFILE") -> None:
+        username = self.kwargs.get("username")
+        whom = User.objects.get(username=username)
+        is_own_action = self.request.user == whom
+        if is_own_action:
+            whom = None
+        action = (
+            getattr(ActionMessage, f"OWN_{activity}")
+            if is_own_action
+            else getattr(ActionMessage, f"SB_{activity}")
+        )
+
+        last_action = Action.objects.filter(who=self.request.user).first()
+
+        if not last_action:
+            Action.objects.create(who=self.request.user, action=action, whom=whom)
+        elif last_action.action == action:
+            last_action.date = timezone.now()
+            last_action.save(update_fields=["date"])
+        else:
+            Action.objects.create(who=self.request.user, whom=whom, action=action)
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        self.__action()
+
+        return self.render_to_response(context)
 
 
 class GuestbookView(LoginRequiredMixin, ListView):
