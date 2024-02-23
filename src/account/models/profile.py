@@ -5,6 +5,8 @@ from django.db import models
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
+from puls.models import Puls
+
 
 class ProfileType(models.TextChoices):
     BASIC = "B", "Basic"
@@ -50,6 +52,8 @@ class Profile(models.Model):
     voivodeship = models.CharField(
         choices=VOIVODESHIP_CHOICES, max_length=100, blank=True, null=True
     )
+
+    puls = models.OneToOneField(Puls, models.CASCADE, blank=True, null=True)
 
     @property
     def age(self) -> Optional[int]:
