@@ -1,0 +1,35 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="container">
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+            <h1 class="display-1">Welcome to the Epuls</h1>
+            <p class="fs-6">
+                EPULS is a portal filling an entertaining gap in the Polish internet space. It is continuously created with passion by young people and is aimed at everyone, regardless of age or beliefs.
+            </p>
+            <p class="fs-6">
+                With EPULS, you will experience love, tears, sorrows, and joys of life. We avoid artificiality, and that's one of the reasons why we are a friendly service.
+            </p>
+            <p>
+                Get to know us... We are already over 80 thousand strong, and thanks to people like you, we continue to grow in strength.
+            </p>
+            <p>The network pulsates with OUR pulse. Don't be a "vein"...</p>
+            <a href="{% url 'account:signup' %}"
+               class="display-3 text-decoration-none">JOIN US!</a>
+        </div>
+        <!-- TODO: ostatnio zalogowani m/k i top 3 -->
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+            <div class="row">
+                <h1>Recently logged</h1>
+                {% for u in recently_login_users %}
+                    <div class="col text-center">
+                        <img src="{{ u.profile.profile_picture.url }}"
+                             class="img-thumbnail"
+                             alt="..."
+                             width="250"
+                             height="350">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

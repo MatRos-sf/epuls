@@ -3,11 +3,23 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View
 
 from account.forms import GuestbookUserForm, UserSignupForm
 from account.models import Guestbook, Profile, Visitor
 from action.models import Action, ActionMessage
+
+
+class HomeView(View):
+    def get(self, request):
+        recently_login_users = User.objects.all().order_by("-last_login")[:5]
+
+        # TODO: recently_login_women, recently_login_man, rag 3
+        new_users = User.objects.all().order_by("-date_joined")[:5]
+
+        context = {"recently_login_users": recently_login_users, "new_users": new_users}
+
+        return render(request, "account/home.html", context)
 
 
 def signup(request) -> HttpResponse:

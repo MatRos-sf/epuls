@@ -10,6 +10,7 @@ from .views import (
     DiaryUpdateView,
     FriendsListView,
     GuestbookView,
+    HomeView,
     ProfileUpdateView,
     ProfileView,
     signup,
@@ -18,6 +19,7 @@ from .views import (
 app_name = "account"
 
 urlpatterns = [
+    path("", HomeView.as_view(), name="home"),
     path("login/", LoginView.as_view(template_name="account/login.html"), name="login"),
     path(
         "logout/",
