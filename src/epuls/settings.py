@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "localflavor",
     "crispy_forms",
     "crispy_bootstrap4",
+    "django_extensions",
 ]
 
 INSTALLED_EXTENSIONS = ["account", "puls", "action", "photo"]
@@ -120,6 +121,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 

@@ -83,6 +83,9 @@ class Profile(models.Model):
         self.friends.remove(friend)
         self.save()
 
+    def __str__(self):
+        return f"{self.user.username}"
+
 
 class Visitor(models.Model):
     date_of_visit = models.DateTimeField(auto_now_add=True)

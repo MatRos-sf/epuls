@@ -11,6 +11,7 @@ from action.models import Action, ActionMessage
 
 
 class HomeView(View):
+    # TODO: login here
     def get(self, request):
         recently_login_users = User.objects.all().order_by("-last_login")[:5]
 
