@@ -39,6 +39,14 @@ class Puls(models.Model):
             "schools": self.schools,
         }
 
+    @property
+    def sum_constant_value(self) -> int:
+        return int(sum([p for p in self.constant_value().values()]))
+
+    @property
+    def sum_variable_value(self):
+        return int(sum([p for p in self.variable_value().values()]))
+
     def variable_value(self) -> dict:
         """
         Returns dictionary with fields that the Puls is variable.
@@ -57,6 +65,6 @@ class Puls(models.Model):
         Returns sum of Puls. I mean all fields and round it to integer
         :return:
         """
-        constant_value = sum([p for p in self.constant_value().values()])
-        variable_value = sum([p for p in self.variable_value().values()])
+        constant_value = self.sum_constant_value
+        variable_value = self.sum_variable_value
         return int(sum([constant_value, variable_value]))
