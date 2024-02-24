@@ -17,6 +17,7 @@ class Puls(models.Model):
     guestbooks = models.FloatField(
         default=0, help_text="PLUS for entres to guestbooks."
     )
+    messages = models.IntegerField(default=0, help_text="PULS for amount messages.")
     diaries = models.FloatField(default=0, help_text="PLUS for entres to diaries.")
     surfing = models.FloatField(default=0, help_text="PLUS for surfint the Epuls.")
     activity = models.FloatField(
