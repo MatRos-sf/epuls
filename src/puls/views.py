@@ -1,3 +1,10 @@
-# from django.shortcuts import render
+from django.views.generic.detail import DetailView
 
-# Create your views here.
+from .models import Puls
+
+
+class PulsDetailView(DetailView):
+    model = Puls
+    template_name = "puls/detail.html"
+    slug_field = "profile__user__username"
+    slug_url_kwarg = "username"
