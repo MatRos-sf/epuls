@@ -2,28 +2,28 @@ from django.db import models
 
 
 class Puls(models.Model):
-    profile_photo = models.FloatField(
+    profile_photo = models.IntegerField(
         default=0, help_text="PLUS for accepted profile photo."
     )
-    about_me = models.FloatField(
+    about_me = models.IntegerField(
         default=0, help_text="PLUS for fill the section 'about me' in."
     )
-    presentation = models.FloatField(
+    presentation = models.IntegerField(
         default=0, help_text="PLUS for fill own presentation in."
     )
-    schools = models.FloatField(default=0, help_text="PLUS for fill schools in.")
+    schools = models.IntegerField(default=0, help_text="PLUS for fill schools in.")
 
-    logins = models.FloatField(default=0, help_text="PLUS for log in to the server.")
+    logins = models.IntegerField(default=0, help_text="PLUS for log in to the server.")
     guestbooks = models.FloatField(
         default=0, help_text="PLUS for entres to guestbooks."
     )
     messages = models.IntegerField(default=0, help_text="PULS for amount messages.")
-    diaries = models.FloatField(default=0, help_text="PLUS for entres to diaries.")
-    surfing = models.FloatField(default=0, help_text="PLUS for surfint the Epuls.")
-    activity = models.FloatField(
+    diaries = models.IntegerField(default=0, help_text="PLUS for entres to diaries.")
+    surfing = models.IntegerField(default=0, help_text="PLUS for surfint the Epuls.")
+    activity = models.IntegerField(
         default=0, help_text="PLUS for other different activities."
     )
-    type = models.FloatField(
+    type = models.IntegerField(
         default=0,
         help_text="PLUS for type of account: Pro/Extrime/Divine. Once a month.",
     )
