@@ -9,7 +9,7 @@ from .models.profile import AboutUser, Profile
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):
-    # when user is created should also create AboutUser, ProfilePicture
+    # when user is created should also create AboutUser, Puls
     if created:
         about_user = AboutUser.objects.create()
         puls = Puls.objects.create()

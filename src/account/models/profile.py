@@ -15,6 +15,11 @@ class ProfileType(models.TextChoices):
     DIVINE = "D", "Divine"
 
 
+class Gender(models.TextChoices):
+    MALE = "M", "Male"
+    FEMALE = "F", "Female"
+
+
 class AboutUser(models.Model):
     height = models.CharField(max_length=50, blank=True, null=True)
     weight = models.CharField(max_length=50, blank=True, null=True)
@@ -27,6 +32,7 @@ class AboutUser(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gender = models.TextField(choices=Gender.choices, default=Gender.MALE)
     date_of_birth = models.DateField(blank=True, null=True)
 
     short_description = models.TextField(blank=True, null=True, max_length=100)

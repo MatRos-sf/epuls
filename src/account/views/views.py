@@ -27,8 +27,14 @@ def signup(request) -> HttpResponse:
     if request.method == "POST":
         form = UserSignupForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect("login")
+            gender = form.cleaned_data.pop("gender")
+            instance = form.save()
+            # set a gender
+            profile = instance.profile
+            profile.gender = gender
+            profile.save()
+
+            return redirect("account:login")
 
     return render(request, "account/forms.html", {"form": form, "title": "Sign Up"})
 
