@@ -5,12 +5,19 @@ from django.db import models
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
+from puls.models import Puls
+
 
 class ProfileType(models.TextChoices):
     BASIC = "B", "Basic"
     PRO = "P", "Pro"
     XTREME = "X", "Xtreme"
     DIVINE = "D", "Divine"
+
+
+class Gender(models.TextChoices):
+    MALE = "M", "Male"
+    FEMALE = "F", "Female"
 
 
 class AboutUser(models.Model):
@@ -25,6 +32,7 @@ class AboutUser(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gender = models.TextField(choices=Gender.choices, default=Gender.MALE)
     date_of_birth = models.DateField(blank=True, null=True)
 
     short_description = models.TextField(blank=True, null=True, max_length=100)
@@ -51,6 +59,8 @@ class Profile(models.Model):
         choices=VOIVODESHIP_CHOICES, max_length=100, blank=True, null=True
     )
 
+    puls = models.OneToOneField(Puls, models.CASCADE, blank=True, null=True)
+
     @property
     def age(self) -> Optional[int]:
         """
@@ -72,6 +82,9 @@ class Profile(models.Model):
     def remove_friends(self, friend: User):
         self.friends.remove(friend)
         self.save()
+
+    def __str__(self):
+        return f"{self.user.username}"
 
 
 class Visitor(models.Model):

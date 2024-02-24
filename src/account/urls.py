@@ -1,6 +1,8 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
+from puls.views import PulsDetailView
+
 from .views import (
     AboutUserUpdateView,
     DiaryCreateView,
@@ -71,6 +73,7 @@ urlpatterns = [
                     ),
                 ),
                 path("friends/", FriendsListView.as_view(), name="friends"),
+                path("puls/", PulsDetailView.as_view(), name="puls"),
             ]
         ),
     ),

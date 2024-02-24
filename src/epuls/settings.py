@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     "localflavor",
     "crispy_forms",
     "crispy_bootstrap4",
+    "django_extensions",
 ]
 
-INSTALLED_EXTENSIONS = ["account", "action", "photo"]
+INSTALLED_EXTENSIONS = ["account", "puls", "action", "photo"]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
 
@@ -120,6 +121,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 
@@ -130,7 +132,7 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 LOGIN_URL = "/login/"
-# LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"

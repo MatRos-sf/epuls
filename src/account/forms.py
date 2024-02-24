@@ -4,15 +4,16 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import AboutUser, Diary, Guestbook, Profile
+from .models import AboutUser, Diary, Gender, Guestbook, Profile
 
 
 class UserSignupForm(UserCreationForm):
     email = forms.EmailField()
+    gender = forms.ChoiceField(choices=Gender)
 
     class Meta:
         model = User
-        fields = ["username", "email", "password1", "password2"]
+        fields = ["username", "gender", "email", "password1", "password2"]
 
 
 class ProfileForm(forms.ModelForm):

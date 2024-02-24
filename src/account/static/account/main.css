@@ -2,3 +2,14 @@
   background-color: green;
   color: white; /* opcjonalnie, aby tekst był czytelny na zielonym tle */
 }
+
+.green-line {
+    border-top: 2px dotted green;
+}
+
+.epuls-style-text {
+    text-transform: uppercase;
+    color: orange;
+    text-shadow: 1px 1px 1px white, -1px -1px 1px white, 1px -1px 1px white, -1px 1px 1px white;
+    font-weight: bold;
+}
