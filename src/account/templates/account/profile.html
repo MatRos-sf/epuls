@@ -66,7 +66,7 @@
                     <!-- TODO Country section <p class="mb-1">Country</p> -->
                     <p>
                         Poland
-                        {% if object.profile.voivodeship %}> {{ object.profile.voivodeship }}{% endif %}
+                        {% if object.profile.voivodeship %}> {{ object.profile.voivodeship|title }}{% endif %}
                     </p>
                     <!-- TODO city <p class="mt-1">voivodeship</p> -->
                     <p>{% action_tag action %}</p>

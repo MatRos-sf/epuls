@@ -9,7 +9,10 @@ from django.utils.html import SafeString, format_html
 register = template.Library()
 
 
-MESSAGE_OWN_PROFILE = ("He is checking his reflection!", "He is browsing his profile!")
+MESSAGE_OWN_PROFILE = (
+    "{gender} is checking his reflection!",
+    "He is browsing his profile!",
+)
 MESSAGE_DISAPPEARED = (
     "The trace of him disappeared!",
     "Has anyone seen, has anyone known where user is?",
