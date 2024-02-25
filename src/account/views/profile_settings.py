@@ -1,23 +1,16 @@
-from http import HTTPStatus
-
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import UpdateView
 
 from account.forms import AboutUserForm, ProfileForm
 from account.models import AboutUser, Profile
+from puls.models import PulsType, SinglePuls
+from puls.scaler import scale_puls
 
 
 class UserSettings(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.get_object().username == self.request.user.username
-
-    def handle_no_permission(self):
-        return JsonResponse(
-            {"message": "You do not have permission to update this user."},
-            status=HTTPStatus.FORBIDDEN,
-        )
 
 
 class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -36,12 +29,6 @@ class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         return self.get_object().user == self.request.user
 
-    def handle_no_permission(self):
-        return JsonResponse(
-            {"message": "You do not have permission to update this user."},
-            status=HTTPStatus.FORBIDDEN,
-        )
-
 
 class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "account/forms.html"
@@ -53,17 +40,21 @@ class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return get_object_or_404(AboutUser, profile__user=self.request.user)
 
     def get_success_url(self):
-        instance_owner = self.get_object().profile.user.username
-        return reverse("account:profile", kwargs={"username": instance_owner})
+        instance_owner = self.get_object().profile
+        self.__give_puls(instance_owner, "about_me")
+        return reverse(
+            "account:profile", kwargs={"username": instance_owner.user.username}
+        )
 
     def test_func(self):
         instance_owner = self.get_object().profile.user
         return instance_owner == self.request.user
 
-    def handle_no_permission(self):
-        return JsonResponse(
-            {"message": "You do not have permission to update this user."},
-            status=HTTPStatus.FORBIDDEN,
-        )
+    def __give_puls(self, model: Profile, name_attr: str) -> None:
+        instance = getattr(model, name_attr)
+        if instance.is_set():
+            if not model.puls.check_is_value_set(name_attr):
+                puls_type = getattr(PulsType, name_attr.upper())
+                qnt = scale_puls(puls_type)
 
-    # TODO tutaj będzie sprawdzać czy wszystkie pola są uzupełnione jak nie to wpisuje punkty
+                SinglePuls.objects.create(puls=model.puls, type=puls_type, quantity=qnt)

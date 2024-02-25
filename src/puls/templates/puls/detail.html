@@ -34,19 +34,31 @@
                     <h1 class="fs-3 green" style="color: green;">Constant Value</h1>
                     <div class="row">
                         <div class="col text-start">Accepted profile photo</div>
-                        <div class="col text-end fw-bold">{{ object.profile_photo }}</div>
+                        <div class="col-1 text-end">
+                            {% if pulses.profile_photo %}(+{{ pulses.profile_photo }}){% endif %}
+                        </div>
+                        <div class="col-1 text-end fw-bold">{{ object.profile_photo }}</div>
                     </div>
                     <div class="row">
                         <div class="col text-start">Personality</div>
-                        <div class="col text-end fw-bold">{{ object.about_me }}</div>
+                        <div class="col-1 text-end">
+                            {% if pulses.about_me %}(+{{ pulses.about_me }}){% endif %}
+                        </div>
+                        <div class="col-1 text-end fw-bold">{{ object.about_me }}</div>
                     </div>
                     <div class="row">
                         <div class="col text-start">Presentation</div>
-                        <div class="col text-end fw-bold">{{ object.presentation }}</div>
+                        <div class="col-1 text-end">
+                            {% if pulses.presentation %}(+{{ pulses.presentation }}){% endif %}
+                        </div>
+                        <div class="col-1 text-end fw-bold">{{ object.presentation }}</div>
                     </div>
                     <div class="row">
                         <div class="col text-start">Schools</div>
-                        <div class="col text-end fw-bold">{{ object.schools }}</div>
+                        <div class="col-1 text-end">
+                            {% if pulses.schools %}(+{{ pulses.schools }}){% endif %}
+                        </div>
+                        <div class="col-1 text-end fw-bold">{{ object.schools }}</div>
                     </div>
                 </div>
                 <div class="col">
