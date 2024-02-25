@@ -1,4 +1,19 @@
 from django.db import models
+from django.db.models import Q, Sum
+
+
+class PulsType(models.TextChoices):
+    PROFILE_PHOTO = "profile_photo", "PROFILE PHOTO"
+    ABOUT_ME = "about_me", "ABOUT ME"
+    PRESENTATION = "presentation", "PRESENTATION"
+    SCHOOLS = "schools", "SCHOOLS"
+    LOGINS = "logins", "LOGINS"
+    GUESTBOOKS = "guestbooks", "GUESTBOOKS"
+    MESSAGES = "messages", "MESSAGES"
+    DIARIES = "diaries", "DIARIES"
+    SURFING = "surfing", "SURFING"
+    ACTIVITY = "activity", "ACTIVITY"
+    TYPE = "type", "TYPE"
 
 
 class Puls(models.Model):
@@ -68,3 +83,43 @@ class Puls(models.Model):
         constant_value = self.sum_constant_value
         variable_value = self.sum_variable_value
         return int(sum([constant_value, variable_value]))
+
+    def check_is_value_set(self, model_attr):
+        value = getattr(self, model_attr)
+        is_pulses = SinglePuls.objects.filter(
+            puls=self, type=getattr(PulsType, model_attr.upper()), is_accepted=False
+        ).exists()
+        if not value and is_pulses:
+            return True
+        elif value:
+            return True
+        return False
+
+    def pull_not_accepted_puls(self):
+        pulses = self.pulses.filter(is_accepted=False).aggregate(
+            profile_photo=Sum(
+                "quantity", default=0, filter=Q(type=PulsType.PROFILE_PHOTO)
+            ),
+            about_me=Sum("quantity", default=0, filter=Q(type=PulsType.ABOUT_ME)),
+            presentation=Sum(
+                "quantity", default=0, filter=Q(type=PulsType.PRESENTATION)
+            ),
+            schools=Sum("quantity", default=0, filter=Q(type=PulsType.SCHOOLS)),
+            logins=Sum("quantity", default=0, filter=Q(type=PulsType.LOGINS)),
+            guestbooks=Sum("quantity", default=0, filter=Q(type=PulsType.GUESTBOOKS)),
+            messages=Sum("quantity", default=0, filter=Q(type=PulsType.MESSAGES)),
+            diaries=Sum("quantity", default=0, filter=Q(type=PulsType.DIARIES)),
+            surfing=Sum("quantity", default=0, filter=Q(type=PulsType.SURFING)),
+            activity=Sum("quantity", default=0, filter=Q(type=PulsType.ACTIVITY)),
+            type=Sum("quantity", default=0, filter=Q(type=PulsType.TYPE)),
+        )
+        return pulses
+
+
+class SinglePuls(models.Model):
+    is_accepted = models.BooleanField(default=False)
+    quantity = models.FloatField(default=0)
+    puls = models.ForeignKey(Puls, on_delete=models.CASCADE, related_name="pulses")
+    type = models.CharField(choices=PulsType.choices, max_length=25)
+
+    created = models.DateTimeField(auto_now_add=True)
