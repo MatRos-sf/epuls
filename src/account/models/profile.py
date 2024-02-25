@@ -29,6 +29,19 @@ class AboutUser(models.Model):
     song = models.CharField(max_length=50, blank=True, null=True)
     idol = models.CharField(max_length=50, blank=True, null=True)
 
+    def is_set(self) -> bool:
+        return all(
+            [
+                self.height,
+                self.weight,
+                self.politics,
+                self.dish,
+                self.film,
+                self.song,
+                self.idol,
+            ]
+        )
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
