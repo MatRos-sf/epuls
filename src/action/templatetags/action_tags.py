@@ -10,7 +10,7 @@ register = template.Library()
 
 
 MESSAGE_OWN_PROFILE = (
-    "{gender} is checking his reflection!",
+    "He is checking his reflection!",
     "He is browsing his profile!",
 )
 MESSAGE_DISAPPEARED = (

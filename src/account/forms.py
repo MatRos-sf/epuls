@@ -37,9 +37,23 @@ class AboutUserForm(forms.ModelForm):
 
 
 class GuestbookUserForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(GuestbookUserForm, self).__init__(*args, **kwargs)
+        self.fields["entry"].help_text = None
+        self.fields["entry"].label = ""
+
     class Meta:
         model = Guestbook
         fields = ["entry"]
+        widgets = {
+            "entry": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                    "class": "form-control",
+                    "placeholder": "Leave a entry here.",
+                }
+            )
+        }
 
 
 class DiaryForm(forms.ModelForm):

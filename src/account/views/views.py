@@ -93,7 +93,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
 
 class GuestbookView(LoginRequiredMixin, ListView):
-    template_name = "account/guestbook.html"
+    template_name = "account/guestbook/guestbook.html"
     model = Guestbook
     extra_context = {"form": GuestbookUserForm}
 
@@ -111,6 +111,15 @@ class GuestbookView(LoginRequiredMixin, ListView):
             instance.save()
 
         return self.get(request, *args, **kwargs)
+
+    def __get_username_from_url(self):
+        return self.kwargs.get("username", None)
+
+    def get_context_data(self, **kwargs):
+        context = super(GuestbookView, self).get_context_data(**kwargs)
+
+        context["self"] = self.request.user.username == self.__get_username_from_url()
+        return context
 
 
 class FriendsListView(LoginRequiredMixin, ListView):
