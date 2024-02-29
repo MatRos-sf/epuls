@@ -55,6 +55,16 @@ class GuestbookUserForm(forms.ModelForm):
             )
         }
 
+    def clean(self) -> dict:
+        cd = self.cleaned_data
+        # sender = cd['sender']
+        # receiver = cd['receiver']
+        #
+        # if Guestbook.objects.filter(sender=sender, receiver=receiver).exists():
+        #     raise forms.ValidationError("You already have had an entry for this user!")
+
+        return cd
+
 
 class DiaryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

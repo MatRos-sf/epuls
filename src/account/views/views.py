@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -9,6 +11,8 @@ from django.views.generic import DetailView, ListView, View
 from account.forms import GuestbookUserForm, UserSignupForm
 from account.models import Guestbook, Profile, Visitor
 from action.models import Action, ActionMessage
+from puls.models import PulsType
+from puls.scaler import add_guestbook_puls
 
 
 class HomeView(View):
@@ -98,25 +102,27 @@ class GuestbookView(LoginRequiredMixin, ListView):
     model = Guestbook
     extra_context = {"form": GuestbookUserForm}
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         username = self.kwargs.get("username")
         return Guestbook.objects.filter(receiver__username=username)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> Any:
         form = GuestbookUserForm(request.POST)
 
         if form.is_valid():
-            username = self.kwargs.get("username")
+            username = self.__get_username_from_url()
             instance = form.save(commit=False)
             instance.sender = self.request.user
             instance.receiver = User.objects.get(username=username)
             instance.save()
+            # TODO: 1 entry
             messages.success(request, "An entry has been added!")
+            add_guestbook_puls(self.request.user.profile, PulsType.GUESTBOOKS)
 
         return self.get(request, *args, **kwargs)
 
-    def __get_username_from_url(self):
-        return self.kwargs.get("username", None)
+    def __get_username_from_url(self) -> str:
+        return self.kwargs.get("username")
 
     def get_context_data(self, **kwargs):
         context = super(GuestbookView, self).get_context_data(**kwargs)

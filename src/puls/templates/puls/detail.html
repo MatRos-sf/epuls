@@ -65,11 +65,17 @@
                     <h1 class="fs-3" style="color: green;">Variable Value</h1>
                     <div class="row">
                         <div class="col text-start">logins</div>
-                        <div class="col text-end fw-bold">{{ object.logins }}</div>
+                        <div class="col-1 text-end">
+                            {% if pulses.logins %}(+{{ pulses.logins }}){% endif %}
+                        </div>
+                        <div class="col-1 text-end fw-bold">{{ object.logins }}</div>
                     </div>
                     <div class="row">
                         <div class="col text-start">Guestbooks</div>
-                        <div class="col text-end fw-bold">{{ object.guestbooks }}</div>
+                        <div class="col-1 text-end">
+                            {% if pulses.guestbooks %}(+{{ pulses.guestbooks }}){% endif %}
+                        </div>
+                        <div class="col-1 text-end fw-bold">{{ object.guestbooks }}</div>
                     </div>
                     <div class="row">
                         <div class="col text-start">Messages</div>
