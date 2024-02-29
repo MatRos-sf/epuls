@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import HttpResponse
@@ -103,12 +104,14 @@ class GuestbookView(LoginRequiredMixin, ListView):
 
     def post(self, request, *args, **kwargs):
         form = GuestbookUserForm(request.POST)
+
         if form.is_valid():
             username = self.kwargs.get("username")
             instance = form.save(commit=False)
             instance.sender = self.request.user
             instance.receiver = User.objects.get(username=username)
             instance.save()
+            messages.success(request, "An entry has been added!")
 
         return self.get(request, *args, **kwargs)
 
@@ -119,6 +122,7 @@ class GuestbookView(LoginRequiredMixin, ListView):
         context = super(GuestbookView, self).get_context_data(**kwargs)
 
         context["self"] = self.request.user.username == self.__get_username_from_url()
+
         return context
 
 
