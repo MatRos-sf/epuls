@@ -1,6 +1,15 @@
 from django.db import models
 from django.db.models import Q, Sum
 
+# class PulsTypeVariableValue(models.TextChoices):
+#     LOGINS = "logins", "LOGINS"
+#     GUESTBOOKS = "guestbooks", "GUESTBOOKS"
+#     MESSAGES = "messages", "MESSAGES"
+#     DIARIES = "diaries", "DIARIES"
+#     SURFING = "surfing", "SURFING"
+#     ACTIVITY = "activity", "ACTIVITY"
+#     TYPE = "type", "TYPE"
+
 
 class PulsType(models.TextChoices):
     PROFILE_PHOTO = "profile_photo", "PROFILE PHOTO"
@@ -123,3 +132,14 @@ class SinglePuls(models.Model):
     type = models.CharField(choices=PulsType.choices, max_length=25)
 
     created = models.DateTimeField(auto_now_add=True)
+
+
+# class Bonus(models.Model):
+#     # type
+#     name = models.CharField(max_length=250)
+#     description = models.TextField(blank=True, null=True)
+#     start = models.DateField()
+#     end = models.DateField()
+#     scaler = models.FloatField()
+#
+#     is_all_user = models.BooleanField(default=True)

@@ -1,13 +1,12 @@
 from django.test import TestCase
-from account.models import Profile, AboutUser
 
 from account.factories import UserFactory
+from account.models import AboutUser, Profile
 
-from django.contrib.auth.models import AbstractUser
+
 class ProfileModelTest(TestCase):
-
     def test_should_create_profile_and_about_user_when_user_is_created(self):
-        UserFactory.create(username='test', password='<PASSWORD>')
+        UserFactory.create(username="test", password="<PASSWORD>")
 
         self.assertEquals(Profile.objects.count(), 1)
         self.assertEquals(AboutUser.objects.count(), 1)
