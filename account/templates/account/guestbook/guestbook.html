@@ -1,0 +1,48 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1 class="fs-2 epuls-style-text">Guestbook</h1>
+            <div>
+                {% if self %}
+                    <p class="fs-6">Here is your guestbook where you can check who said hello to you.</p>
+                {% else %}
+                    <p class="fs-6">Type something nice.</p>
+                    <div class="container text-center">
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form }}
+                            <button class="btn btn-sm btn-success mt-2" type="submit">Save</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% if object_list %}
+        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+            <div class="container overflow-hidden text-center">
+                {% for entry in object_list %}
+                    <div class="container">
+                        <div class="shadow-sm p-3 mb-2 bg-white rounded">
+                            <div class="row justify-content-between">
+                                <div class="col text-end">
+                                    <button class="btn btn-sm" type="button">!</button>
+                                    <!-- TODO: Report wpis -->
+                                </div>
+                            </div>
+                            {{ entry.entry }}
+                            <div class="row justify-content-between">
+                                <div class="col text-end">
+                                    <a class="me-3 link-offset-2 link-underline link-underline-opacity-0 fs-5"
+                                       href="{% url 'account:profile' entry.sender.username %}">{{ entry.sender }}</a>
+                                    <p class="fst-italic">{{ entry.created|date:"jS M Y P" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}
