@@ -1,6 +1,11 @@
+from functools import wraps
+
+from django.db.models import Q, Sum
+from django.utils import timezone
+
 from account.models import Profile, ProfileType
 
-from .models import PulsType, SinglePuls
+from .models import Bonus, PulsType, SinglePuls
 
 CONSTANT_PULS = ("profile_photo", "about_me", "presentation", "schools")
 CONSTANT_PULS_QTY = 15
@@ -21,17 +26,46 @@ def scale_puls(name_type):
     raise NotImplementedError
 
 
-# def give_a_puls(func):
-#     def wrapper(*args, **kwargs):
-#         # Filter
-#         f = func(*args, **kwargs)
+def give_away_bonus(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        """
+        Search bonuses if bonuses exist user get extra points for action.
+        """
+        # find all active bonus:
+        puls_type = kwargs.get("type")
+        bonus = Bonus.objects.aggregate(
+            bonus_sum=Sum(
+                "scaler",
+                filter=Q(
+                    start__lte=timezone.now().date(),
+                    end__gte=timezone.now().date(),
+                    type__in=["all", puls_type],
+                ),
+                default=0,
+            )
+        ).get("bonus_sum")
+        puls_for_action = func(*args, **kwargs)
+
+        quantity = puls_for_action * bonus
+        if quantity:
+            user_profile = kwargs.get("user_profile")
+            SinglePuls.objects.create(
+                quantity=quantity, puls=user_profile.puls, type=PulsType.BONUS
+            )
+
+        return puls_for_action
+
+    return wrapper
 
 
-def add_guestbook_puls(user_profile: Profile, type: PulsType) -> float:
+@give_away_bonus
+def give_away_puls(*, user_profile: Profile, type: PulsType) -> float:
     """
     Generates SinglePuls for entry.
-    | Basic |  Pro  | Xtreme | Divine|
-    |  0.1  |  0.2  |  0.3   | 0.4  |
+              | Basic |  Pro  | Xtreme | Divine|
+    guestbook |  0.1  |  0.2  |  0.3   | 0.4  |
+
     """
     quantity = (
         PULS_FOR_ACTION[type] * EXTRA_PULS_BY_PROFILE_TYPE[user_profile.type_of_profile]

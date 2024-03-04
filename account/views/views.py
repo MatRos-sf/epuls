@@ -12,7 +12,7 @@ from account.forms import GuestbookUserForm, UserSignupForm
 from account.models import Guestbook, Profile, Visitor
 from action.models import Action, ActionMessage
 from puls.models import PulsType
-from puls.scaler import add_guestbook_puls
+from puls.scaler import give_away_puls
 
 
 class HomeView(View):
@@ -117,7 +117,9 @@ class GuestbookView(LoginRequiredMixin, ListView):
             instance.save()
             # TODO: 1 entry
             messages.success(request, "An entry has been added!")
-            add_guestbook_puls(self.request.user.profile, PulsType.GUESTBOOKS)
+            give_away_puls(
+                user_profile=self.request.user.profile, type=PulsType.GUESTBOOKS
+            )
 
         return self.get(request, *args, **kwargs)
 
