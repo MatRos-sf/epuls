@@ -29,6 +29,12 @@ class ProfilePictureRequest(models.Model):
         self.is_accepted = True
         self.examination_date = timezone.now()
 
+        # update profile photo
+        self.profile.picture = self.picture
+        self.profile.save()  # -> ?
+
+        # give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)
+
     def reject(self):
         self.is_rejected = True
         self.examination_date = timezone.now()

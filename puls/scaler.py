@@ -32,8 +32,15 @@ def give_away_bonus(func):
         """
         Search bonuses if bonuses exist user get extra points for action.
         """
+
+        puls_for_action = func(*args, **kwargs)
+
         # find all active bonus:
         puls_type = kwargs.get("type")
+
+        if puls_type in CONSTANT_PULS:
+            return puls_for_action
+
         bonus = Bonus.objects.aggregate(
             bonus_sum=Sum(
                 "scaler",
@@ -45,7 +52,6 @@ def give_away_bonus(func):
                 default=0,
             )
         ).get("bonus_sum")
-        puls_for_action = func(*args, **kwargs)
 
         quantity = puls_for_action * bonus
         if quantity:
@@ -67,8 +73,13 @@ def give_away_puls(*, user_profile: Profile, type: PulsType) -> float:
     guestbook |  0.1  |  0.2  |  0.3   | 0.4  |
 
     """
-    quantity = (
-        PULS_FOR_ACTION[type] * EXTRA_PULS_BY_PROFILE_TYPE[user_profile.type_of_profile]
-    )
+    if type not in CONSTANT_PULS:
+        quantity = (
+            PULS_FOR_ACTION[type]
+            * EXTRA_PULS_BY_PROFILE_TYPE[user_profile.type_of_profile]
+        )
+    else:
+        quantity = CONSTANT_PULS_QTY
+
     SinglePuls.objects.create(quantity=quantity, puls=user_profile.puls, type=type)
     return quantity

@@ -11,22 +11,32 @@ from django.views.generic import (
 )
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
-from .models import Gallery, Picture
+from .models import Gallery, Picture, ProfilePictureRequest
 
 
 @login_required
 def profile_picture_request(request):
-    form = ProfilePictureRequestForm()
+    """
+    Creates request model to set a profile picture. When user has sent photo and photo hasn't been accepted or rejected
+    then user doesn't create request just edit them.
+    """
+    picture = ProfilePictureRequest.objects.filter(
+        profile=request.user.profile, is_accepted=False, is_rejected=False
+    ).first()
+
+    form = ProfilePictureRequestForm(instance=picture)
+
     if request.method == "POST":
         form = ProfilePictureRequestForm(request.POST, request.FILES)
         if form.is_valid():
             instance = form.save(commit=False)
             instance.profile = request.user.profile
             instance.save()
+
             messages.success(
                 request, "Your profile picture request has sent successfully."
             )
-            return redirect("profile", username=request.user.username)
+            return redirect("account:profile", username=request.user.username)
 
     return render(request, "photo/profile_picture_request_form.html", {"form": form})
 
