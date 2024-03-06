@@ -3,6 +3,9 @@ from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
 
+from puls.models import PulsType
+from puls.scaler import give_away_puls
+
 
 class ProfilePictureRequest(models.Model):
     picture = models.ImageField(
@@ -25,15 +28,23 @@ class ProfilePictureRequest(models.Model):
             img.thumbnail(max_size)
             img.save(self.picture.path)
 
-    def accept(self):
+    def accept(self) -> None:
+        """
+        This method is used when an admin wants to accept a profile picture. When triggered, it performs the following actions:
+            - Sets 'is_accepted' to True.
+            - Updates 'examination_date' to the current time when the picture was accepted.
+            - Sets the accepted picture as the profile picture.
+            - Give a pulse if the user doesn't have one yet.
+        """
         self.is_accepted = True
         self.examination_date = timezone.now()
 
         # update profile photo
         self.profile.picture = self.picture
-        self.profile.save()  # -> ?
+        self.profile.save()
 
-        # give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)
+        if self.profile.puls.check_is_value_set(PulsType.PROFILE_PHOTO):
+            give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)
 
     def reject(self):
         self.is_rejected = True
