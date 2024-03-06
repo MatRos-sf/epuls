@@ -38,12 +38,13 @@ class ProfilePictureRequest(models.Model):
         """
         self.is_accepted = True
         self.examination_date = timezone.now()
+        self.save()
 
         # update profile photo
-        self.profile.picture = self.picture
+        self.profile.profile_picture = self.picture
         self.profile.save()
 
-        if self.profile.puls.check_is_value_set(PulsType.PROFILE_PHOTO):
+        if not self.profile.puls.check_is_value_set(PulsType.PROFILE_PHOTO):
             give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)
 
     def reject(self):

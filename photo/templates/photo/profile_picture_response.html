@@ -1,0 +1,20 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <img src="{{ object.picture.url }}"
+                 class="rounded mx-auto d-block"
+                 alt="...">
+            <div>
+                <div class="row">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="submit" value="reject" name="action">
+                        <input type="hidden" name="profile_picture_id" value="{{ object.id }}">
+                        <input type="submit" value="accept" name="action">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

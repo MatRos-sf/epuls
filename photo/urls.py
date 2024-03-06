@@ -9,13 +9,28 @@ from .views import (
     PictureDetailView,
     PictureUpdateView,
     PictureView,
+    ProfilePictureResponseView,
     profile_picture_request,
 )
 
 app_name = "photo"
 
 urlpatterns = [
-    path("profile_picture/", profile_picture_request, name="profile-picture"),
+    path(
+        "profile_picture/",
+        include(
+            [
+                path(
+                    "request/", profile_picture_request, name="profile-picture-request"
+                ),
+                path(
+                    "response/",
+                    ProfilePictureResponseView.as_view(),
+                    name="profile-picture-response",
+                ),
+            ]
+        ),
+    ),
     path(
         "gallery/",
         include(

@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import (
     CreateView,
@@ -8,6 +8,7 @@ from django.views.generic import (
     DetailView,
     ListView,
     UpdateView,
+    View,
 )
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
@@ -39,6 +40,33 @@ def profile_picture_request(request):
             return redirect("account:profile", username=request.user.username)
 
     return render(request, "photo/profile_picture_request_form.html", {"form": form})
+
+
+class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "photo/profile_picture_response.html"
+
+    def get_object(self):
+        return self.model
+
+    def get(self, request, *args, **kwargs):
+        profile_picture = (
+            ProfilePictureRequest.objects.filter(is_accepted=False, is_rejected=False)
+            .order_by("?")
+            .first()
+        )
+        context = {"object": profile_picture}
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get("action")
+        picture_id = request.POST.get("profile_picture_id")
+        instance = ProfilePictureRequest.objects.get(pk=picture_id)
+        getattr(instance, action)()
+
+        return self.get(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class GalleryCreateView(LoginRequiredMixin, CreateView):
