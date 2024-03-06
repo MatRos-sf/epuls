@@ -95,16 +95,16 @@ class Puls(models.Model):
         variable_value = self.sum_variable_value
         return int(sum([constant_value, variable_value]))
 
-    def check_is_value_set(self, model_attr):
+    def check_is_value_set(self, model_attr) -> bool:
+        """
+        Checks that attr is set or attr is waiting for accepted in SinglePuls.
+        """
         value = getattr(self, model_attr)
         is_pulses = SinglePuls.objects.filter(
             puls=self, type=getattr(PulsType, model_attr.upper()), is_accepted=False
         ).exists()
-        if not value and is_pulses:
-            return True
-        elif value:
-            return True
-        return False
+
+        return value or is_pulses
 
     def pull_not_accepted_puls(self):
         pulses = self.pulses.filter(is_accepted=False).aggregate(
