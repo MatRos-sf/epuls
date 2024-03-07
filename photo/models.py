@@ -45,13 +45,19 @@ class ProfilePictureRequest(models.Model):
 
         # update profile photo
         self.profile.set_profile_picture(self.picture)
+        # TODO notification about accept
 
         if not self.profile.puls.check_is_value_set(PulsType.PROFILE_PHOTO):
             give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)
 
     def reject(self):
+        """
+        This method is used when an admin wants to reject a profile picture.
+        """
         self.is_rejected = True
         self.examination_date = timezone.now()
+        self.save()
+        # TODO notification about reject
 
 
 class Gallery(models.Model):
