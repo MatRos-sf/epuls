@@ -1,15 +1,18 @@
+import os
+
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from PIL import Image
 
+from account.models import PROFILE_PICTURE_PATH
 from puls.models import PulsType
 from puls.scaler import give_away_puls
 
 
 class ProfilePictureRequest(models.Model):
     picture = models.ImageField(
-        upload_to="profile_picture_request", verbose_name="profile picture"
+        upload_to=PROFILE_PICTURE_PATH, verbose_name="profile picture"
     )
     profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     is_accepted = models.BooleanField(default=False)
@@ -41,8 +44,7 @@ class ProfilePictureRequest(models.Model):
         self.save()
 
         # update profile photo
-        self.profile.profile_picture = self.picture
-        self.profile.save()
+        self.profile.set_profile_picture(self.picture)
 
         if not self.profile.puls.check_is_value_set(PulsType.PROFILE_PHOTO):
             give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)

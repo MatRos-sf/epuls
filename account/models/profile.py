@@ -2,10 +2,15 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.fields.files import ImageField
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
 from puls.models import Puls
+
+# paths
+PROFILE_PICTURE_PATH = "profile_picture"
+DEFAULT_PROFILE_PICTURE = "profile_picture/default_photo_picture.jpg"
 
 
 class ProfileType(models.TextChoices):
@@ -64,7 +69,7 @@ class Profile(models.Model):
     is_confirm = models.BooleanField(default=False)
 
     profile_picture = models.ImageField(
-        upload_to="profile_picture", default="profile_picture/default_photo_picture.jpg"
+        upload_to="profile_picture", default=DEFAULT_PROFILE_PICTURE
     )
 
     # country = models.CharField(max_length=)
@@ -94,6 +99,13 @@ class Profile(models.Model):
 
     def remove_friends(self, friend: User):
         self.friends.remove(friend)
+        self.save()
+
+    def set_profile_picture(self, image_field: ImageField) -> None:
+        """
+        Set a new profile picture.
+        """
+        self.profile_picture = image_field
         self.save()
 
     def __str__(self):

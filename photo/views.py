@@ -49,12 +49,19 @@ class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.model
 
     def get(self, request, *args, **kwargs):
+        context = {}
         profile_picture = (
             ProfilePictureRequest.objects.filter(is_accepted=False, is_rejected=False)
             .order_by("?")
             .first()
         )
-        context = {"object": profile_picture}
+        if profile_picture:
+            currently_photo = profile_picture.profile.profile_picture
+            if currently_photo.name != "profile_picture/default_photo_picture.jpg":
+                context["currently_photo"] = currently_photo.url
+
+        context["object"] = profile_picture
+
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
