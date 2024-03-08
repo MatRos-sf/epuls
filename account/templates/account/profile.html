@@ -1,6 +1,7 @@
 {% extends "account/base.html" %}
 {% load custom_tags %}
 {% load action_tags %}
+{% load static %}
 {% block content %}
     <div class="container">
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
@@ -8,11 +9,20 @@
                 <!-- photo section -->
                 <div class="col-2">
                     <div class="container">
-                        <img src="{{ user.profile.profile_picture.url }}"
-                             class="img-thumbnail"
-                             alt="..."
-                             width="250"
-                             height="350">
+                        {% if object.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}"
+                                 class="img-thumbnail"
+                                 alt="..."
+                                 width="250"
+                                 height="350">
+                        {% else %}
+                            {% get_default_picture_photo object.profile.gender as default_picture %}
+                            <img src="{% static default_picture %}"
+                                 class="img-thumbnail"
+                                 alt="..."
+                                 width="250"
+                                 height="350">
+                        {% endif %}
                         <!-- section 'zaczepka' -->
                         <!-- TODO implement zaczepki -->
                         <div class="btn-group m-2" role="group" aria-label="Basic example">
@@ -103,6 +113,39 @@
             </div>
             {% if user != object.user %}
                 <div class="container text-end m-1">
+                    {% if object.profile.profile_picture %}
+                        <!-- Button trigger modal -->
+                        <button type="button"
+                                class="btn btn-sm btn-success"
+                                data-bs-toggle="modal"
+                                data-bs-target="#exampleModal">Delete profile photo</button>
+                        <!-- Modal -->
+                        <div class="modal fade"
+                             id="exampleModal"
+                             tabindex="-1"
+                             aria-labelledby="exampleModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                        <button type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">Do you want to delete your profile picture?</div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-sm btn-success" data-bs-dismiss="modal">Close</button>
+                                        <form method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger" value="delete" name="button">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                     <a type="button"
                        class="btn btn-sm btn-success"
                        href="{% url 'account:update-profile' %}">Edit Profile</a>

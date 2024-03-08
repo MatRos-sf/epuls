@@ -96,6 +96,13 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
         return self.render_to_response(context)
 
+    def post(self, request, *args, **kwargs):
+        # delete profile picture
+        profile = self.get_object().profile
+        profile.delete_profile_picture()
+
+        return self.get(request, *args, **kwargs)
+
 
 class GuestbookView(LoginRequiredMixin, ListView):
     template_name = "account/guestbook/guestbook.html"

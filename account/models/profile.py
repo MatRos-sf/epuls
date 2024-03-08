@@ -10,7 +10,6 @@ from puls.models import Puls
 
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
-DEFAULT_PROFILE_PICTURE = "profile_picture/default_photo_picture.jpg"
 
 
 class ProfileType(models.TextChoices):
@@ -69,7 +68,7 @@ class Profile(models.Model):
     is_confirm = models.BooleanField(default=False)
 
     profile_picture = models.ImageField(
-        upload_to="profile_picture", default=DEFAULT_PROFILE_PICTURE
+        upload_to="profile_picture", blank=True, null=True
     )
 
     # country = models.CharField(max_length=)
@@ -106,7 +105,12 @@ class Profile(models.Model):
         Set a new profile picture.
         """
         self.profile_picture = image_field
-        self.save()
+        self.save(update_fields=["profile_picture"])
+
+    def delete_profile_picture(self) -> None:
+        print(self.profile_picture.path)
+        self.profile_picture = None
+        self.save(update_fields=["profile_picture"])
 
     def __str__(self):
         return f"{self.user.username}"

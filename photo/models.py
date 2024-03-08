@@ -50,7 +50,7 @@ class ProfilePictureRequest(models.Model):
         if not self.profile.puls.check_is_value_set(PulsType.PROFILE_PHOTO):
             give_away_puls(user_profile=self.profile, type=PulsType.PROFILE_PHOTO)
 
-    def reject(self):
+    def reject(self) -> None:
         """
         This method is used when an admin wants to reject a profile picture.
         """

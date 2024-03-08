@@ -57,7 +57,7 @@ class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
         )
         if profile_picture:
             currently_photo = profile_picture.profile.profile_picture
-            if currently_photo.name != "profile_picture/default_photo_picture.jpg":
+            if currently_photo:
                 context["currently_photo"] = currently_photo.url
 
         context["object"] = profile_picture
