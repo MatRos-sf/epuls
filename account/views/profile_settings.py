@@ -8,12 +8,12 @@ from puls.models import PulsType, SinglePuls
 from puls.scaler import scale_puls
 
 
-class UserSettings(LoginRequiredMixin, UserPassesTestMixin):
+class UserSettings(UserPassesTestMixin):
     def test_func(self):
         return self.get_object().username == self.request.user.username
 
 
-class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, UserSettings, UpdateView):
     template_name = "account/forms.html"
     model = Profile
     form_class = ProfileForm
