@@ -107,7 +107,11 @@
                         <h5 class="m-2" style="color: #fcc39e">Describe:</h5>
                     </div>
                     <div class="col-11">
-                        <h5 class="fs-6 m-2" style="color: white">{{ object.profile.short_description }}</h5>
+                        <marquee behavior="scroll"
+                                 direction="left"
+                                 scrollamount="2"
+                                 class="fs-6 m-2 "
+                                 style="color: white">{{ object.profile.short_description }}</marquee>
                     </div>
                 </div>
             </div>
