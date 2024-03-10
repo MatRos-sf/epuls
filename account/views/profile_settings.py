@@ -10,7 +10,12 @@ from puls.scaler import give_away_puls
 
 class UserSettings(UserPassesTestMixin):
     def test_func(self):
-        return self.get_object().username == self.request.user.username
+        instance = self.get_object()
+        user = self.request.user
+        if isinstance(instance, Profile):
+            return instance.user == user
+
+        return instance == user
 
 
 class ProfileUpdateView(LoginRequiredMixin, UserSettings, UpdateView):
