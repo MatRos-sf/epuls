@@ -91,10 +91,11 @@
                                class="list-group-item list-group-item-action"
                                href="{% url 'photo:gallery' menu_user %}">Gallery</a>
                             <button type="button" class="list-group-item list-group-item-action" disabled>Friends</button>
-                            <button type="button" class="list-group-item list-group-item-action" disabled>kalsy i szkoły</button>
+                            <!--TODO                            <button type="button" class="list-group-item list-group-item-action" disabled>kalsy i szkoły</button>-->
                             <button type="button" class="list-group-item list-group-item-action" disabled>Invite</button>
-                            <button type="button" class="list-group-item list-group-item-action" disabled>Puls</button>
-                            <button type="button" class="list-group-item list-group-item-action" disabled></button>
+                            <a href='{% url "account:puls" menu_user %}'
+                               type="button"
+                               class="list-group-item list-group-item-action">Puls</a>
                         </div>
                         {% if user.is_superuser %}
                             <h5>Admin menu</h5>
