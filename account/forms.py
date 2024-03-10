@@ -1,10 +1,12 @@
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Column, Layout, Row, Submit
 from django import forms
-
-# from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from .models import AboutUser, Diary, Gender, Guestbook, Profile
+
+FORM_CLASS = "form-group col-md-6 m-0 p-3"
 
 
 class UserSignupForm(UserCreationForm):
@@ -34,6 +36,41 @@ class AboutUserForm(forms.ModelForm):
     class Meta:
         model = AboutUser
         fields = "__all__"
+        exclude = ["is_set"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.label = ""
+
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "form-control form-control-lg"
+            visible.field.widget.attrs["placeholder"] = visible.name
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column("height", css_class=FORM_CLASS),
+                Column("weight", css_class=FORM_CLASS),
+                css_class="row",
+            ),
+            Row(
+                Column("politics", css_class=FORM_CLASS),
+                Column("idol", css_class=FORM_CLASS),
+                css_class="row",
+            ),
+            Row(
+                Column("film", css_class=FORM_CLASS),
+                Column("song", css_class=FORM_CLASS),
+                css_class="row",
+            ),
+            Row(
+                Column("dish", css_class="form-group col-md-6 mb-0"),
+                css_class="row justify-content-center",
+            ),
+            Submit("submit", "Update", css_class="btn btn-sm btn-success m-2"),
+        )
 
 
 class GuestbookUserForm(forms.ModelForm):

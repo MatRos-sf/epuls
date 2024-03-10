@@ -1,12 +1,10 @@
 {% extends "account/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
         <div class="container overflow-hidden text-center">
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-sm btn-success" type="submit">{{ action }}</button>
-            </form>
+            <h1>Introduce Yourself</h1>
+            {% crispy form %}
         </div>
     </div>
 {% endblock %}

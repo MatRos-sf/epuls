@@ -33,18 +33,31 @@ class AboutUser(models.Model):
     song = models.CharField(max_length=50, blank=True, null=True)
     idol = models.CharField(max_length=50, blank=True, null=True)
 
-    def is_set(self) -> bool:
-        return all(
-            [
-                self.height,
-                self.weight,
-                self.politics,
-                self.dish,
-                self.film,
-                self.song,
-                self.idol,
+    is_set = models.BooleanField(
+        default=False,
+        help_text="This field is true when all of the fields are filled up.",
+    )
+
+    def check_model_is_fill_up(self) -> bool:
+        """
+        Checks whether is_set True. If the field False, then checks if the fields are fill up.
+        """
+        if self.is_set:
+            return True
+        else:
+            fields_name = [
+                field.name
+                for field in AboutUser._meta.get_fields()
+                if field.name not in ("profile", "id", "is_set")
             ]
-        )
+            is_fields_set = [getattr(self, i) for i in fields_name]
+
+            if all(is_fields_set):
+                self.is_set = True
+                self.save(update_fields=["is_set"])
+                return True
+
+        return False
 
 
 class Profile(models.Model):
