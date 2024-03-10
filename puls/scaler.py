@@ -20,12 +20,6 @@ EXTRA_PULS_BY_PROFILE_TYPE = {
 PULS_FOR_ACTION = {PulsType.GUESTBOOKS: 0.1}
 
 
-def scale_puls(name_type):
-    if name_type in CONSTANT_PULS:
-        return CONSTANT_PULS_QTY
-    raise NotImplementedError
-
-
 def give_away_bonus(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
