@@ -119,7 +119,8 @@
                 <div class="col text-end fw-bold">{{ object.puls }}</div>
             </div>
             <div class="text-end">
-                <button class="btn btn-sm btn-success text-end">Update my PULS</button>
+                <a href="{% url 'account:puls-update' object.profile.user.username %}"
+                   class="btn btn-sm btn-success text-end">Update my PULS</a>
             </div>
         </div>
     </div>

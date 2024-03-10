@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
-from puls.views import PulsDetailView
+from puls.views import PulsDetailView, update_puls
 
 from .views import (
     AboutUserUpdateView,
@@ -73,7 +73,15 @@ urlpatterns = [
                     ),
                 ),
                 path("friends/", FriendsListView.as_view(), name="friends"),
-                path("puls/", PulsDetailView.as_view(), name="puls"),
+                path(
+                    "puls/",
+                    include(
+                        [
+                            path("update/", update_puls, name="puls-update"),
+                            path("", PulsDetailView.as_view(), name="puls"),
+                        ]
+                    ),
+                ),
             ]
         ),
     ),
