@@ -1,29 +1,47 @@
 {% extends "account/base.html" %}
+{% load static %}
 {% block content %}
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-        <div class="container overflow-hidden text-center">
-            <!-- Date -->
-            <div class="row">
-                <div class="col text-end">{{ object.created|date:"j.m.Y" }}</div>
-            </div>
-            <!-- content -->
-            <div class="row justify-content-center">
-                <div class="col">
-                    <h1>{{ object.title }}</h1>
-                    <p>{{ object.content }}</p>
+        {% if not object %}
+            <div class="container overflow-hidden text-center">
+                <!-- content -->
+                <div class="row justify-content-center">
+                    <div class="col align-self-center">
+                        <h1>You do not have permission.</h1>
+                    </div>
+                    <div class="col">
+                        <img src="{% static 'account/error/forbidden.png' %}"
+                             alt="..."
+                             style="max-width: 50%">
+                    </div>
                 </div>
+                <!-- buttons -->
             </div>
-            <!-- buttons -->
-            {% if user == object.author %}
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <a href="{% url 'account:diary-update' user.username object.pk %}"
-                       class="btn btn-success">Edit</a>
-                    <a href="{% url 'account:diary-delete' user.username object.pk %}"
-                       class="btn btn-success ">Delete</a>
-                    <a href="{% url 'account:diary' user.username %}"
-                       class="btn btn-success">Back</a>
+        {% else %}
+            <div class="container overflow-hidden text-center">
+                <!-- Date -->
+                <div class="row">
+                    <div class="col text-end">{{ object.created|date:"j.m.Y" }}</div>
                 </div>
-            {% endif %}
-        </div>
+                <!-- content -->
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <h1>{{ object.title }}</h1>
+                        <p>{{ object.content }}</p>
+                    </div>
+                </div>
+                <!-- buttons -->
+                {% if user == object.author %}
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <a href="{% url 'account:diary-update' user.username object.pk %}"
+                           class="btn btn-success">Edit</a>
+                        <a href="{% url 'account:diary-delete' user.username object.pk %}"
+                           class="btn btn-success ">Delete</a>
+                        <a href="{% url 'account:diary' user.username %}"
+                           class="btn btn-success">Back</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 {% endblock content %}

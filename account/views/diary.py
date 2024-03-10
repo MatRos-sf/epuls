@@ -2,6 +2,7 @@ from typing import Optional
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic import (
     CreateView,
@@ -89,7 +90,7 @@ class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class DiaryListView(LoginRequiredMixin, ListView):
     template_name = "account/diary/list.html"
-    paginate_by = 2
+    paginate_by = 10
 
     def __get_user_for_url(self) -> Optional[str]:
         return self.kwargs.get("username", None)
