@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, reverse
@@ -87,11 +89,20 @@ class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class DiaryListView(LoginRequiredMixin, ListView):
     template_name = "account/diary/list.html"
+    paginate_by = 2
+
+    def __get_user_for_url(self) -> Optional[str]:
+        return self.kwargs.get("username", None)
 
     def get_queryset(self):
-        username = self.kwargs.get("username")
-        self.kwargs["username"] = username
+        username = self.__get_user_for_url()
+
         user = get_object_or_404(User, username=username)
         if user == self.request.user:
             return Diary.objects.filter(author=user)
         return Diary.objects.filter(author=user, is_hide=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["owner"] = self.__get_user_for_url()
+        return context

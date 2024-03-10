@@ -2,16 +2,21 @@
 {% block content %}
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
         <div class="container overflow-hidden text-center">
-            <h1>Entries of {{ user.username }}</h1>
-            <a type="button"
-               class="btn btn-sm btn-success my-2"
-               href="{% url 'account:diary-create' user.username %}">Create New Entry</a>
+            <h1>
+                Entries of <span class="epuls-style-text">{{ owner }}</span>
+            </h1>
+            {% if user.username == owner %}
+                <a type="button"
+                   class="btn btn-sm btn-success my-2"
+                   href="{% url 'account:diary-create' user.username %}">Create New Entry</a>
+            {% endif %}
             <div class="list-group">
                 {% for entry in object_list %}
-                    <a href="{% url 'account:diary-detail' user.username entry.pk %}"
+                    <a href="{% url 'account:diary-detail' owner entry.pk %}"
                        class="list-group-item list-group-item-action">{{ entry.title }}</a>
                 {% endfor %}
             </div>
+            {% include "account/pagination.html" %}
         </div>
     </div>
 {% endblock %}
