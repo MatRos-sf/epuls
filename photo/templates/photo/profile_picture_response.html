@@ -1,0 +1,37 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            {% if object %}
+                <div class="row">
+                    {% if currently_photo %}
+                        <div class="col">
+                            <h1>User currently photo:</h1>
+                            <img src="{{ currently_photo }}"
+                                 class="rounded mx-auto d-block"
+                                 alt="user_currently_photo">
+                        </div>
+                    {% endif %}
+                    <div class="col">
+                        <h1>New photo</h1>
+                        <img src="{{ object.picture.url }}"
+                             class="rounded mx-auto d-block"
+                             alt="...">
+                    </div>
+                </div>
+                <div>
+                    <div class="row">
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="submit" value="reject" name="action">
+                            <input type="hidden" name="profile_picture_id" value="{{ object.id }}">
+                            <input type="submit" value="accept" name="action">
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <h1>No profile photo request found.</h1>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -2,10 +2,14 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.fields.files import ImageField
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
 from puls.models import Puls
+
+# paths
+PROFILE_PICTURE_PATH = "profile_picture"
 
 
 class ProfileType(models.TextChoices):
@@ -29,18 +33,31 @@ class AboutUser(models.Model):
     song = models.CharField(max_length=50, blank=True, null=True)
     idol = models.CharField(max_length=50, blank=True, null=True)
 
-    def is_set(self) -> bool:
-        return all(
-            [
-                self.height,
-                self.weight,
-                self.politics,
-                self.dish,
-                self.film,
-                self.song,
-                self.idol,
+    is_set = models.BooleanField(
+        default=False,
+        help_text="This field is true when all of the fields are filled up.",
+    )
+
+    def check_model_is_fill_up(self) -> bool:
+        """
+        Checks whether is_set True. If the field False, then checks if the fields are fill up.
+        """
+        if self.is_set:
+            return True
+        else:
+            fields_name = [
+                field.name
+                for field in AboutUser._meta.get_fields()
+                if field.name not in ("profile", "id", "is_set")
             ]
-        )
+            is_fields_set = [getattr(self, i) for i in fields_name]
+
+            if all(is_fields_set):
+                self.is_set = True
+                self.save(update_fields=["is_set"])
+                return True
+
+        return False
 
 
 class Profile(models.Model):
@@ -64,7 +81,7 @@ class Profile(models.Model):
     is_confirm = models.BooleanField(default=False)
 
     profile_picture = models.ImageField(
-        upload_to="profile_picture", default="profile_picture/default_photo_picture.jpg"
+        upload_to="profile_picture", blank=True, null=True
     )
 
     # country = models.CharField(max_length=)
@@ -95,6 +112,18 @@ class Profile(models.Model):
     def remove_friends(self, friend: User):
         self.friends.remove(friend)
         self.save()
+
+    def set_profile_picture(self, image_field: ImageField) -> None:
+        """
+        Set a new profile picture.
+        """
+        self.profile_picture = image_field
+        self.save(update_fields=["profile_picture"])
+
+    def delete_profile_picture(self) -> None:
+        print(self.profile_picture.path)
+        self.profile_picture = None
+        self.save(update_fields=["profile_picture"])
 
     def __str__(self):
         return f"{self.user.username}"

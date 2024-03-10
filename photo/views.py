@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import (
     CreateView,
@@ -8,27 +8,72 @@ from django.views.generic import (
     DetailView,
     ListView,
     UpdateView,
+    View,
 )
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
-from .models import Gallery, Picture
+from .models import Gallery, Picture, ProfilePictureRequest
 
 
 @login_required
 def profile_picture_request(request):
-    form = ProfilePictureRequestForm()
+    """
+    Creates request model to set a profile picture. When user has sent photo and photo hasn't been accepted or rejected
+    then user doesn't create request just edit them.
+    """
+    picture = ProfilePictureRequest.objects.filter(
+        profile=request.user.profile, is_accepted=False, is_rejected=False
+    ).first()
+
+    form = ProfilePictureRequestForm(instance=picture)
+
     if request.method == "POST":
         form = ProfilePictureRequestForm(request.POST, request.FILES)
         if form.is_valid():
             instance = form.save(commit=False)
             instance.profile = request.user.profile
             instance.save()
+
             messages.success(
                 request, "Your profile picture request has sent successfully."
             )
-            return redirect("profile", username=request.user.username)
+            return redirect("account:profile", username=request.user.username)
 
     return render(request, "photo/profile_picture_request_form.html", {"form": form})
+
+
+class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "photo/profile_picture_response.html"
+
+    def get_object(self):
+        return self.model
+
+    def get(self, request, *args, **kwargs):
+        context = {}
+        profile_picture = (
+            ProfilePictureRequest.objects.filter(is_accepted=False, is_rejected=False)
+            .order_by("?")
+            .first()
+        )
+        if profile_picture:
+            currently_photo = profile_picture.profile.profile_picture
+            if currently_photo:
+                context["currently_photo"] = currently_photo.url
+
+        context["object"] = profile_picture
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get("action")
+        picture_id = request.POST.get("profile_picture_id")
+        instance = ProfilePictureRequest.objects.get(pk=picture_id)
+        getattr(instance, action)()
+
+        return self.get(request, *args, **kwargs)
+
+    def test_func(self):
+        return self.request.user.is_superuser
 
 
 class GalleryCreateView(LoginRequiredMixin, CreateView):

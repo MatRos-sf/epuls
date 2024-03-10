@@ -96,6 +96,15 @@
                             <button type="button" class="list-group-item list-group-item-action" disabled>Puls</button>
                             <button type="button" class="list-group-item list-group-item-action" disabled></button>
                         </div>
+                        {% if user.is_superuser %}
+                            <h5>Admin menu</h5>
+                            <div class="list-group m-3">
+                                {% get_username request.resolver_match.kwargs user.username as menu_user %}
+                                <a type="button"
+                                   class="list-group-item list-group-item-action"
+                                   href="{% url 'photo:profile-picture-response' %}">Profile Photo</a>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endif %}
             </div>

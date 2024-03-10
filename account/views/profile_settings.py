@@ -5,15 +5,15 @@ from django.views.generic import UpdateView
 from account.forms import AboutUserForm, ProfileForm
 from account.models import AboutUser, Profile
 from puls.models import PulsType, SinglePuls
-from puls.scaler import scale_puls
+from puls.scaler import give_away_puls
 
 
-class UserSettings(LoginRequiredMixin, UserPassesTestMixin):
+class UserSettings(UserPassesTestMixin):
     def test_func(self):
         return self.get_object().username == self.request.user.username
 
 
-class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, UserSettings, UpdateView):
     template_name = "account/forms.html"
     model = Profile
     form_class = ProfileForm
@@ -26,8 +26,19 @@ class ProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         profile = self.get_object()
         return reverse("account:profile", kwargs={"username": profile.user.username})
 
-    def test_func(self):
-        return self.get_object().user == self.request.user
+
+def check_is_value_set(puls_instance, model_attr: str) -> bool:
+    """
+    Checks that attr is set or attr is waiting for accepted in SinglePuls.
+    """
+    value = getattr(puls_instance, model_attr)
+    is_pulses = SinglePuls.objects.filter(
+        puls=puls_instance,
+        type=getattr(PulsType, model_attr.upper()),
+        is_accepted=False,
+    ).exists()
+
+    return value or is_pulses
 
 
 class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -52,9 +63,6 @@ class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def __give_puls(self, model: Profile, name_attr: str) -> None:
         instance = getattr(model, name_attr)
-        if instance.is_set():
-            if not model.puls.check_is_value_set(name_attr):
-                puls_type = getattr(PulsType, name_attr.upper())
-                qnt = scale_puls(puls_type)
-
-                SinglePuls.objects.create(puls=model.puls, type=puls_type, quantity=qnt)
+        if not instance.is_set:
+            if instance.check_model_is_fill_up():
+                give_away_puls(user_profile=model, type="about_me")

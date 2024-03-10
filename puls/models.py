@@ -1,14 +1,15 @@
 from django.db import models
 from django.db.models import Q, Sum
 
-# class PulsTypeVariableValue(models.TextChoices):
-#     LOGINS = "logins", "LOGINS"
-#     GUESTBOOKS = "guestbooks", "GUESTBOOKS"
-#     MESSAGES = "messages", "MESSAGES"
-#     DIARIES = "diaries", "DIARIES"
-#     SURFING = "surfing", "SURFING"
-#     ACTIVITY = "activity", "ACTIVITY"
-#     TYPE = "type", "TYPE"
+
+class PulsTypeVariableValue(models.TextChoices):
+    LOGINS = "logins", "LOGINS"
+    GUESTBOOKS = "guestbooks", "GUESTBOOKS"
+    MESSAGES = "messages", "MESSAGES"
+    DIARIES = "diaries", "DIARIES"
+    SURFING = "surfing", "SURFING"
+    ACTIVITY = "activity", "ACTIVITY"
+    TYPE = "type", "TYPE"
 
 
 class PulsType(models.TextChoices):
@@ -23,6 +24,7 @@ class PulsType(models.TextChoices):
     SURFING = "surfing", "SURFING"
     ACTIVITY = "activity", "ACTIVITY"
     TYPE = "type", "TYPE"
+    BONUS = "bonus", "BONUS"
 
 
 class Puls(models.Model):
@@ -93,16 +95,16 @@ class Puls(models.Model):
         variable_value = self.sum_variable_value
         return int(sum([constant_value, variable_value]))
 
-    def check_is_value_set(self, model_attr):
+    def check_is_value_set(self, model_attr) -> bool:
+        """
+        Checks that attr is set or attr is waiting for accepted in SinglePuls.
+        """
         value = getattr(self, model_attr)
         is_pulses = SinglePuls.objects.filter(
             puls=self, type=getattr(PulsType, model_attr.upper()), is_accepted=False
         ).exists()
-        if not value and is_pulses:
-            return True
-        elif value:
-            return True
-        return False
+
+        return value or is_pulses
 
     def pull_not_accepted_puls(self):
         pulses = self.pulses.filter(is_accepted=False).aggregate(
@@ -134,12 +136,20 @@ class SinglePuls(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
 
-# class Bonus(models.Model):
-#     # type
-#     name = models.CharField(max_length=250)
-#     description = models.TextField(blank=True, null=True)
-#     start = models.DateField()
-#     end = models.DateField()
-#     scaler = models.FloatField()
-#
-#     is_all_user = models.BooleanField(default=True)
+class Bonus(models.Model):
+    name = models.CharField(max_length=250)
+    description = models.TextField(blank=True, null=True)
+    start = models.DateField()
+    end = models.DateField()
+    scaler = models.FloatField()
+    type = models.CharField(
+        max_length=50,
+        choices=[("all", "ALL"), *PulsTypeVariableValue.choices],
+        default="all",
+    )
+
+    class Meta:
+        verbose_name_plural = "Bonuses"
+
+    def __str__(self):
+        return f"{self.name}"
