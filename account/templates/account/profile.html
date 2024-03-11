@@ -150,7 +150,7 @@
                             </div>
                         </div>
                     {% endif %}
-                    {% if user == object.user %}
+                    {% if user == object %}
                         <a type="button"
                            class="btn btn-sm btn-success"
                            href="{% url 'account:update-profile' %}">Edit Profile</a>
