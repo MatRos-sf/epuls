@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 
@@ -29,18 +30,28 @@ class PulsType(models.TextChoices):
 
 class Puls(models.Model):
     profile_photo = models.IntegerField(
-        default=0, help_text="PLUS for accepted profile photo."
+        default=0,
+        help_text="PLUS for accepted profile photo.",
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
     )
     about_me = models.IntegerField(
-        default=0, help_text="PLUS for fill the section 'about me' in."
+        default=0,
+        help_text="PLUS for fill the section 'about me' in.",
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
     )
     presentation = models.IntegerField(
-        default=0, help_text="PLUS for fill own presentation in."
+        default=0,
+        help_text="PLUS for fill own presentation in.",
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
     )
-    schools = models.IntegerField(default=0, help_text="PLUS for fill schools in.")
+    schools = models.IntegerField(
+        default=0,
+        help_text="PLUS for fill schools in.",
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
+    )
 
     logins = models.IntegerField(default=0, help_text="PLUS for log in to the server.")
-    guestbooks = models.FloatField(
+    guestbooks = models.IntegerField(
         default=0, help_text="PLUS for entres to guestbooks."
     )
     messages = models.IntegerField(default=0, help_text="PULS for amount messages.")
