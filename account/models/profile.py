@@ -99,6 +99,14 @@ class Profile(models.Model):
         help_text="When this field is empty, it means that the curren type of user account is BASIC. Otherwise, it indicates the expiration of the current profile type.",
     )
 
+    # visitor
+    male_visitor = models.IntegerField(default=0)
+    female_visitor = models.IntegerField(default=0)
+
+    @property
+    def count_visitors(self) -> int:
+        return self.male_visitor + self.female_visitor
+
     @property
     def age(self) -> Optional[int]:
         """
