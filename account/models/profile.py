@@ -143,6 +143,9 @@ class ProfileTier(models.Model):
 
         super().save(*args, **kwargs)
 
+    class Meta:
+        ordering = ["-end_date"]
+
 
 class Visitor(models.Model):
     date_of_visit = models.DateTimeField(auto_now_add=True)
