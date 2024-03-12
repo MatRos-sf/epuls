@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Optional
 
 from django.contrib.auth.models import User
@@ -127,6 +128,20 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}"
+
+
+class ProfileTier(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    type = models.CharField(max_length=1, choices=ProfileType.choices)
+    start_date = models.DateField(auto_now_add=True)
+    end_date = models.DateField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.end_date = self.start_date + timedelta(days=31)
+
+        super().save(*args, **kwargs)
 
 
 class Visitor(models.Model):
