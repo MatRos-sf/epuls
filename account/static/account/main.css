@@ -13,3 +13,33 @@
     text-shadow: 1px 1px 1px white, -1px -1px 1px white, 1px -1px 1px white, -1px 1px 1px white;
     font-weight: bold;
 }
+
+.pagination > li > a
+{
+    background-color: white;
+    color: #198754;
+}
+
+.pagination > li > a:focus,
+.pagination > li > a:hover,
+.pagination > li > span:focus,
+.pagination > li > span:hover
+{
+    color: white;
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.pagination > .active > a
+{
+    color: white;
+    background-color: #198754 !Important;
+    border: solid 1px #198754 !Important;
+}
+
+.pagination > .active > a:hover
+{
+    background-color: white !Important;
+    border: solid 1px white;
+    color: #198754;
+}

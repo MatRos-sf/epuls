@@ -11,6 +11,9 @@ class Diary(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     is_hide = models.BooleanField(default=False, verbose_name="hide")
 
+    class Meta:
+        ordering = ("-created",)
+
     def get_absolute_url(self):
         return reverse(
             "account:diary-detail",

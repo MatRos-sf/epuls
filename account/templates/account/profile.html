@@ -150,12 +150,16 @@
                             </div>
                         </div>
                     {% endif %}
-                    <a type="button"
-                       class="btn btn-sm btn-success"
-                       href="{% url 'account:update-profile' %}">Edit Profile</a>
-                    <a type="button"
-                       class="btn btn-sm btn-success end-0"
-                       href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
+                    {% if user == object %}
+                        <a type="button"
+                           class="btn btn-sm btn-success"
+                           href="{% url 'account:update-profile' %}">Edit Profile</a>
+                        <a type="button"
+                           class="btn btn-sm btn-success end-0"
+                           href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
+                    {% else %}
+                        <a type="button" class="btn btn-sm btn-success end-0" href="#">Send request</a>
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
