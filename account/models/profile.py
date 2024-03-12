@@ -1,8 +1,9 @@
 from datetime import timedelta
-from typing import Optional
+from typing import NoReturn, Optional
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import F
 from django.db.models.fields.files import ImageField
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
@@ -140,6 +141,17 @@ class Profile(models.Model):
         print(self.profile_picture.path)
         self.profile_picture = None
         self.save(update_fields=["profile_picture"])
+
+    def add_visitor(self, gender: str) -> NoReturn:
+        """
+        Updates the visitor count for a gender-specific field in the Profile model.
+        """
+        if gender in ["male", "female"]:
+            Profile.objects.filter(pk=self.pk).update(
+                **{f"{gender}_visitor": F(f"{gender}_visitor") + 1}
+            )
+        else:
+            raise ValueError("Gender must be 'male' or 'female'!")
 
     def __str__(self):
         return f"{self.user.username}"

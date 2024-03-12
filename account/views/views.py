@@ -55,9 +55,14 @@ class ProfileView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
         user_instance = get_object_or_404(User, username=username)
-        if user_instance != self.request.user.username:
+
+        if user_instance != self.request.user:
             # user is Visitor
             Visitor.objects.create(visitor=self.request.user, receiver=user_instance)
+
+            gender = self.request.user.profile.get_gender_display().lower()
+            user_instance.profile.add_visitor(gender)
+
         return user_instance
 
     def get_context_data(self, **kwargs):
