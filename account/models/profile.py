@@ -69,9 +69,6 @@ class Profile(models.Model):
     short_description = models.TextField(blank=True, null=True, max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    type_of_profile = models.TextField(
-        choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1
-    )
     created = models.DateTimeField(auto_now_add=True)
 
     about_me = models.OneToOneField(
@@ -91,6 +88,16 @@ class Profile(models.Model):
     )
 
     puls = models.OneToOneField(Puls, models.CASCADE, blank=True, null=True)
+
+    # type of profile
+    type_of_profile = models.TextField(
+        choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1
+    )
+    expire_of_tier = models.DateField(
+        blank=True,
+        null=True,
+        help_text="When this field is empty, it means that the curren type of user account is BASIC. Otherwise, it indicates the expiration of the current profile type.",
+    )
 
     @property
     def age(self) -> Optional[int]:
@@ -128,23 +135,6 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}"
-
-
-class ProfileTier(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    type = models.CharField(max_length=1, choices=ProfileType.choices)
-    start_date = models.DateField(auto_now_add=True)
-    end_date = models.DateField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-
-    def save(self, *args, **kwargs):
-        if self._state.adding:
-            self.end_date = self.start_date + timedelta(days=31)
-
-        super().save(*args, **kwargs)
-
-    class Meta:
-        ordering = ["-end_date"]
 
 
 class Visitor(models.Model):
