@@ -84,7 +84,7 @@
                 <div class="col-5">
                     <div class="text-end">
                         <h5 class="mb-1">Puls</h5>
-                        <h4 class="mt-1 mb-3">0</h4>
+                        <h4 class="mt-1 mb-3">{{ object.profile.puls.puls }}</h4>
                         <p class="mb-1">
                             <b>Last seen online:</b>
                         </p>
@@ -97,6 +97,8 @@
                             <b>Razy na epulsie:</b>
                         </p>
                         <p class="mt-1">12554</p>
+                        <!-- visitor sector -->
+                        {% get_information_about_visitor object.profile %}
                     </div>
                 </div>
             </div>
