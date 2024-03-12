@@ -3,7 +3,7 @@ from typing import NoReturn, Optional
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import F
+from django.db.models import F, Max
 from django.db.models.fields.files import ImageField
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
@@ -168,3 +168,21 @@ class Visitor(models.Model):
     receiver = models.ForeignKey(
         User, on_delete=models.CASCADE, help_text="The user who had been visited."
     )
+
+    @classmethod
+    def get_visitor(cls, user: User, amt: int = 5):
+        """
+        Returns a qs of usernames for visitors who have visited the user's profile.
+        """
+        return (
+            cls.objects.filter(receiver=user)
+            .exclude(visitor=user)
+            .values("visitor")
+            .annotate(max_date=Max("date_of_visit"))
+            .order_by("-max_date")
+            .values_list(
+                "visitor__username",
+                "visitor__profile__gender",
+                "visitor__profile__profile_picture",
+            )[:amt]
+        )

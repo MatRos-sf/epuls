@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.views.generic import DetailView, ListView, View
 
 from account.forms import GuestbookUserForm, UserSignupForm
-from account.models import Guestbook, Profile, Visitor
+from account.models import Guestbook, Profile, ProfileType, Visitor
 from action.models import Action, ActionMessage
 from puls.models import PulsType
 from puls.scaler import give_away_puls
@@ -67,10 +67,32 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
+
+        # take last action
         context["action"] = Action.objects.filter(
             who__username=self.__get_user_for_path()
         ).first()
+
+        # take last visitors:
+        instance = context["object"]
+        if instance.username == self.request.user.username:
+            context["visitors"] = self.voyeur(instance.profile)
         return context
+
+    def voyeur(self, profile):
+        """
+        Returns a queryset of users who have visited the profile.
+        The size of the queryset may vary depending on the profile type.
+        """
+        match profile.type_of_profile:
+            case ProfileType.BASIC:
+                amt = 5
+            case ProfileType.PRO:
+                amt = 10
+            case _:
+                amt = 14
+
+        return Visitor.get_visitor(profile.user, amt)
 
     def __action(self, activity: str = "PROFILE") -> None:
         username = self.kwargs.get("username")
