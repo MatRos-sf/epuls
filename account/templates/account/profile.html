@@ -2,6 +2,31 @@
 {% load custom_tags %}
 {% load action_tags %}
 {% load static %}
+{% block visitors %}
+    <div class="list-group m-3">
+        <h6>Vistors</h6>
+        {% for v_name, v_gender, v_photo in visitors %}
+            <a type="button"
+               class="list-group-item list-group-item-action"
+               href="{% url 'account:profile' v_name %}">
+                <div class="row">
+                    <div class="col">
+                        {% if v_photo %}
+                            <img src="/media/{{ v_photo }}" width="40" height="50" alt="visitor image">
+                        {% else %}
+                            {% get_default_picture_photo v_gender as default_picture %}
+                            <img src="{% static default_picture %}"
+                                 width="40"
+                                 height="50"
+                                 alt="visitor image">
+                        {% endif %}
+                    </div>
+                    <div class="col">{{ v_name }}</div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+{% endblock %}
 {% block content %}
     <div class="container">
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
