@@ -183,6 +183,7 @@ class Visitor(models.Model):
             .values_list(
                 "visitor__username",
                 "visitor__profile__gender",
+                "visitor__profile__type_of_profile",
                 "visitor__profile__profile_picture",
             )[:amt]
         )

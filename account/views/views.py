@@ -1,8 +1,9 @@
-from typing import Any
+from typing import Any, List, Optional
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -73,26 +74,32 @@ class ProfileView(LoginRequiredMixin, DetailView):
             who__username=self.__get_user_for_path()
         ).first()
 
-        # take last visitors:
+        # check is user's profile
         instance = context["object"]
-        if instance.username == self.request.user.username:
-            context["visitors"] = self.voyeur(instance.profile)
+        is_user_profile = instance.username == self.request.user.username
+        context["self"] = is_user_profile
+
+        # take last visitors:
+        context["visitors"] = self.voyeur(instance.profile, is_user_profile)
+
         return context
 
-    def voyeur(self, profile):
+    def voyeur(self, profile: Profile, is_user_profile: bool) -> Optional[QuerySet]:
         """
         Returns a queryset of users who have visited the profile.
         The size of the queryset may vary depending on the profile type.
+        When user is in on their own profile, they can see 5, 10, or 14 visitors depending on the profile type.
+        If a user visits someone else's profile, they can see 0, 5, 10, 14 visitors depending on the profile type.
         """
-        match profile.type_of_profile:
-            case ProfileType.BASIC:
-                amt = 5
-            case ProfileType.PRO:
-                amt = 10
-            case _:
-                amt = 14
+        list_of_visitors_size = (5, 10, 14, 14) if is_user_profile else (0, 5, 10, 14)
+        list_of_profile_type: List[str] = [t[0] for t in ProfileType.choices]
 
-        return Visitor.get_visitor(profile.user, amt)
+        login_user_profile_type = self.request.user.profile.type_of_profile
+        size: int = list_of_visitors_size[
+            list_of_profile_type.index(login_user_profile_type)
+        ]
+
+        return Visitor.get_visitor(profile.user, size) if size else None
 
     def __action(self, activity: str = "PROFILE") -> None:
         username = self.kwargs.get("username")
@@ -164,7 +171,7 @@ class GuestbookView(LoginRequiredMixin, ListView):
         context = super(GuestbookView, self).get_context_data(**kwargs)
 
         context["self"] = self.request.user.username == self.__get_username_from_url()
-
+        print(context)
         return context
 
 
