@@ -1,0 +1,23 @@
+{% load custom_tags %}
+<div class="list-group m-3">
+    {% get_username request.resolver_match.kwargs user.username as menu_user %}
+    <a type="button"
+       class="list-group-item list-group-item-action"
+       href="{% url 'account:profile' menu_user %}">Profile</a>
+    <a type="button"
+       class="list-group-item list-group-item-action"
+       href="{% url 'account:guestbook' menu_user %}">Guestbook</a>
+    <a type="button"
+       class="list-group-item list-group-item-action"
+       href="{% url 'account:diary' menu_user %}">Diary</a>
+    <a type="button"
+       class="list-group-item list-group-item-action"
+       href="{% url 'account:friends' menu_user %}">Friends</a>
+    <a type="button"
+       class="list-group-item list-group-item-action"
+       href="{% url 'photo:gallery' menu_user %}">Gallery</a>
+    <!--TODO                            <button type="button" class="list-group-item list-group-item-action" disabled>kalsy i szkoły</button>-->
+    <a href='{% url "account:puls" menu_user %}'
+       type="button"
+       class="list-group-item list-group-item-action">Puls</a>
+</div>
