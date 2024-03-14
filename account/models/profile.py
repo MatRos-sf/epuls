@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F, Max
 from django.db.models.fields.files import ImageField
+from django.forms import ValidationError
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
@@ -12,6 +13,8 @@ from puls.models import Puls
 
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
+AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
+AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
 
 
 class ProfileType(models.TextChoices):
@@ -77,6 +80,8 @@ class Profile(models.Model):
     )
 
     friends = models.ManyToManyField(User, blank=True, related_name="friends")
+    best_friends = models.ManyToManyField(User, blank=True, related_name="best_friends")
+
     is_confirm = models.BooleanField(default=False)
 
     profile_picture = models.ImageField(
@@ -120,13 +125,40 @@ class Profile(models.Model):
         dob = self.date_of_birth
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
-    def add_friends(self, friend: User):
-        if friend.pk != self.pk:
-            self.friends.add(friend)
+    def add_friend(self, friend: User):
+        if friend.pk != self.user.pk:
+            max_amt_friends = AMOUNT_OF_FRIENDS[self.type_of_profile]
+            if self.friends.count() <= max_amt_friends:
+                self.friends.add(friend)
+                self.save()
+            else:
+                raise ValidationError("Your list of friends is too large.")
 
+    def remove_friend(self, friend: User):
+        self.friends.remove(friend)
         self.save()
 
-    def remove_friends(self, friend: User):
+    def add_best_friend(self, friend: User):
+        if self.type_of_profile != "B":
+            if self.user.pk != friend.pk and friend.pk in self.friends:
+                max_amt_best_friends = AMOUNT_OF_BEST_FRIENDS[self.type_of_profile]
+                if self.best_friends.count() <= max_amt_best_friends:
+                    self.best_friends.add(friend)
+                    self.save()
+                else:
+                    raise ValidationError(
+                        "You have the maximum amount of best friends!"
+                    )
+            else:
+                raise ValidationError(
+                    "You cannot add best friend if friend is not in your friends list or you are the best friend"
+                )
+        else:
+            raise ValidationError(
+                "You cannot add best friend because you have a basic account!"
+            )
+
+    def remove_best_friend(self, friend):
         self.friends.remove(friend)
         self.save()
 
