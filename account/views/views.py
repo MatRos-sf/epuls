@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpResponse
@@ -196,11 +196,14 @@ def send_to_friends(request, username):
     return redirect("account:profile", username=username)
 
 
-class InvitesListView(LoginRequiredMixin, ListView):
+class InvitesListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = "account/invite/list.html"
 
     def get_queryset(self):
         return FriendRequest.objects.filter(to_user=self.request.user)
+
+    def test_func(self):
+        return self.request.user.username == self.kwargs.get("username")
 
 
 def invite_accept(request, username, pk):
