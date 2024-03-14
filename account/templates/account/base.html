@@ -97,6 +97,7 @@
                                type="button"
                                class="list-group-item list-group-item-action">Puls</a>
                         </div>
+                        {% block visitors %}{% endblock %}
                         {% if user.is_superuser %}
                             <h5>Admin menu</h5>
                             <div class="list-group m-3">

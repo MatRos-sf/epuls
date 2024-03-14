@@ -104,7 +104,7 @@ class Puls(models.Model):
         """
         constant_value = self.sum_constant_value
         variable_value = self.sum_variable_value
-        return int(sum([constant_value, variable_value]))
+        return sum([constant_value, variable_value])
 
     def check_is_value_set(self, model_attr) -> bool:
         """

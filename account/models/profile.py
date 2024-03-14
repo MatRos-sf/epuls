@@ -1,7 +1,9 @@
-from typing import Optional
+from datetime import timedelta
+from typing import NoReturn, Optional
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import F, Max
 from django.db.models.fields.files import ImageField
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
@@ -68,9 +70,6 @@ class Profile(models.Model):
     short_description = models.TextField(blank=True, null=True, max_length=100)
     description = models.TextField(blank=True, null=True)
 
-    type_of_profile = models.TextField(
-        choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1
-    )
     created = models.DateTimeField(auto_now_add=True)
 
     about_me = models.OneToOneField(
@@ -90,6 +89,24 @@ class Profile(models.Model):
     )
 
     puls = models.OneToOneField(Puls, models.CASCADE, blank=True, null=True)
+
+    # type of profile
+    type_of_profile = models.TextField(
+        choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1
+    )
+    expire_of_tier = models.DateField(
+        blank=True,
+        null=True,
+        help_text="When this field is empty, it means that the curren type of user account is BASIC. Otherwise, it indicates the expiration of the current profile type.",
+    )
+
+    # visitor
+    male_visitor = models.IntegerField(default=0)
+    female_visitor = models.IntegerField(default=0)
+
+    @property
+    def count_visitors(self) -> int:
+        return self.male_visitor + self.female_visitor
 
     @property
     def age(self) -> Optional[int]:
@@ -125,6 +142,17 @@ class Profile(models.Model):
         self.profile_picture = None
         self.save(update_fields=["profile_picture"])
 
+    def add_visitor(self, gender: str) -> NoReturn:
+        """
+        Updates the visitor count for a gender-specific field in the Profile model.
+        """
+        if gender in ["male", "female"]:
+            Profile.objects.filter(pk=self.pk).update(
+                **{f"{gender}_visitor": F(f"{gender}_visitor") + 1}
+            )
+        else:
+            raise ValueError("Gender must be 'male' or 'female'!")
+
     def __str__(self):
         return f"{self.user.username}"
 
@@ -140,3 +168,22 @@ class Visitor(models.Model):
     receiver = models.ForeignKey(
         User, on_delete=models.CASCADE, help_text="The user who had been visited."
     )
+
+    @classmethod
+    def get_visitor(cls, user: User, amt: int = 5):
+        """
+        Returns a qs of usernames for visitors who have visited the user's profile.
+        """
+        return (
+            cls.objects.filter(receiver=user)
+            .exclude(visitor=user)
+            .values("visitor")
+            .annotate(max_date=Max("date_of_visit"))
+            .order_by("-max_date")
+            .values_list(
+                "visitor__username",
+                "visitor__profile__gender",
+                "visitor__profile__type_of_profile",
+                "visitor__profile__profile_picture",
+            )[:amt]
+        )
