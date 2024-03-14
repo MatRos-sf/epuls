@@ -60,14 +60,14 @@
                 <!-- photo section -->
                 <div class="col-2">
                     <div class="container">
-                        {% if object.profile.profile_picture %}
-                            <img src="{{ user.profile.profile_picture.url }}"
+                        {% if object.profile_picture %}
+                            <img src="{{ object.profile_picture.url }}"
                                  class="img-thumbnail"
                                  alt="..."
                                  width="250"
                                  height="350">
                         {% else %}
-                            {% get_default_picture_photo object.profile.gender as default_picture %}
+                            {% get_default_picture_photo object.gender as default_picture %}
                             <img src="{% static default_picture %}"
                                  class="img-thumbnail"
                                  alt="..."
@@ -121,13 +121,13 @@
                              viewBox="0 0 16 16">
                             <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
                         </svg>
-                        {{ object.username }}
+                        {{ object.user.username }}
                     </h4>
-                    <p class="mt-1">{{ object.profile.age }} years old!</p>
+                    <p class="mt-1">{{ object.age }} years old!</p>
                     <!-- TODO Country section <p class="mb-1">Country</p> -->
                     <p>
                         Poland
-                        {% if object.profile.voivodeship %}> {{ object.profile.voivodeship|title }}{% endif %}
+                        {% if object.voivodeship %}> {{ object.voivodeship|title }}{% endif %}
                     </p>
                     <!-- TODO city <p class="mt-1">voivodeship</p> -->
                     <p>{% action_tag action %}</p>
@@ -135,7 +135,7 @@
                 <div class="col-5">
                     <div class="text-end">
                         <h5 class="mb-1">Puls</h5>
-                        <h4 class="mt-1 mb-3">{{ object.profile.puls.puls }}</h4>
+                        <h4 class="mt-1 mb-3">{{ object.puls.puls }}</h4>
                         <p class="mb-1">
                             <b>Last seen online:</b>
                         </p>
@@ -149,11 +149,10 @@
                         </p>
                         <p class="mt-1">12554</p>
                         <!-- visitor sector -->
-                        {% get_information_about_visitor object.profile %}
+                        {% get_information_about_visitor object %}
                     </div>
                 </div>
             </div>
-            <h1>{{ visitors }}</h1>
             <!-- short description -->
             <div class="container" style="background-color: #FFAE6D">
                 <div class="row">
@@ -165,13 +164,13 @@
                                  direction="left"
                                  scrollamount="2"
                                  class="fs-6 m-2 "
-                                 style="color: white">{{ object.profile.short_description }}</marquee>
+                                 style="color: white">{{ object.short_description }}</marquee>
                     </div>
                 </div>
             </div>
-            {% if user != object.user %}
-                <div class="container text-end m-1">
-                    {% if object.profile.profile_picture %}
+            <div class="container text-end m-1">
+                {% if self %}
+                    {% if object.profile_picture %}
                         <!-- Button trigger modal -->
                         <button type="button"
                                 class="btn btn-sm btn-success"
@@ -204,24 +203,22 @@
                                 </div>
                             </div>
                         </div>
-                    {% endif %}
-                    {% if self %}
                         <a type="button"
                            class="btn btn-sm btn-success"
                            href="{% url 'account:update-profile' %}">Edit Profile</a>
                         <a type="button"
                            class="btn btn-sm btn-success end-0"
                            href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
-                    {% else %}
-                        <a type="button"
-                           class="btn btn-sm btn-success end-0"
-                           href="{% url 'account:send_invitation' object %}">Send request</a>
                     {% endif %}
-                </div>
-            {% endif %}
+                {% else %}
+                    <a type="button"
+                       class="btn btn-sm btn-success end-0"
+                       href="{% url 'account:send_invitation' object %}">Send request</a>
+                {% endif %}
+            </div>
         </div>
         <!-- section about -->
-        {% with about=object.profile.about_me %}
+        {% with about=object.about_me %}
             <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
                 <div class="container overflow-hidden text-start">
                     <h1 class="text-start">About me</h1>

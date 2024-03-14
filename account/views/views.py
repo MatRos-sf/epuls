@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 from django.http import HttpResponse
@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views.generic import DetailView, ListView, View
 
 from account.forms import GuestbookUserForm, UserSignupForm
-from account.models import FriendRequest, Guestbook, Profile, ProfileType, Visitor
+from account.models import Guestbook, Profile, ProfileType, Visitor
 from action.models import Action, ActionMessage
 from puls.models import PulsType
 from puls.scaler import give_away_puls
@@ -49,20 +49,26 @@ def signup(request) -> HttpResponse:
 class ProfileView(LoginRequiredMixin, DetailView):
     model = Profile
     template_name = "account/profile.html"
+    slug_field = "user__username"
+    slug_url_kwarg = "username"
 
     def __get_user_for_path(self):
         return self.kwargs.get("username", None)
 
     def get_object(self, queryset=None):
-        username = self.kwargs.get("username")
-        user_instance = get_object_or_404(User, username=username)
+        user_instance = super().get_object(queryset)
+        # username = self.kwargs.get("username")
+        # print(user_instance)
+        # #user_instance = get_object_or_404(User, username=username)
 
         if user_instance != self.request.user:
             # user is Visitor
-            Visitor.objects.create(visitor=self.request.user, receiver=user_instance)
+            Visitor.objects.create(
+                visitor=self.request.user, receiver=user_instance.user
+            )
 
             gender = self.request.user.profile.get_gender_display().lower()
-            user_instance.profile.add_visitor(gender)
+            user_instance.add_visitor(gender)
 
         return user_instance
 
@@ -76,11 +82,12 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
         # check is user's profile
         instance = context["object"]
-        is_user_profile = instance.username == self.request.user.username
+        is_user_profile = instance.user.username == self.request.user.username
+        print(is_user_profile)
         context["self"] = is_user_profile
 
         # take last visitors:
-        context["visitors"] = self.voyeur(instance.profile, is_user_profile)
+        context["visitors"] = self.voyeur(instance, is_user_profile)
 
         return context
 
@@ -172,51 +179,3 @@ class GuestbookView(LoginRequiredMixin, ListView):
         context["self"] = self.request.user.username == self.__get_username_from_url()
         print(context)
         return context
-
-
-class FriendsListView(LoginRequiredMixin, ListView):
-    template_name = "account/friends.html"
-
-    def get_queryset(self):
-        username = self.kwargs.get("username")
-        user = get_object_or_404(User, username=username)
-
-        return user.profile.friends.all()
-
-
-def send_to_friends(request, username):
-    obj, created = FriendRequest.objects.get_or_create(
-        from_user=request.user, to_user=User.objects.get(username=username)
-    )
-    if created:
-        messages.success(request, "Friend request sent!")
-    else:
-        messages.info(request, "Friend request was already sent!")
-
-    return redirect("account:profile", username=username)
-
-
-class InvitesListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
-    template_name = "account/invite/list.html"
-
-    def get_queryset(self):
-        return FriendRequest.objects.filter(to_user=self.request.user)
-
-    def test_func(self):
-        return self.request.user.username == self.kwargs.get("username")
-
-
-def invite_accept(request, username, pk):
-    instance = get_object_or_404(FriendRequest, pk=pk)
-    if not instance.accept():
-        messages.error(request, "You cannot accept this request!")
-    instance.delete()
-
-    return redirect("account:invites", username=username)
-
-
-def invite_reject(request, username, pk):
-    instance = get_object_or_404(FriendRequest, pk=pk)
-    instance.delete()
-
-    return redirect("account:invites", username=username)
