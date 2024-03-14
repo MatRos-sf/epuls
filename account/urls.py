@@ -13,8 +13,11 @@ from .views import (
     FriendsListView,
     GuestbookView,
     HomeView,
+    InvitesListView,
     ProfileUpdateView,
     ProfileView,
+    invite_accept,
+    send_to_friends,
     signup,
 )
 
@@ -29,6 +32,7 @@ urlpatterns = [
         name="logout",
     ),
     path("signup/", signup, name="signup"),
+    path("send_request/<str:username>/", send_to_friends, name="send_invitation"),
     path(
         "accounts/edit/",
         include(
@@ -79,6 +83,20 @@ urlpatterns = [
                         [
                             path("update/", update_puls, name="puls-update"),
                             path("", PulsDetailView.as_view(), name="puls"),
+                        ]
+                    ),
+                ),
+                path(
+                    "invites/",
+                    include(
+                        [
+                            path("", InvitesListView.as_view(), name="invites"),
+                            path(
+                                "accept/<int:pk>/", invite_accept, name="invite-accept"
+                            ),
+                            path(
+                                "reject/<int:pk>/", invite_accept, name="invite-reject"
+                            ),
                         ]
                     ),
                 ),

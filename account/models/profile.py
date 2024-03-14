@@ -128,7 +128,7 @@ class Profile(models.Model):
     def add_friend(self, friend: User):
         if friend.pk != self.user.pk:
             max_amt_friends = AMOUNT_OF_FRIENDS[self.type_of_profile]
-            if self.friends.count() <= max_amt_friends:
+            if self.friends.count() < max_amt_friends:
                 self.friends.add(friend)
                 self.save()
             else:
@@ -219,3 +219,27 @@ class Visitor(models.Model):
                 "visitor__profile__profile_picture",
             )[:amt]
         )
+
+
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(
+        User, related_name="from_user", on_delete=models.CASCADE
+    )
+    to_user = models.ForeignKey(User, related_name="to_user", on_delete=models.CASCADE)
+
+    def accept(self) -> bool:
+        try:
+            self.from_user.profile.add_friend(self.to_user)
+            self.to_user.profile.add_friend(self.from_user)
+        except ValidationError:
+            return False
+        return True
+
+    # def save(self, *args, **kwargs):
+    #     if self.is_accepted:
+    #         try:
+    #             self.from_user.profile.add_friend(self.to_user)
+    #             self.to_user.profile.add_friend(self.from_user)
+    #         except ValidationError:
+    #             ...
+    #     super().save(*args, **kwargs)

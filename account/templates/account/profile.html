@@ -176,7 +176,8 @@
                         <button type="button"
                                 class="btn btn-sm btn-success"
                                 data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">Delete profile photo</button>
+                                data-bs-target="#exampleModal"
+                                name="delete_profile_picture">Delete profile photo</button>
                         <!-- Modal -->
                         <div class="modal fade"
                              id="exampleModal"
@@ -212,7 +213,9 @@
                            class="btn btn-sm btn-success end-0"
                            href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
                     {% else %}
-                        <a type="button" class="btn btn-sm btn-success end-0" href="#">Send request</a>
+                        <a type="button"
+                           class="btn btn-sm btn-success end-0"
+                           href="{% url 'account:send_invitation' object %}">Send request</a>
                     {% endif %}
                 </div>
             {% endif %}

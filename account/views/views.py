@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.views.generic import DetailView, ListView, View
 
 from account.forms import GuestbookUserForm, UserSignupForm
-from account.models import Guestbook, Profile, ProfileType, Visitor
+from account.models import FriendRequest, Guestbook, Profile, ProfileType, Visitor
 from action.models import Action, ActionMessage
 from puls.models import PulsType
 from puls.scaler import give_away_puls
@@ -134,7 +134,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
         # delete profile picture
         profile = self.get_object().profile
         profile.delete_profile_picture()
-
         return self.get(request, *args, **kwargs)
 
 
@@ -183,3 +182,38 @@ class FriendsListView(LoginRequiredMixin, ListView):
         user = get_object_or_404(User, username=username)
 
         return user.profile.friends.all()
+
+
+def send_to_friends(request, username):
+    obj, created = FriendRequest.objects.get_or_create(
+        from_user=request.user, to_user=User.objects.get(username=username)
+    )
+    if created:
+        messages.success(request, "Friend request sent!")
+    else:
+        messages.info(request, "Friend request was already sent!")
+
+    return redirect("account:profile", username=username)
+
+
+class InvitesListView(LoginRequiredMixin, ListView):
+    template_name = "account/invite/list.html"
+
+    def get_queryset(self):
+        return FriendRequest.objects.filter(to_user=self.request.user)
+
+
+def invite_accept(request, username, pk):
+    instance = get_object_or_404(FriendRequest, pk=pk)
+    if not instance.accept():
+        messages.error(request, "You cannot accept this request!")
+    instance.delete()
+
+    return redirect("account:invites", username=username)
+
+
+def invite_reject(request, username, pk):
+    instance = get_object_or_404(FriendRequest, pk=pk)
+    instance.delete()
+
+    return redirect("account:invites", username=username)
