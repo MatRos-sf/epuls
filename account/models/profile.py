@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import F, Max
 from django.db.models.fields.files import ImageField
 from django.forms import ValidationError
+from django.urls import reverse
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
@@ -124,6 +125,9 @@ class Profile(models.Model):
         today = timezone.now().date()
         dob = self.date_of_birth
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    def get_absolute_url(self):
+        return reverse("account:profile", kwargs={"username": self.user.username})
 
     def add_friend(self, friend: User):
         if friend.pk != self.user.pk:
