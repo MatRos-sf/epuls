@@ -57,9 +57,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         user_instance = super().get_object(queryset)
-        # username = self.kwargs.get("username")
-        # print(user_instance)
-        # #user_instance = get_object_or_404(User, username=username)
 
         if user_instance != self.request.user:
             # user is Visitor
@@ -83,7 +80,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
         # check is user's profile
         instance = context["object"]
         is_user_profile = instance.user.username == self.request.user.username
-        print(is_user_profile)
         context["self"] = is_user_profile
 
         # take last visitors:

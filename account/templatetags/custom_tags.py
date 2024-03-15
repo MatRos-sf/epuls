@@ -32,13 +32,13 @@ def get_default_picture_photo(gender: str) -> LiteralString | str | bytes:
 def get_information_about_visitor(user_profile: Profile):
     html_code = ""
     if user_profile.type_of_profile == ProfileType.XTREME:
-        html_code = f"<p class='m-1'><b>Swing by your profile:</b> {user_profile.count_visitors}</p>"
+        html_code = f"<p class='mt-2'><b>Swing by your profile:</b> {user_profile.count_visitors}</p>"
 
     elif user_profile.type_of_profile == ProfileType.DIVINE:
         html_code = (
-            f"<p class='m-1'><b>Swing by your profile:</b> {user_profile.count_visitors}</p>"
-            f"<p class='m-1'><b>Female:</b> {user_profile.female_visitor}</p>"
-            f"<p class='m-1 '><b>Male:</b> {user_profile.male_visitor}</p>"
+            f"<p class='mt-2 mb-0'><b>Swing by your profile:</b> {user_profile.count_visitors}</p>"
+            f"<p class='my-0'><b>Female:</b> {user_profile.female_visitor}</p>"
+            f"<p class='my-0 '><b>Male:</b> {user_profile.male_visitor}</p>"
         )
 
     return mark_safe(html_code)  # nosec

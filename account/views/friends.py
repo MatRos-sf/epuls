@@ -16,6 +16,13 @@ class FriendsListView(LoginRequiredMixin, ListView):
 
         return user.profile.friends.all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        username = self.kwargs.get("username")
+        context["username"] = username
+        context["self"] = self.request.user.username == username
+        return context
+
 
 def send_to_friends(request, username):
     obj, created = FriendRequest.objects.get_or_create(

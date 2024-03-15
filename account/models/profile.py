@@ -110,6 +110,12 @@ class Profile(models.Model):
     male_visitor = models.IntegerField(default=0)
     female_visitor = models.IntegerField(default=0)
 
+    __currently_type = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__currently_type = self.type_of_profile
+
     @property
     def count_visitors(self) -> int:
         return self.male_visitor + self.female_visitor
@@ -191,6 +197,14 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile {self.user.username}"
+
+    def save(self, *args, **kwargs) -> None:
+        if self.type_of_profile != self.__currently_type:
+            pass
+            # TODO here implement what happend if sth change!
+
+        super().save(*args, **kwargs)
+        self.__currently_type = self.type_of_profile
 
 
 class Visitor(models.Model):
