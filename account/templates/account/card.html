@@ -1,0 +1,180 @@
+{% load custom_tags %}
+{% load image_tags %}
+{% load action_tags %}
+{% load static %}
+<div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+    <div class="row">
+        <!-- photo section -->
+        <div class="col-2">
+            <div class="container">
+                {% if object.profile_picture %}
+                    <img src="{{ object.profile_picture.url }}"
+                         class="img-thumbnail"
+                         alt="..."
+                         width="250"
+                         height="350">
+                {% else %}
+                    {% get_default_picture_photo object.gender as default_picture %}
+                    <img src="{% static default_picture %}"
+                         class="img-thumbnail"
+                         alt="..."
+                         width="250"
+                         height="350">
+                {% endif %}
+                <!-- section 'zaczepka' -->
+                <!-- TODO implement zaczepki -->
+                <div class="btn-group m-3" role="group" aria-label="Basic example">
+                    <button type="button" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="16"
+                             height="16"
+                             fill="currentColor"
+                             class="bi bi-emoji-kiss"
+                             viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12.493 13.368a7 7 0 1 1 2.489-4.858c.344.033.68.147.975.328a8 8 0 1 0-2.654 5.152 9 9 0 0 1-.81-.622m-3.731-3.22a13 13 0 0 0-1.107.318.5.5 0 1 1-.31-.95c.38-.125.802-.254 1.192-.343.37-.086.78-.153 1.103-.108.16.022.394.085.561.286.188.226.187.497.131.705a1.9 1.9 0 0 1-.31.593q-.115.16-.275.343.16.186.276.347c.142.197.256.397.31.595.055.208.056.479-.132.706-.168.2-.404.262-.563.284-.323.043-.733-.027-1.102-.113a15 15 0 0 1-1.191-.345.5.5 0 1 1 .31-.95c.371.12.761.24 1.109.321q.264.062.446.084a6 6 0 0 0-.502-.584.5.5 0 0 1 .002-.695 5.5 5.5 0 0 0 .5-.577 5 5 0 0 0-.448.082Zm.766-.087-.003-.001-.003-.001zm.002 1.867-.006.001zM6 8c.552 0 1-.672 1-1.5S6.552 5 6 5s-1 .672-1 1.5S5.448 8 6 8m2.757-.563a.5.5 0 0 0 .68-.194.93.93 0 0 1 .813-.493c.339 0 .645.19.813.493a.5.5 0 0 0 .874-.486A1.93 1.93 0 0 0 10.25 5.75c-.73 0-1.356.412-1.687 1.007a.5.5 0 0 0 .194.68M14 9.828c1.11-1.14 3.884.856 0 3.422-3.884-2.566-1.11-4.562 0-3.421Z" />
+                        </svg>
+                    </button>
+                    <button type="button" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="16"
+                             height="16"
+                             fill="currentColor"
+                             class="bi bi-person-raised-hand"
+                             viewBox="0 0 16 16">
+                            <path d="M6 6.207v9.043a.75.75 0 0 0 1.5 0V10.5a.5.5 0 0 1 1 0v4.75a.75.75 0 0 0 1.5 0v-8.5a.25.25 0 1 1 .5 0v2.5a.75.75 0 0 0 1.5 0V6.5a3 3 0 0 0-3-3H6.236a1 1 0 0 1-.447-.106l-.33-.165A.83.83 0 0 1 5 2.488V.75a.75.75 0 0 0-1.5 0v2.083c0 .715.404 1.37 1.044 1.689L5.5 5c.32.32.5.754.5 1.207" />
+                            <path d="M8 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3" />
+                        </svg>
+                    </button>
+                    <button type="button" class="btn btn-success">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="16"
+                             height="16"
+                             fill="currentColor"
+                             class="bi bi-hand-thumbs-up"
+                             viewBox="0 0 16 16">
+                            <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.288 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.114 1.564.415 2.068.723l.048.03c.272.165.578.348.97.484.397.136.861.217 1.466.217h3.5c.937 0 1.599-.477 1.934-1.064a1.86 1.86 0 0 0 .254-.912c0-.152-.023-.312-.077-.464.201-.263.38-.578.488-.901.11-.33.172-.762.004-1.149.069-.13.12-.269.159-.403.077-.27.113-.568.113-.857 0-.288-.036-.585-.113-.856a2 2 0 0 0-.138-.362 1.9 1.9 0 0 0 .234-1.734c-.206-.592-.682-1.1-1.2-1.272-.847-.282-1.803-.276-2.516-.211a10 10 0 0 0-.443.05 9.4 9.4 0 0 0-.062-4.509A1.38 1.38 0 0 0 9.125.111zM11.5 14.721H8c-.51 0-.863-.069-1.14-.164-.281-.097-.506-.228-.776-.393l-.04-.024c-.555-.339-1.198-.731-2.49-.868-.333-.036-.554-.29-.554-.55V8.72c0-.254.226-.543.62-.65 1.095-.3 1.977-.996 2.614-1.708.635-.71 1.064-1.475 1.238-1.978.243-.7.407-1.768.482-2.85.025-.362.36-.594.667-.518l.262.066c.16.04.258.143.288.255a8.34 8.34 0 0 1-.145 4.725.5.5 0 0 0 .595.644l.003-.001.014-.003.058-.014a9 9 0 0 1 1.036-.157c.663-.06 1.457-.054 2.11.164.175.058.45.3.57.65.107.308.087.67-.266 1.022l-.353.353.353.354c.043.043.105.141.154.315.048.167.075.37.075.581 0 .212-.027.414-.075.582-.05.174-.111.272-.154.315l-.353.353.353.354c.047.047.109.177.005.488a2.2 2.2 0 0 1-.505.805l-.353.353.353.354c.006.005.041.05.041.17a.9.9 0 0 1-.121.416c-.165.288-.503.56-1.066.56z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-10">
+            <div class="row">
+                <div class="col text-start">
+                    <h2 class="mb-1">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="16"
+                             height="16"
+                             fill="currentColor"
+                             class="bi bi-person-fill"
+                             viewBox="0 0 16 16">
+                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                        </svg>
+                        {{ object.user.username }}
+                    </h2>
+                    <p class="mt-1">{{ object.age }} years old!</p>
+                </div>
+                <div class="col text-end mx-3">
+                    <h2 class="fs-2 mb-0">Puls</h2>
+                    <h1 class="fs-1 mt-0">{{ object.puls.puls }}</h1>
+                </div>
+            </div>
+            <div class="row mt-0 ">
+                <div class="col text-start">
+                    <!-- TODO Country section <p class="mb-1">Country</p> -->
+                    <p class="my-0">
+                        Poland
+                        {% if object.voivodeship %}> {{ object.voivodeship|title }}{% endif %}
+                    </p>
+                    <!-- TODO city <p class="mt-1">voivodeship</p> -->
+                    <p class="my-0">{% action_tag action %}</p>
+                    {% get_information_about_visitor object as visitor_section %}
+                    {% if visitor_section %}{{ visitor_section }}{% endif %}
+                </div>
+                <div class="col text-end mx-3">
+                    <div class="row my-0">
+                        <b>Last seen online:</b>
+                        <p class="my-0">{{ object.user.last_login|date:"jS N" }}</p>
+                    </div>
+                    <div class="row my-1">
+                        <b>With us:</b>
+                        <p class="my-0">{{ object.user.date_joined|date:"Y-m-d" }}</p>
+                    </div>
+                    <div class="row my-1">
+                        <b>Razy na epulsie:</b>
+                        <p class="my-0">12554</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mx-2">
+        <div class="container" style="background-color: #FFAE6D">
+            <div class="row">
+                <div class="col-1 text-start">
+                    <h5 class="m-2" style="color: #fcc39e">Describe:</h5>
+                </div>
+                <div class="col-11">
+                    <marquee behavior="scroll"
+                             direction="left"
+                             scrollamount="2"
+                             class="fs-6 m-2 "
+                             style="color: white">{{ object.short_description }}</marquee>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="container text-end pe-4">
+            {% if self %}
+                {% if object.profile_picture %}
+                    <!-- Button trigger modal -->
+                    <button type="button"
+                            class="btn btn-sm btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#exampleModal"
+                            name="delete_profile_picture">Delete profile photo</button>
+                    <!-- Modal -->
+                    <div class="modal fade"
+                         id="exampleModal"
+                         tabindex="-1"
+                         aria-labelledby="exampleModalLabel"
+                         aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                    <button type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">Do you want to delete your profile picture?</div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-sm btn-success" data-bs-dismiss="modal">Close</button>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger" value="delete" name="button">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a type="button"
+                       class="btn btn-sm btn-success"
+                       href="{% url 'account:update-profile' %}">Edit Profile</a>
+                    <a type="button"
+                       class="btn btn-sm btn-success end-0"
+                       href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
+                {% endif %}
+            {% elif object.user in user.profile.friends.all %}
+                {{ user }}
+                <a type="button" class="btn btn-sm btn-success end-0" href="#">Delete</a>
+            {% else %}
+                <a type="button"
+                   class="btn btn-sm btn-success end-0"
+                   href="{% url 'account:send_invitation' object %}">Send request</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
