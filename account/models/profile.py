@@ -16,6 +16,7 @@ from puls.models import Puls
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
+POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
 
 
 class ProfileType(models.TextChoices):
