@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F, Max
 from django.db.models.fields.files import ImageField
+from django.forms import ValidationError
+from django.urls import reverse
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
@@ -12,6 +14,8 @@ from puls.models import Puls
 
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
+AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
+AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
 
 
 class ProfileType(models.TextChoices):
@@ -77,6 +81,8 @@ class Profile(models.Model):
     )
 
     friends = models.ManyToManyField(User, blank=True, related_name="friends")
+    best_friends = models.ManyToManyField(User, blank=True, related_name="best_friends")
+
     is_confirm = models.BooleanField(default=False)
 
     profile_picture = models.ImageField(
@@ -104,6 +110,12 @@ class Profile(models.Model):
     male_visitor = models.IntegerField(default=0)
     female_visitor = models.IntegerField(default=0)
 
+    __currently_type = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__currently_type = self.type_of_profile
+
     @property
     def count_visitors(self) -> int:
         return self.male_visitor + self.female_visitor
@@ -120,13 +132,43 @@ class Profile(models.Model):
         dob = self.date_of_birth
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
-    def add_friends(self, friend: User):
-        if friend.pk != self.pk:
-            self.friends.add(friend)
+    def get_absolute_url(self):
+        return reverse("account:profile", kwargs={"username": self.user.username})
 
+    def add_friend(self, friend: User):
+        if friend.pk != self.user.pk:
+            max_amt_friends = AMOUNT_OF_FRIENDS[self.type_of_profile]
+            if self.friends.count() < max_amt_friends:
+                self.friends.add(friend)
+                self.save()
+            else:
+                raise ValidationError("Your list of friends is too large.")
+
+    def remove_friend(self, friend: User):
+        self.friends.remove(friend)
         self.save()
 
-    def remove_friends(self, friend: User):
+    def add_best_friend(self, friend: User):
+        if self.type_of_profile != "B":
+            if self.user.pk != friend.pk and friend.pk in self.friends:
+                max_amt_best_friends = AMOUNT_OF_BEST_FRIENDS[self.type_of_profile]
+                if self.best_friends.count() <= max_amt_best_friends:
+                    self.best_friends.add(friend)
+                    self.save()
+                else:
+                    raise ValidationError(
+                        "You have the maximum amount of best friends!"
+                    )
+            else:
+                raise ValidationError(
+                    "You cannot add best friend if friend is not in your friends list or you are the best friend"
+                )
+        else:
+            raise ValidationError(
+                "You cannot add best friend because you have a basic account!"
+            )
+
+    def remove_best_friend(self, friend):
         self.friends.remove(friend)
         self.save()
 
@@ -154,7 +196,15 @@ class Profile(models.Model):
             raise ValueError("Gender must be 'male' or 'female'!")
 
     def __str__(self):
-        return f"{self.user.username}"
+        return f"Profile {self.user.username}"
+
+    def save(self, *args, **kwargs) -> None:
+        if self.type_of_profile != self.__currently_type:
+            pass
+            # TODO here implement what happend if sth change!
+
+        super().save(*args, **kwargs)
+        self.__currently_type = self.type_of_profile
 
 
 class Visitor(models.Model):
@@ -187,3 +237,27 @@ class Visitor(models.Model):
                 "visitor__profile__profile_picture",
             )[:amt]
         )
+
+
+class FriendRequest(models.Model):
+    from_user = models.ForeignKey(
+        User, related_name="from_user", on_delete=models.CASCADE
+    )
+    to_user = models.ForeignKey(User, related_name="to_user", on_delete=models.CASCADE)
+
+    def accept(self) -> bool:
+        try:
+            self.from_user.profile.add_friend(self.to_user)
+            self.to_user.profile.add_friend(self.from_user)
+        except ValidationError:
+            return False
+        return True
+
+    # def save(self, *args, **kwargs):
+    #     if self.is_accepted:
+    #         try:
+    #             self.from_user.profile.add_friend(self.to_user)
+    #             self.to_user.profile.add_friend(self.from_user)
+    #         except ValidationError:
+    #             ...
+    #     super().save(*args, **kwargs)

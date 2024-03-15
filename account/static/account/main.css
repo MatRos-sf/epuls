@@ -43,3 +43,8 @@
     border: solid 1px white;
     color: #198754;
 }
+
+.bg-orange
+{
+    background-color: #fff3d5 !important;
+}
