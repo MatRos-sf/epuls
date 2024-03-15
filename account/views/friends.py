@@ -36,6 +36,12 @@ def send_to_friends(request, username):
     return redirect("account:profile", username=username)
 
 
+def unfriend(request, username):
+    user_for_delete = get_object_or_404(User, username=username)
+    request.user.profile.remove_friend(user_for_delete)
+    return redirect("account:profile", username=user_for_delete)
+
+
 class InvitesListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     template_name = "account/invite/list.html"
 

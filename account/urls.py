@@ -19,6 +19,7 @@ from .views import (
     invite_accept,
     send_to_friends,
     signup,
+    unfriend,
 )
 
 app_name = "account"
@@ -42,6 +43,7 @@ urlpatterns = [
             ]
         ),
     ),
+    path("unfriend/<str:username>/", unfriend, name="unfriend"),
     path(
         "<str:username>/",
         include(

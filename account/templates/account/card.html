@@ -168,12 +168,13 @@
                        href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
                 {% endif %}
             {% elif object.user in user.profile.friends.all %}
-                {{ user }}
-                <a type="button" class="btn btn-sm btn-success end-0" href="#">Delete</a>
+                <a type="button"
+                   class="btn btn-sm btn-success end-0"
+                   href="{% url 'account:unfriend' object.user.username %}">Unfriend</a>
             {% else %}
                 <a type="button"
                    class="btn btn-sm btn-success end-0"
-                   href="{% url 'account:send_invitation' object %}">Send request</a>
+                   href="{% url 'account:send_invitation' object.user.username %}">Send request</a>
             {% endif %}
         </div>
     </div>

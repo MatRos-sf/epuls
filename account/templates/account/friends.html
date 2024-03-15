@@ -47,7 +47,7 @@
                     </div>
                     <div class="col-3 {% if forloop.counter|divisibleby:'2' %}bg-orange{% endif %}">
                         <div class="row ">
-                            <p class="my-0">{{ u }}</p>
+                            <a class="my-0" href="{{ u.profile.get_absolute_url }}">{{ u }}</a>
                             <p class="my-0">{{ u.profile.gender }}</p>
                         </div>
                     </div>
