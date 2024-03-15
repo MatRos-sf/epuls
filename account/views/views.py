@@ -78,3 +78,14 @@ class GuestbookView(LoginRequiredMixin, ListView):
         context["self"] = self.request.user.username == self.__get_username_from_url()
         print(context)
         return context
+
+
+class UserListView(ListView):
+    model = User
+    template_name = "account/user_list.html"
+
+    def get_queryset(self):
+        q = self.request.GET.get("q", None)
+        if q:
+            return User.objects.filter(username__icontains=q)
+        return User.objects.all()

@@ -1,0 +1,18 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="shadow p-3 mb-2 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1>Users!</h1>
+        </div>
+    </div>
+    <!-- Users section -->
+    <div class="shadow p-3 mb-2 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            {% for u in object_list %}
+                <p>
+                    <a href="{% url 'account:profile' u.username %}">{{ u }}</a>
+                </p>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

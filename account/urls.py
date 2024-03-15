@@ -16,6 +16,7 @@ from .views import (
     InvitesListView,
     ProfileUpdateView,
     ProfileView,
+    UserListView,
     invite_accept,
     send_to_friends,
     signup,
@@ -43,6 +44,7 @@ urlpatterns = [
             ]
         ),
     ),
+    path("users/", UserListView.as_view(), name="user-list"),
     path("unfriend/<str:username>/", unfriend, name="unfriend"),
     path(
         "<str:username>/",
