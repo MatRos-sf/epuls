@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import NoReturn, Optional
 
 from django.contrib.auth.models import User
@@ -10,12 +9,15 @@ from django.urls import reverse
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
+from clipboard.models import Clipboard
 from puls.models import Puls
 
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
-AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
+# AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
+AMOUNT_OF_FRIENDS = {"B": 1, "P": 2, "X": 3, "D": 4}
+
 POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
 
 
@@ -67,6 +69,13 @@ class AboutUser(models.Model):
         return False
 
 
+def create_a_signal(pro, old_type, new_type):
+    amt = AMOUNT_OF_FRIENDS[new_type]
+    users = list(pro.friends.all()[amt:])
+    pro.friends.remove(*users)
+    pro.save()
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.TextField(choices=Gender.choices, default=Gender.MALE)
@@ -116,6 +125,7 @@ class Profile(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__currently_type = self.type_of_profile
+        self.__previous_type = None
 
     @property
     def count_visitors(self) -> int:
@@ -201,11 +211,37 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if self.type_of_profile != self.__currently_type:
-            pass
-            # TODO here implement what happend if sth change!
+            if (
+                POWER_OF_PROFILE_TYPE[self.type_of_profile]
+                < POWER_OF_PROFILE_TYPE[self.__currently_type]
+            ):
+                # 1 friends check
+                amt = POWER_OF_PROFILE_TYPE[self.type_of_profile]
+                users = list(self.friends.all()[amt:])
+                if users:
+                    self.friends.remove(*users)
+                    cl = Clipboard.objects.create(owner=self)
+                    cl.friends.add(*users)
+            elif (
+                POWER_OF_PROFILE_TYPE[self.type_of_profile]
+                > POWER_OF_PROFILE_TYPE[self.__currently_type]
+            ):
+                cl = Clipboard.objects.filter(owner=self).first()
+                users = list(cl.friends.all())
+                # Clipboard OneToOne
+
+                self.friends.add(*users)
 
         super().save(*args, **kwargs)
         self.__currently_type = self.type_of_profile
+
+    @property
+    def currently_type(self) -> str:
+        return str(self.__currently_type)
+
+    @property
+    def previous_type(self) -> Optional[str]:
+        return str(self.__previous_type) if self.__previous_type else None
 
 
 class Visitor(models.Model):
