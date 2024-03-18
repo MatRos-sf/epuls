@@ -11,6 +11,8 @@ from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
 from puls.models import Puls
 
+from .emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
+
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
@@ -104,7 +106,15 @@ class Profile(models.Model):
     profile_picture = models.ImageField(
         upload_to="profile_picture", blank=True, null=True
     )
-
+    emotion = models.TextField(
+        choices=[
+            *BasicEmotion.choices,
+            *ProEmotion.choices,
+            *XtremeEmotion.choices,
+            *DivineEmotion.choices,
+        ],
+        default=BasicEmotion.HAPPINESS,
+    )
     # country = models.CharField(max_length=)
     voivodeship = models.CharField(
         choices=VOIVODESHIP_CHOICES, max_length=100, blank=True, null=True
