@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import NoReturn, Optional
 
 from django.contrib.auth.models import User
@@ -15,8 +14,17 @@ from puls.models import Puls
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
-AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
+# AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
+AMOUNT_OF_FRIENDS = {"B": 1, "P": 2, "X": 3, "D": 4}
+
 POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
+
+BASIC_TYPE = {"power": 0, "friends": 1, "best_friends": 1}
+PRO_TYPE = {"power": 1, "friends": 2, "best_friends": 2}
+XTREME_TYPE = {"power": 2, "friends": 3, "best_friends": 3}
+DIVINE_TYPE = {"power": 3, "friends": 4, "best_friends": 4}
+
+TYPE_OF_PROFILE = {"B": BASIC_TYPE, "P": PRO_TYPE, "X": XTREME_TYPE, "D": DIVINE_TYPE}
 
 
 class ProfileType(models.TextChoices):
@@ -65,6 +73,13 @@ class AboutUser(models.Model):
                 return True
 
         return False
+
+
+def create_a_signal(pro, old_type, new_type):
+    amt = AMOUNT_OF_FRIENDS[new_type]
+    users = list(pro.friends.all()[amt:])
+    pro.friends.remove(*users)
+    pro.save()
 
 
 class Profile(models.Model):
@@ -116,6 +131,7 @@ class Profile(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__currently_type = self.type_of_profile
+        self.__previous_type = None
 
     @property
     def count_visitors(self) -> int:
@@ -181,7 +197,6 @@ class Profile(models.Model):
         self.save(update_fields=["profile_picture"])
 
     def delete_profile_picture(self) -> None:
-        print(self.profile_picture.path)
         self.profile_picture = None
         self.save(update_fields=["profile_picture"])
 
@@ -199,13 +214,48 @@ class Profile(models.Model):
     def __str__(self):
         return f"Profile {self.user.username}"
 
-    def save(self, *args, **kwargs) -> None:
-        if self.type_of_profile != self.__currently_type:
-            pass
-            # TODO here implement what happend if sth change!
+    def reduce_friends(self, max_amt: int) -> None:
+        friends_to_delete = list(self.friends.all()[max_amt:])
 
+        if friends_to_delete:
+            self.friends.remove(*friends_to_delete)
+
+    def reduce_best_friends(self, max_amt: int) -> None:
+        bf_to_delete = list(self.best_friends.all()[max_amt:])
+
+        if bf_to_delete:
+            self.best_friends.remove(*bf_to_delete)
+
+    def revert_profile(self, new_type):
+        for key in new_type.keys():
+            if key == "power":
+                continue
+
+            amt = new_type[key]
+            field = getattr(self, "reduce_" + key)
+            field(amt)
+
+    def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
+        power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
+        power_of_new_type = TYPE_OF_PROFILE[new_type]["power"]
+
+        if power_of_old_type > power_of_new_type:
+            self.revert_profile(TYPE_OF_PROFILE[new_type])
+
+        self.type_of_profile = new_type
+        self.save()
+
+    def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
         self.__currently_type = self.type_of_profile
+
+    @property
+    def currently_type(self) -> str:
+        return str(self.__currently_type)
+
+    @property
+    def previous_type(self) -> Optional[str]:
+        return str(self.__previous_type) if self.__previous_type else None
 
 
 class Visitor(models.Model):
