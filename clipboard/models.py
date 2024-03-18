@@ -13,13 +13,18 @@ class Clipboard(models.Model):
     Additionally, the model has an expiry date set to 31 days. If the user doesn't update their profile type within this period, the clipboard will be destroyed.
     """
 
-    owner = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
+    owner = models.OneToOneField("account.Profile", on_delete=models.CASCADE)
     created = models.DateField(auto_now_add=True)
-    expiry = models.DateField(blank=True, null=True)
+    # expiry = models.DateField(blank=True, null=True)
 
     # Profile fields
-    friends = models.ManyToManyField(User, related_name="clipboard_friends")
-    best_friends = models.ManyToManyField(User, related_name="clipboard_best_friends")
+    friends = models.ManyToManyField(User, related_name="clipboard_friends", blank=True)
+    best_friends = models.ManyToManyField(
+        User, related_name="clipboard_best_friends", blank=True
+    )
 
-    def transfer_data(self, profile, profile_type):
-        ...
+    def update_clipboard(self, payload):
+        for key, value in payload.items():
+            field = getattr(self, key)
+            print(field)
+            field.add(*value)
