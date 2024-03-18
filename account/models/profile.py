@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils import timezone
 from localflavor.pl.pl_voivodeships import VOIVODESHIP_CHOICES
 
-from clipboard.models import Clipboard
 from puls.models import Puls
 
 # paths
@@ -19,6 +18,13 @@ AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 AMOUNT_OF_FRIENDS = {"B": 1, "P": 2, "X": 3, "D": 4}
 
 POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
+
+BASIC_TYPE = {"power": 0, "friends": 1, "best_friends": 1}
+PRO_TYPE = {"power": 1, "friends": 2, "best_friends": 2}
+XTREME_TYPE = {"power": 2, "friends": 3, "best_friends": 3}
+DIVINE_TYPE = {"power": 3, "friends": 4, "best_friends": 4}
+
+TYPE_OF_PROFILE = {"B": BASIC_TYPE, "P": PRO_TYPE, "X": XTREME_TYPE, "D": DIVINE_TYPE}
 
 
 class ProfileType(models.TextChoices):
@@ -191,7 +197,6 @@ class Profile(models.Model):
         self.save(update_fields=["profile_picture"])
 
     def delete_profile_picture(self) -> None:
-        print(self.profile_picture.path)
         self.profile_picture = None
         self.save(update_fields=["profile_picture"])
 
@@ -209,29 +214,38 @@ class Profile(models.Model):
     def __str__(self):
         return f"Profile {self.user.username}"
 
+    def reduce_friends(self, max_amt: int) -> None:
+        friends_to_delete = list(self.friends.all()[max_amt:])
+
+        if friends_to_delete:
+            self.friends.remove(*friends_to_delete)
+
+    def reduce_best_friends(self, max_amt: int) -> None:
+        bf_to_delete = list(self.best_friends.all()[max_amt:])
+
+        if bf_to_delete:
+            self.best_friends.remove(*bf_to_delete)
+
+    def revert_profile(self, new_type):
+        for key in new_type.keys():
+            if key == "power":
+                continue
+
+            amt = new_type[key]
+            field = getattr(self, "reduce_" + key)
+            field(amt)
+
+    def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
+        power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
+        power_of_new_type = TYPE_OF_PROFILE[new_type]["power"]
+
+        if power_of_old_type > power_of_new_type:
+            self.revert_profile(TYPE_OF_PROFILE[new_type])
+
+        self.type_of_profile = new_type
+        self.save()
+
     def save(self, *args, **kwargs) -> None:
-        if self.type_of_profile != self.__currently_type:
-            if (
-                POWER_OF_PROFILE_TYPE[self.type_of_profile]
-                < POWER_OF_PROFILE_TYPE[self.__currently_type]
-            ):
-                # 1 friends check
-                amt = POWER_OF_PROFILE_TYPE[self.type_of_profile]
-                users = list(self.friends.all()[amt:])
-                if users:
-                    self.friends.remove(*users)
-                    cl = Clipboard.objects.create(owner=self)
-                    cl.friends.add(*users)
-            elif (
-                POWER_OF_PROFILE_TYPE[self.type_of_profile]
-                > POWER_OF_PROFILE_TYPE[self.__currently_type]
-            ):
-                cl = Clipboard.objects.filter(owner=self).first()
-                users = list(cl.friends.all())
-                # Clipboard OneToOne
-
-                self.friends.add(*users)
-
         super().save(*args, **kwargs)
         self.__currently_type = self.type_of_profile
 
