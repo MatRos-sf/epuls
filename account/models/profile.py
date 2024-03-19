@@ -245,12 +245,26 @@ class Profile(models.Model):
             field = getattr(self, "reduce_" + key)
             field(amt)
 
+    def change_default_emotion(self, new_type):
+        """
+        Sets default emotions depending on profile_type. This method should be use when user change type of profile
+        from high to lower.
+        """
+        match new_type:
+            case "B":
+                self.emotion = BasicEmotion.HAPPINESS
+            case "P":
+                self.emotion = ProEmotion.NEUTRALITY
+            case "X":
+                self.emotion = XtremeEmotion.CONFUSION
+
     def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
         power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
         power_of_new_type = TYPE_OF_PROFILE[new_type]["power"]
 
         if power_of_old_type > power_of_new_type:
             self.revert_profile(TYPE_OF_PROFILE[new_type])
+            self.change_default_emotions(new_type)
 
         self.type_of_profile = new_type
         self.save()
