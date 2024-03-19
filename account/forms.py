@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from .models import AboutUser, Diary, Gender, Guestbook, Profile
+from .models.emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 
 FORM_CLASS = "form-group col-md-6 m-0 p-3"
 
@@ -29,7 +30,31 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ("date_of_birth", "short_description", "voivodeship", "gender")
+        fields = (
+            "date_of_birth",
+            "short_description",
+            "voivodeship",
+            "gender",
+            "emotion",
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        emotion_choices = list(BasicEmotion.choices)
+
+        if instance.type_of_profile == "P":
+            emotion_choices += list(ProEmotion.choices)
+        elif instance.type_of_profile == "X":
+            emotion_choices += [*ProEmotion.choices, *XtremeEmotion.choices]
+        elif instance.type_of_profile == "D":
+            emotion_choices += [
+                *ProEmotion.choices,
+                *XtremeEmotion.choices,
+                *DivineEmotion.choices,
+            ]
+
+        self.fields["emotion"].choices = emotion_choices
 
 
 class AboutUserForm(forms.ModelForm):

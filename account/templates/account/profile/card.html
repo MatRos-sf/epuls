@@ -90,6 +90,16 @@
                     <p class="my-0">{% action_tag action %}</p>
                     {% get_information_about_visitor object as visitor_section %}
                     {% if visitor_section %}{{ visitor_section }}{% endif %}
+                    <!-- emotions section -->
+                    <div class="row">
+                        <div class="col-2">
+                            <p style="font-size: 40px">&#x{{ object.emotion }};</p>
+                        </div>
+                        <div class="col">
+                            <div class="row text-start mt-2">Mood:</div>
+                            <div class="row my-0">{{ object.get_emotion_display }}</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col text-end mx-3">
                     <div class="row my-0">
