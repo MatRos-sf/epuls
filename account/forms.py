@@ -24,7 +24,10 @@ class ProfileForm(forms.ModelForm):
     date_of_birth = forms.DateField(
         label="Date of Birth",
         required=True,
-        widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+        widget=forms.DateInput(
+            format="%Y-%m-%d",
+            attrs={"type": "date", "class": "form-control form-control-sm"},
+        ),
         input_formats=["%Y-%m-%d"],
     )
 
@@ -37,6 +40,15 @@ class ProfileForm(forms.ModelForm):
             "gender",
             "emotion",
         )
+
+        widgets = {
+            "gender": forms.Select(attrs={"class": "form-select form-select-sm"}),
+            "emotion": forms.Select(attrs={"class": "form-select form-select-sm"}),
+            "voivodeship": forms.Select(attrs={"class": "form-select form-select-sm"}),
+            "short_description": forms.TextInput(
+                attrs={"class": "form-control form-control-sm"}
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -55,6 +67,22 @@ class ProfileForm(forms.ModelForm):
             ]
 
         self.fields["emotion"].choices = emotion_choices
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Column("date_of_birth", css_class="form-group col-md-3 m-0 p-3"),
+                Column("voivodeship", css_class="form-group col-md-3 m-0 p-3"),
+                Column("gender", css_class="form-group col-md-3 m-0 p-3"),
+                Column("emotion", css_class="form-group col-md-3 m-0 p-3"),
+                css_class="row",
+            ),
+            Row(
+                Column("short_description", css_class="form-group col-md-6 mb-0"),
+                css_class="row justify-content-center",
+            ),
+            Submit("submit", "Update", css_class="btn btn-sm btn-success m-2"),
+        )
 
 
 class AboutUserForm(forms.ModelForm):
