@@ -16,15 +16,13 @@ from .emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
-# AMOUNT_OF_FRIENDS = {"B": 60, "P": 80, "X": 130, "D": 200}
-AMOUNT_OF_FRIENDS = {"B": 1, "P": 2, "X": 3, "D": 4}
 
 POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
 
-BASIC_TYPE = {"power": 0, "friends": 1, "best_friends": 1}
-PRO_TYPE = {"power": 1, "friends": 2, "best_friends": 2}
-XTREME_TYPE = {"power": 2, "friends": 3, "best_friends": 3}
-DIVINE_TYPE = {"power": 3, "friends": 4, "best_friends": 4}
+BASIC_TYPE = {"power": 0, "friends": 60, "best_friends": 1}
+PRO_TYPE = {"power": 1, "friends": 80, "best_friends": 2}
+XTREME_TYPE = {"power": 2, "friends": 130, "best_friends": 3}
+DIVINE_TYPE = {"power": 3, "friends": 200, "best_friends": 4}
 
 TYPE_OF_PROFILE = {"B": BASIC_TYPE, "P": PRO_TYPE, "X": XTREME_TYPE, "D": DIVINE_TYPE}
 
@@ -75,13 +73,6 @@ class AboutUser(models.Model):
                 return True
 
         return False
-
-
-def create_a_signal(pro, old_type, new_type):
-    amt = AMOUNT_OF_FRIENDS[new_type]
-    users = list(pro.friends.all()[amt:])
-    pro.friends.remove(*users)
-    pro.save()
 
 
 class Profile(models.Model):
@@ -164,7 +155,7 @@ class Profile(models.Model):
 
     def add_friend(self, friend: User):
         if friend.pk != self.user.pk:
-            max_amt_friends = AMOUNT_OF_FRIENDS[self.type_of_profile]
+            max_amt_friends = TYPE_OF_PROFILE[self.type_of_profile]["friends"]
             if self.friends.count() < max_amt_friends:
                 self.friends.add(friend)
                 self.save()
