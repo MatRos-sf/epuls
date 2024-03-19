@@ -4,9 +4,7 @@ from django.dispatch import receiver
 
 from puls.models import Puls
 
-from .models.profile import AMOUNT_OF_FRIENDS, AboutUser, Profile
-
-POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
+from .models.profile import AboutUser, Profile
 
 
 @receiver(post_save, sender=User)
