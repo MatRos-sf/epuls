@@ -19,10 +19,10 @@ AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 
 POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
 
-BASIC_TYPE = {"power": 0, "friends": 60, "best_friends": 1}
-PRO_TYPE = {"power": 1, "friends": 80, "best_friends": 2}
-XTREME_TYPE = {"power": 2, "friends": 130, "best_friends": 3}
-DIVINE_TYPE = {"power": 3, "friends": 200, "best_friends": 4}
+BASIC_TYPE = {"power": 0, "friends": 60, "best_friends": 1, "gallery": 1}
+PRO_TYPE = {"power": 1, "friends": 80, "best_friends": 2, "gallery": 10}
+XTREME_TYPE = {"power": 2, "friends": 130, "best_friends": 3, "gallery": 15}
+DIVINE_TYPE = {"power": 3, "friends": 200, "best_friends": 4, "gallery": 500}
 
 TYPE_OF_PROFILE = {"B": BASIC_TYPE, "P": PRO_TYPE, "X": XTREME_TYPE, "D": DIVINE_TYPE}
 
@@ -127,6 +127,7 @@ class Profile(models.Model):
     male_visitor = models.IntegerField(default=0)
     female_visitor = models.IntegerField(default=0)
 
+    amt_of_galleries = models.PositiveSmallIntegerField(default=0)
     __currently_type = None
 
     def __init__(self, *args, **kwargs):
@@ -149,6 +150,9 @@ class Profile(models.Model):
         today = timezone.now().date()
         dob = self.date_of_birth
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    def pull_field_limit(self, name_field):
+        return TYPE_OF_PROFILE[self.type_of_profile].get(name_field, None)
 
     def get_absolute_url(self):
         return reverse("account:profile", kwargs={"username": self.user.username})
