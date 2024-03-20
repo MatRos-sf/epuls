@@ -1,8 +1,10 @@
 import os
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 from account.models import PROFILE_PICTURE_PATH
@@ -71,8 +73,6 @@ class Gallery(models.Model):
             "photo:gallery-detail",
             kwargs={"username": self.profile.user.username, "pk": self.pk},
         )
-
-    # def save(self, *args, **kwargs):
 
 
 class Picture(models.Model):

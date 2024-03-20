@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import (
     CreateView,
@@ -10,6 +11,8 @@ from django.views.generic import (
     UpdateView,
     View,
 )
+
+from account.models import Profile
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
 from .models import Gallery, Picture, ProfilePictureRequest
@@ -83,9 +86,21 @@ class GalleryCreateView(LoginRequiredMixin, CreateView):
     extra_context = {"topic": "Create Gallery"}
 
     def form_valid(self, form):
+        user_profile = self.request.user.profile
         instance = form.save(commit=False)
-        instance.profile = self.request.user.profile
-        return super(GalleryCreateView, self).form_valid(instance)
+        if user_profile.amt_of_galleries < user_profile.pull_field_limit("gallery"):
+            instance.profile = self.request.user.profile
+            # update Profile.amt_of_galleries + 1
+            Profile.objects.filter(id=user_profile.id).update(
+                amt_of_galleries=F("amt_of_galleries") + 1
+            )
+            return super(GalleryCreateView, self).form_valid(instance)
+        else:
+            messages.error(
+                self.request,
+                "Gallery cannot be created! Update your profile type to add more galleries. Or delete old ones!",
+            )
+            return self.form_invalid(form)
 
 
 class GalleryDetailView(LoginRequiredMixin, DetailView):

@@ -120,7 +120,8 @@ class Profile(models.Model):
     expire_of_tier = models.DateField(
         blank=True,
         null=True,
-        help_text="When this field is empty, it means that the curren type of user account is BASIC. Otherwise, it indicates the expiration of the current profile type.",
+        help_text="When this field is empty, it means that the curren type of user account is BASIC. "
+        "Otherwise, it indicates the expiration of the current profile type.",
     )
 
     # visitor
