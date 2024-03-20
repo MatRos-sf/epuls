@@ -79,7 +79,8 @@ class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
 class GalleryCreateView(LoginRequiredMixin, CreateView):
     model = Gallery
     form_class = GalleryForm
-    template_name = "photo/gallery_form.html"
+    template_name = "account/forms.html"
+    extra_context = {"topic": "Create Gallery"}
 
     def form_valid(self, form):
         instance = form.save(commit=False)

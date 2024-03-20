@@ -35,7 +35,7 @@ urlpatterns = [
         "gallery/",
         include(
             [
-                path("create", GalleryCreateView.as_view(), name="gallery-create"),
+                path("create/", GalleryCreateView.as_view(), name="gallery-create"),
                 path(
                     "<str:username>/",
                     include(

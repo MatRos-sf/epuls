@@ -72,6 +72,8 @@ class Gallery(models.Model):
             kwargs={"username": self.profile.user.username, "pk": self.pk},
         )
 
+    # def save(self, *args, **kwargs):
+
 
 class Picture(models.Model):
     title = models.CharField(max_length=100)
