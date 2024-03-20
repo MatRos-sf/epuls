@@ -5,7 +5,9 @@
             <h1 class="fs-2 epuls-style-text">Gallery</h1>
             {% if self %}
                 <p class="fs-3">Manage your own photo album to showcase your vibe.</p>
-                <button type="button" class="btn">Add Gallery</button>
+                <a type="button"
+                   class="btn btn-sm btn-success m-3"
+                   href="{% url 'photo:gallery-create' %}">Add Gallery</a>
             {% else %}
                 <p class="fs-3">Check out this gallery and discover what's in inside!</p>
             {% endif %}
