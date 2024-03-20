@@ -107,6 +107,11 @@ class GalleryListView(LoginRequiredMixin, ListView):
         username = self.kwargs.get("username")
         return Gallery.objects.filter(profile__user__username=username)
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["self"] = self.kwargs.get("username") == self.request.user.username
+        return context
+
 
 # CRUD PHOTO
 class PictureCreateView(LoginRequiredMixin, CreateView):

@@ -2,7 +2,13 @@
 {% block content %}
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
         <div class="container overflow-hidden text-center">
-            <button type="button" class="btn" disabled>Add Gallery</button>
+            <h1 class="fs-2 epuls-style-text">Gallery</h1>
+            {% if self %}
+                <p class="fs-3">Manage your own photo album to showcase your vibe.</p>
+                <button type="button" class="btn">Add Gallery</button>
+            {% else %}
+                <p class="fs-3">Check out this gallery and discover what's in inside!</p>
+            {% endif %}
             <div class="list-group">
                 {% for g in object_list %}
                     <a href="{% url 'photo:gallery-detail' user.username g.pk %}"
