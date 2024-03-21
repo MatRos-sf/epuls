@@ -15,8 +15,8 @@
                 <div class="btn-group" role="group" aria-label="Basic outlined example">
                     <a href="{% url 'photo:gallery-update' user.username object.pk %}"
                        class="btn btn-success">Edit</a>
-                    <!--                        <a href="{% url 'pho:diary-delete' user.username object.pk %}"-->
-                    <!--                           class="btn btn-success ">Delete</a>-->
+                    <a href="{% url 'photo:gallery-delete' user.username object.pk %}"
+                       class="btn btn-success ">Delete</a>
                 </div>
             {% endif %}
         </div>

@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import F
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -113,6 +113,24 @@ class GalleryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         gallery_pk = self.kwargs.get("pk")
         return get_object_or_404(
             Gallery, profile__user__username=username, pk=gallery_pk
+        )
+
+    def test_func(self):
+        return self.request.user.username == self.kwargs.get("username")
+
+
+class GalleryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Gallery
+    template_name = "photo/gallery/confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse("photo:gallery", kwargs={"username": self.request.user.username})
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(
+            Gallery,
+            profile__user__username=self.kwargs.get("username"),
+            pk=self.kwargs.get("pk"),
         )
 
     def test_func(self):

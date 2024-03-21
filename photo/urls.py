@@ -2,6 +2,7 @@ from django.urls import include, path
 
 from .views import (
     GalleryCreateView,
+    GalleryDeleteView,
     GalleryDetailView,
     GalleryListView,
     GalleryUpdateView,
@@ -55,6 +56,11 @@ urlpatterns = [
                                             "update/",
                                             GalleryUpdateView.as_view(),
                                             name="gallery-update",
+                                        ),
+                                        path(
+                                            "delete/",
+                                            GalleryDeleteView.as_view(),
+                                            name="gallery-delete",
                                         ),
                                     ]
                                 ),
