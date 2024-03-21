@@ -80,7 +80,6 @@ class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class GalleryCreateView(LoginRequiredMixin, CreateView):
-    model = Gallery
     form_class = GalleryForm
     template_name = "account/forms.html"
     extra_context = {"topic": "Create Gallery"}
@@ -94,13 +93,13 @@ class GalleryCreateView(LoginRequiredMixin, CreateView):
             Profile.objects.filter(id=user_profile.id).update(
                 amt_of_galleries=F("amt_of_galleries") + 1
             )
-            return super(GalleryCreateView, self).form_valid(instance)
         else:
             messages.error(
                 self.request,
                 "Gallery cannot be created! Update your profile type to add more galleries. Or delete old ones!",
             )
             return self.form_invalid(form)
+        return super().form_valid(form)
 
 
 class GalleryDetailView(LoginRequiredMixin, DetailView):

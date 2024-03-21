@@ -7,9 +7,11 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
-from account.models import PROFILE_PICTURE_PATH
+from account.models.profile import PROFILE_PICTURE_PATH
 from puls.models import PulsType
 from puls.scaler import give_away_puls
+
+# PROFILE_PICTURE_PATH = "profile_picture"
 
 
 class ProfilePictureRequest(models.Model):
@@ -65,7 +67,9 @@ class ProfilePictureRequest(models.Model):
 class Gallery(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
-    profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
+    profile = models.ForeignKey(
+        "account.Profile", on_delete=models.CASCADE, related_name="galleries"
+    )
     date_created = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):

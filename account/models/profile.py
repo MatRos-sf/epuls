@@ -17,7 +17,7 @@ from .emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 
-POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
+# POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
 
 BASIC_TYPE = {"power": 0, "friends": 60, "best_friends": 1, "gallery": 1}
 PRO_TYPE = {"power": 1, "friends": 80, "best_friends": 2, "gallery": 10}
@@ -232,6 +232,16 @@ class Profile(models.Model):
         if bf_to_delete:
             self.best_friends.remove(*bf_to_delete)
 
+    def reduce_gallery(self, max_amt: int) -> None:
+        galleries_to_delete = self.galleries.all().values_list("id", flat=True)[
+            max_amt:
+        ]
+
+        if galleries_to_delete:
+            from photo.models import Gallery
+
+            Gallery.objects.filter(id__in=galleries_to_delete).delete()
+
     def revert_profile(self, new_type):
         for key in new_type.keys():
             if key == "power":
@@ -260,7 +270,7 @@ class Profile(models.Model):
 
         if power_of_old_type > power_of_new_type:
             self.revert_profile(TYPE_OF_PROFILE[new_type])
-            self.change_default_emotions(new_type)
+            self.change_default_emotion(new_type)
 
         self.type_of_profile = new_type
         self.save()
@@ -332,3 +342,6 @@ class FriendRequest(models.Model):
     #         except ValidationError:
     #             ...
     #     super().save(*args, **kwargs)
+
+
+# __all__ = ['TYPE_OF_PROFILE', 'ProfileType', 'Gender', 'AboutUser', 'Profile','Visitor','FriendRequest']
