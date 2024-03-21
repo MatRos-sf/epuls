@@ -124,6 +124,9 @@ class GalleryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = "photo/gallery/confirm_delete.html"
 
     def get_success_url(self):
+        Profile.objects.filter(user=self.request.user).update(
+            amt_of_galleries=F("amt_of_galleries") - 1
+        )
         return reverse("photo:gallery", kwargs={"username": self.request.user.username})
 
     def get_object(self, queryset=None):

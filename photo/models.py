@@ -71,6 +71,7 @@ class Gallery(models.Model):
         "account.Profile", on_delete=models.CASCADE, related_name="galleries"
     )
     date_created = models.DateTimeField(auto_now_add=True)
+    # is_private = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse(

@@ -18,6 +18,7 @@ class GalleryForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GalleryForm, self).__init__(*args, **kwargs)
+        print(self.instance)
         for field in self.fields.values():
             field.label = ""
 
