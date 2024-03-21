@@ -4,6 +4,7 @@ from .views import (
     GalleryCreateView,
     GalleryDetailView,
     GalleryListView,
+    GalleryUpdateView,
     PictureCreateView,
     PictureDeleteView,
     PictureDetailView,
@@ -43,8 +44,20 @@ urlpatterns = [
                             path("", GalleryListView.as_view(), name="gallery"),
                             path(
                                 "<int:pk>/",
-                                GalleryDetailView.as_view(),
-                                name="gallery-detail",
+                                include(
+                                    [
+                                        path(
+                                            "",
+                                            GalleryDetailView.as_view(),
+                                            name="gallery-detail",
+                                        ),
+                                        path(
+                                            "update/",
+                                            GalleryUpdateView.as_view(),
+                                            name="gallery-update",
+                                        ),
+                                    ]
+                                ),
                             ),
                         ]
                     ),

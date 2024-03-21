@@ -82,7 +82,7 @@ class ProfilePictureResponseView(LoginRequiredMixin, UserPassesTestMixin, View):
 class GalleryCreateView(LoginRequiredMixin, CreateView):
     form_class = GalleryForm
     template_name = "account/forms.html"
-    extra_context = {"topic": "Create Gallery"}
+    extra_context = {"topic": "Update Gallery"}
 
     def form_valid(self, form):
         user_profile = self.request.user.profile
@@ -102,9 +102,26 @@ class GalleryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+class GalleryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Gallery
+    form_class = GalleryForm
+    template_name = "account/forms.html"
+    extra_context = {"topic": "Create Gallery"}
+
+    def get_object(self, queryset=None):
+        username = self.kwargs.get("username")
+        gallery_pk = self.kwargs.get("pk")
+        return get_object_or_404(
+            Gallery, profile__user__username=username, pk=gallery_pk
+        )
+
+    def test_func(self):
+        return self.request.user.username == self.kwargs.get("username")
+
+
 class GalleryDetailView(LoginRequiredMixin, DetailView):
     model = Gallery
-    template_name = "photo/gallery_detail.html"
+    template_name = "photo/gallery/detail.html"
 
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
@@ -116,7 +133,7 @@ class GalleryDetailView(LoginRequiredMixin, DetailView):
 
 class GalleryListView(LoginRequiredMixin, ListView):
     model = Gallery
-    template_name = "photo/gallery.html"
+    template_name = "photo/gallery/list.html"
 
     def get_queryset(self):
         username = self.kwargs.get("username")
