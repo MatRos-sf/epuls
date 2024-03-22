@@ -21,29 +21,29 @@ BASIC_TYPE = {
     "power": 0,
     "friends": 60,
     "best_friends": 1,
-    "gallery": 1,
     "picture": 5 * 1024 * 1024,
+    "gallery": 1,
 }
 PRO_TYPE = {
     "power": 1,
     "friends": 80,
     "best_friends": 2,
-    "gallery": 10,
     "picture": 10 * 1024 * 1024,
+    "gallery": 10,
 }
 XTREME_TYPE = {
     "power": 2,
     "friends": 130,
     "best_friends": 3,
-    "gallery": 15,
     "picture": 15 * 1024 * 1024,
+    "gallery": 15,
 }
 DIVINE_TYPE = {
     "power": 3,
     "friends": 200,
     "best_friends": 4,
-    "gallery": 500,
     "picture": 1000 * 1024 * 1024,
+    "gallery": 500,
 }
 
 TYPE_OF_PROFILE = {"B": BASIC_TYPE, "P": PRO_TYPE, "X": XTREME_TYPE, "D": DIVINE_TYPE}
