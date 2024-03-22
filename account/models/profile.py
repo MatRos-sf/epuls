@@ -17,12 +17,34 @@ from .emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 PROFILE_PICTURE_PATH = "profile_picture"
 AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 
-POWER_OF_PROFILE_TYPE = {"B": 0, "P": 1, "X": 2, "D": 3}
-
-BASIC_TYPE = {"power": 0, "friends": 60, "best_friends": 1}
-PRO_TYPE = {"power": 1, "friends": 80, "best_friends": 2}
-XTREME_TYPE = {"power": 2, "friends": 130, "best_friends": 3}
-DIVINE_TYPE = {"power": 3, "friends": 200, "best_friends": 4}
+BASIC_TYPE = {
+    "power": 0,
+    "friends": 60,
+    "best_friends": 1,
+    "gallery": 1,
+    "picture": 5 * 1024 * 1024,
+}
+PRO_TYPE = {
+    "power": 1,
+    "friends": 80,
+    "best_friends": 2,
+    "gallery": 10,
+    "picture": 10 * 1024 * 1024,
+}
+XTREME_TYPE = {
+    "power": 2,
+    "friends": 130,
+    "best_friends": 3,
+    "gallery": 15,
+    "picture": 15 * 1024 * 1024,
+}
+DIVINE_TYPE = {
+    "power": 3,
+    "friends": 200,
+    "best_friends": 4,
+    "gallery": 500,
+    "picture": 1000 * 1024 * 1024,
+}
 
 TYPE_OF_PROFILE = {"B": BASIC_TYPE, "P": PRO_TYPE, "X": XTREME_TYPE, "D": DIVINE_TYPE}
 
@@ -120,12 +142,19 @@ class Profile(models.Model):
     expire_of_tier = models.DateField(
         blank=True,
         null=True,
-        help_text="When this field is empty, it means that the curren type of user account is BASIC. Otherwise, it indicates the expiration of the current profile type.",
+        help_text="When this field is empty, it means that the curren type of user account is BASIC. "
+        "Otherwise, it indicates the expiration of the current profile type.",
     )
 
     # visitor
     male_visitor = models.IntegerField(default=0)
     female_visitor = models.IntegerField(default=0)
+
+    amt_of_galleries = models.PositiveSmallIntegerField(default=0)
+    size_of_pictures = models.PositiveIntegerField(
+        default=0,
+        help_text="Shows currently size of all pictures expressed by byte who belong to the particular user.",
+    )
 
     __currently_type = None
 
@@ -149,6 +178,14 @@ class Profile(models.Model):
         today = timezone.now().date()
         dob = self.date_of_birth
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+
+    def is_image_permitted(self, size: int) -> bool:
+        return (self.size_of_pictures + size) < TYPE_OF_PROFILE[self.type_of_profile][
+            "picture"
+        ]
+
+    def pull_field_limit(self, name_field):
+        return TYPE_OF_PROFILE[self.type_of_profile].get(name_field, None)
 
     def get_absolute_url(self):
         return reverse("account:profile", kwargs={"username": self.user.username})
@@ -227,6 +264,35 @@ class Profile(models.Model):
         if bf_to_delete:
             self.best_friends.remove(*bf_to_delete)
 
+    def reduce_gallery(self, max_amt: int) -> None:
+        galleries_to_delete = self.galleries.all().values_list("id", flat=True)[
+            max_amt:
+        ]
+
+        if galleries_to_delete:
+            from photo.models import Gallery
+
+            Gallery.objects.filter(id__in=galleries_to_delete).delete()
+            self.amt_of_galleries -= len(galleries_to_delete)
+
+    def reduce_picture(self, max_amt: int) -> None:
+        from photo.models import Picture
+
+        id_pictures_to_delete = []
+        reduce_size = self.size_of_pictures - max_amt
+
+        for picture in Picture.objects.filter(gallery__profile=self):
+            if reduce_size <= 0:
+                break
+
+            reduce_size -= picture.picture.size
+            id_pictures_to_delete.append(picture.id)
+
+        if id_pictures_to_delete:
+            Picture.objects.filter(id__in=id_pictures_to_delete).delete()
+
+        self.size_of_pictures = self.size_of_pictures - reduce_size
+
     def revert_profile(self, new_type):
         for key in new_type.keys():
             if key == "power":
@@ -255,7 +321,7 @@ class Profile(models.Model):
 
         if power_of_old_type > power_of_new_type:
             self.revert_profile(TYPE_OF_PROFILE[new_type])
-            self.change_default_emotions(new_type)
+            self.change_default_emotion(new_type)
 
         self.type_of_profile = new_type
         self.save()
@@ -327,3 +393,6 @@ class FriendRequest(models.Model):
     #         except ValidationError:
     #             ...
     #     super().save(*args, **kwargs)
+
+
+# __all__ = ['TYPE_OF_PROFILE', 'ProfileType', 'Gender', 'AboutUser', 'Profile','Visitor','FriendRequest']

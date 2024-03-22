@@ -1,0 +1,41 @@
+{% extends "account/base.html" %}
+{% load static %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <!-- content -->
+            <div class="row justify-content-center">
+                <div class="col">
+                    <h1>{{ object.name }}</h1>
+                    <p>{{ object.description }}</p>
+                </div>
+            </div>
+            <!-- buttons -->
+            {% if user == object.profile.user %}
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <a href="{% url 'photo:gallery-update' user.username object.pk %}"
+                       class="btn btn-success">Edit</a>
+                    <a href="{% url 'photo:gallery-delete' user.username object.pk %}"
+                       class="btn btn-success ">Delete</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <!-- pictures -->
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <!-- content -->
+            <div class="row justify-content-center">
+                {% for picture in object.pictures.all %}
+                    <div class="col-3">
+                        <a href="{{ picture.get_absolute_url }}">
+                            <img src="{{ picture.picture.url }}"
+                                 class="img-thumbnail"
+                                 alt="{{ picture.title }}">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

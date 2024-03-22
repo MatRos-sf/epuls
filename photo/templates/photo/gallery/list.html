@@ -1,0 +1,25 @@
+{% extends "account/base.html" %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1 class="fs-2 epuls-style-text">Gallery</h1>
+            {% if self %}
+                <p class="fs-3">Manage your own photo album to showcase your vibe.</p>
+                <a type="button"
+                   class="btn btn-sm btn-success m-3"
+                   href="{% url 'photo:gallery-create' %}">Add Gallery</a>
+                <a type="button"
+                   class="btn btn-sm btn-success m-3"
+                   href="{% url 'photo:picture-create' %}">Add Picture</a>
+            {% else %}
+                <p class="fs-3">Check out this gallery and discover what's in inside!</p>
+            {% endif %}
+            <div class="list-group">
+                {% for g in object_list %}
+                    <a href="{% url 'photo:gallery-detail' user.username g.pk %}"
+                       class="list-group-item list-group-item-action">{{ g.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

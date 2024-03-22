@@ -2,13 +2,14 @@ from django.urls import include, path
 
 from .views import (
     GalleryCreateView,
+    GalleryDeleteView,
     GalleryDetailView,
     GalleryListView,
+    GalleryUpdateView,
     PictureCreateView,
     PictureDeleteView,
     PictureDetailView,
     PictureUpdateView,
-    PictureView,
     ProfilePictureResponseView,
     profile_picture_request,
 )
@@ -35,7 +36,7 @@ urlpatterns = [
         "gallery/",
         include(
             [
-                path("create", GalleryCreateView.as_view(), name="gallery-create"),
+                path("create/", GalleryCreateView.as_view(), name="gallery-create"),
                 path(
                     "<str:username>/",
                     include(
@@ -43,8 +44,25 @@ urlpatterns = [
                             path("", GalleryListView.as_view(), name="gallery"),
                             path(
                                 "<int:pk>/",
-                                GalleryDetailView.as_view(),
-                                name="gallery-detail",
+                                include(
+                                    [
+                                        path(
+                                            "",
+                                            GalleryDetailView.as_view(),
+                                            name="gallery-detail",
+                                        ),
+                                        path(
+                                            "update/",
+                                            GalleryUpdateView.as_view(),
+                                            name="gallery-update",
+                                        ),
+                                        path(
+                                            "delete/",
+                                            GalleryDeleteView.as_view(),
+                                            name="gallery-delete",
+                                        ),
+                                    ]
+                                ),
                             ),
                         ]
                     ),
@@ -52,7 +70,6 @@ urlpatterns = [
             ]
         ),
     ),
-    path("", PictureView.as_view(), name="picture"),
     path("create/", PictureCreateView.as_view(), name="picture-create"),
     path(
         "<int:pk>/",

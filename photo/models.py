@@ -1,13 +1,17 @@
 import os
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
-from account.models import PROFILE_PICTURE_PATH
+from account.models.profile import PROFILE_PICTURE_PATH
 from puls.models import PulsType
 from puls.scaler import give_away_puls
+
+# PROFILE_PICTURE_PATH = "profile_picture"
 
 
 class ProfilePictureRequest(models.Model):
@@ -63,8 +67,11 @@ class ProfilePictureRequest(models.Model):
 class Gallery(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
-    profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
+    profile = models.ForeignKey(
+        "account.Profile", on_delete=models.CASCADE, related_name="galleries"
+    )
     date_created = models.DateTimeField(auto_now_add=True)
+    # is_private = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse(
@@ -83,7 +90,22 @@ class Picture(models.Model):
     profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
 
-    # likes
+    class Meta:
+        ordering = ["-date_created"]
+
+    # TODO likes
+
+    def clean(self):
+        picture_size = self.picture.size
+
+        if not self.gallery.profile.is_image_permitted(picture_size):
+            raise ValidationError(
+                {
+                    "picture": _(
+                        "Picture is too big. Change picture or update your profile type."
+                    )
+                }
+            )
 
     def get_absolute_url(self):
         return reverse("photo:picture-detail", kwargs={"pk": self.pk})
