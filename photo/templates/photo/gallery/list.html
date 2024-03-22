@@ -8,6 +8,9 @@
                 <a type="button"
                    class="btn btn-sm btn-success m-3"
                    href="{% url 'photo:gallery-create' %}">Add Gallery</a>
+                <a type="button"
+                   class="btn btn-sm btn-success m-3"
+                   href="{% url 'photo:picture-create' %}">Add Picture</a>
             {% else %}
                 <p class="fs-3">Check out this gallery and discover what's in inside!</p>
             {% endif %}

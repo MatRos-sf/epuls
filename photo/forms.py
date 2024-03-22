@@ -53,3 +53,7 @@ class PictureForm(forms.ModelForm):
     class Meta:
         model = Picture
         exclude = ("profile", "date_created")
+
+    def clean_picture(self):
+        image = self.cleaned_data.get("picture")
+        return image

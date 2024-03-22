@@ -21,4 +21,21 @@
             {% endif %}
         </div>
     </div>
+    <!-- pictures -->
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <!-- content -->
+            <div class="row justify-content-center">
+                {% for picture in object.pictures.all %}
+                    <div class="col-3">
+                        <a href="{{ picture.get_absolute_url }}">
+                            <img src="{{ picture.picture.url }}"
+                                 class="img-thumbnail"
+                                 alt="{{ picture.title }}">
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock content %}

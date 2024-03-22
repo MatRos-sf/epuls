@@ -169,7 +169,7 @@ class GalleryListView(LoginRequiredMixin, ListView):
 # CRUD PHOTO
 class PictureCreateView(LoginRequiredMixin, CreateView):
     model = Picture
-    template_name = "photo/gallery_form.html"
+    template_name = "photo/picture/form.html"
     form_class = PictureForm
 
     def get_form_kwargs(self):
@@ -182,23 +182,41 @@ class PictureCreateView(LoginRequiredMixin, CreateView):
         instance.profile = self.request.user.profile
         return super(PictureCreateView, self).form_valid(form)
 
+    def get_success_url(self):
+        instance = self.object
+        size = instance.picture.size
+        Profile.objects.filter(pk=self.object.profile.pk).update(
+            size_of_pictures=F("size_of_pictures") + size
+        )
+        return super().get_success_url()
+
 
 class PictureUpdateView(LoginRequiredMixin, UpdateView):
     model = Picture
-    template_name = "photo/gallery_form.html"
+    template_name = "photo/picture/form.html"
     form_class = PictureForm
 
 
-class PictureDetailView(LoginRequiredMixin, DetailView):
+class PictureDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Picture
     template_name = "photo/picture/detail.html"
+
+    def test_func(self):
+        pk = self.kwargs.get("pk")
+        return Picture.objects.filter(
+            gallery__profile__user=self.request.user, pk=pk
+        ).exists()
 
 
 class PictureDeleteView(LoginRequiredMixin, DeleteView):
     model = Picture
-    template_name = "photo"
+    template_name = "photo/picture/confirm_delete.html"
 
+    def get_success_url(self):
+        return reverse("photo:gallery", kwargs={"username": self.request.user.username})
 
-class PictureView(LoginRequiredMixin, ListView):
-    model = Picture
-    template_name = "photo/picture-list.html"
+    def test_func(self):
+        pk = self.kwargs.get("pk")
+        return Picture.objects.filter(
+            gallery__profile__user=self.request.user, pk=pk
+        ).exists()

@@ -1,10 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Title</title>
-    </head>
-    <body>
-        <h1>;)</h1>
-    </body>
-</html>
+{% extends "account/base.html" %}
+{% load static %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <div class="row">
+                <!-- section picture -->
+                <div class="col-6">
+                    <img src="{{ object.picture.url }}"
+                         class="img-thumbnail"
+                         alt="{{ object.title }}">
+                </div>
+                <div class="col-6">
+                    <h1 class="fs-2 epuls-style-text">{{ object.title }}</h1>
+                    <span>{{ object.description }}</span>
+                    <div class="row my-3">
+                        <div class="col">
+                            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                <a href="{% url 'photo:picture-update' object.pk %}"
+                                   class="btn btn-success">Edit</a>
+                                <a href="{% url 'photo:picture-delete' object.pk %}"
+                                   class="btn btn-success">Del</a>
+                            </div>
+                        </div>
+                        <!-- TODO section commends -->
+                        <div class="mb-3">
+                            <label for="exampleFormControlTextarea1" class="form-label">Example comment form</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -10,7 +10,6 @@ from .views import (
     PictureDeleteView,
     PictureDetailView,
     PictureUpdateView,
-    PictureView,
     ProfilePictureResponseView,
     profile_picture_request,
 )
@@ -71,7 +70,6 @@ urlpatterns = [
             ]
         ),
     ),
-    path("", PictureView.as_view(), name="picture"),
     path("create/", PictureCreateView.as_view(), name="picture-create"),
     path(
         "<int:pk>/",

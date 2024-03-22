@@ -90,7 +90,22 @@ class Picture(models.Model):
     profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
 
-    # likes
+    class Meta:
+        ordering = ["-date_created"]
+
+    # TODO likes
+
+    def clean(self):
+        picture_size = self.picture.size
+
+        if not self.gallery.profile.is_image_permitted(picture_size):
+            raise ValidationError(
+                {
+                    "picture": _(
+                        "Picture is too big. Change picture or update your profile type."
+                    )
+                }
+            )
 
     def get_absolute_url(self):
         return reverse("photo:picture-detail", kwargs={"pk": self.pk})
