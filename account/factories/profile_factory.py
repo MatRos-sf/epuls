@@ -19,6 +19,14 @@ from faker import Faker
 from account.models import AboutUser, FriendRequest, Profile, Visitor
 from puls.factories import PulsFactory
 
+__all__ = [
+    "AboutUserFactory",
+    "UserFactory",
+    "ProfileFactory",
+    "VisitorFactory",
+    "FriendRequestFactory",
+]
+
 PASSWORD = "1_test_TEST_!"
 FAKE = Faker()
 
