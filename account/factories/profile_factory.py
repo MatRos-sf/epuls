@@ -16,12 +16,16 @@ from factory import (
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from account.models import FriendRequest, Profile, Visitor
+from account.models import AboutUser, FriendRequest, Profile, Visitor
+from puls.factories import PulsFactory
 
 PASSWORD = "1_test_TEST_!"
 FAKE = Faker()
 
-# TODO factory: about_me, puls
+
+class AboutUserFactory(DjangoModelFactory):
+    class Meta:
+        model = AboutUser
 
 
 class UserFactory(DjangoModelFactory):
@@ -38,8 +42,8 @@ class ProfileFactory(DjangoModelFactory):
         model = Profile
 
     user = SubFactory(UserFactory)
-    about_me = SubFactory(...)
-    puls = SubFactory(...)
+    about_me = SubFactory(AboutUserFactory)
+    puls = SubFactory(PulsFactory)
 
     @post_generation
     def friends(self, create, extracted, **kwargs):
