@@ -7,8 +7,8 @@ from django.test import TestCase, tag
 from django.utils import timezone
 from parameterized import parameterized
 
-from account.factories import UserFactory
-from account.models import TYPE_OF_PROFILE, AboutUser, Profile, ProfileType
+from account.factories import UserFactory, VisitorFactory
+from account.models import TYPE_OF_PROFILE, AboutUser, Profile, ProfileType, Visitor
 
 
 @tag("p")
@@ -230,3 +230,105 @@ class ProfileModelTest(TestCase):
 
             for user in users:
                 self.profile.add_best_friend(user)
+
+    @parameterized.expand(["male", "female"])
+    def test_should_update_visitor_when_is_gender_valid(self, gender):
+        self.profile.add_visitor(gender)
+        p = Profile.objects.first()
+        self.assertEquals(p.count_visitors, 1)
+        self.assertEquals(getattr(p, f"{gender}_visitor"), 1)
+
+    @parameterized.expand(["MALE", "FEMALE", "f", "m"])
+    def test_should_not_add_visitor_when_gender_is_incorrect(self, gender):
+        with self.assertRaises(ValueError) as ve:
+            self.profile.add_visitor(gender)
+        self.assertEquals(str(ve.exception), "Gender must be 'male' or 'female'!")
+
+    @parameterized.expand([ProfileType.PRO, ProfileType.BASIC, ProfileType.XTREME])
+    def test_should_reduce_picture_gallery_bf_friends_when_user_change_type_of_profile_to_lower(
+        self, new_type
+    ):
+        BASIC_TYPE = {
+            "power": 0,
+            "friends": 2,
+            "best_friends": 0,
+            "picture": 5 * 1024 * 1024,
+            "gallery": 1,
+        }
+        PRO_TYPE = {
+            "power": 1,
+            "friends": 4,
+            "best_friends": 2,
+            "picture": 10 * 1024 * 1024,
+            "gallery": 10,
+        }
+        XTREME_TYPE = {
+            "power": 2,
+            "friends": 6,
+            "best_friends": 3,
+            "picture": 15 * 1024 * 1024,
+            "gallery": 15,
+        }
+        DIVINE_TYPE = {
+            "power": 3,
+            "friends": 4,
+            "best_friends": 4,
+            "picture": 1000 * 1024 * 1024,
+            "gallery": 500,
+        }
+
+        FAKE_TYPE_OF_PROFILE = {
+            "B": BASIC_TYPE,
+            "P": PRO_TYPE,
+            "X": XTREME_TYPE,
+            "D": DIVINE_TYPE,
+        }
+
+        with patch.dict("account.models.TYPE_OF_PROFILE", FAKE_TYPE_OF_PROFILE):
+            users = UserFactory.create_batch(8)
+
+            self.profile.friends.add(*users)
+            self.profile.best_friends.add(*users[:4])
+
+            self.profile.amt_of_gallery = 510
+            self.profile.size_of_pictures = 1010 * 1024 * 1024
+            self.profile.type_of_profile = ProfileType.DIVINE
+            self.profile.save()
+
+            self.profile.change_type_of_profile(new_type)
+
+            self.assertEquals(
+                self.profile.friends.count(), FAKE_TYPE_OF_PROFILE[new_type]["friends"]
+            )
+            self.assertEquals(
+                self.profile.best_friends.count(),
+                FAKE_TYPE_OF_PROFILE[new_type]["best_friends"],
+            )
+            self.assertEquals(
+                self.profile.size_of_pictures, FAKE_TYPE_OF_PROFILE[new_type]["picture"]
+            )
+
+
+@tag("v")
+class VisitorModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(VisitorModelTest, cls).setUpClass()
+        users = UserFactory.create_batch(7)
+
+        main_user = users[0]
+
+        for user in users[1:]:
+            VisitorFactory.create_batch(2, visitor=user, receiver=main_user)
+
+    def setUp(self):
+        self.profile = Profile.objects.first()
+
+    def test_should_create_12_visitors_models(self):
+        self.assertEqual(Visitor.objects.count(), 12)
+
+    def test_should_return_5_last_visitors(self):
+        self.assertEquals(Visitor.get_visitor(self.profile.user).count(), 5)
+
+    def test_should_return_6_visitors_models(self):
+        self.assertEquals(Visitor.get_visitor(self.profile.user, 6).count(), 6)

@@ -15,7 +15,6 @@ from .emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
-# AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 
 BASIC_TYPE = {
     "power": 0,
@@ -239,7 +238,7 @@ class Profile(models.Model):
                 "You cannot add best friend because you have a basic account!"
             )
 
-    def remove_best_friend(self, friend):
+    def remove_best_friend(self, friend) -> None:
         self.friends.remove(friend)
         self.save()
 
@@ -259,9 +258,12 @@ class Profile(models.Model):
         Updates the visitor count for a gender-specific field in the Profile model.
         """
         if gender in ["male", "female"]:
+            # TODO -> different way ?
             Profile.objects.filter(pk=self.pk).update(
                 **{f"{gender}_visitor": F(f"{gender}_visitor") + 1}
             )
+            # visitor = getattr(self, f'{gender}_visitor')
+            # visitor =
         else:
             raise ValueError("Gender must be 'male' or 'female'!")
 
