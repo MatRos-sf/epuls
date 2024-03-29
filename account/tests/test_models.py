@@ -7,8 +7,15 @@ from django.test import TestCase, tag
 from django.utils import timezone
 from parameterized import parameterized
 
-from account.factories import UserFactory, VisitorFactory
-from account.models import TYPE_OF_PROFILE, AboutUser, Profile, ProfileType, Visitor
+from account.factories import FriendRequestFactory, UserFactory, VisitorFactory
+from account.models import (
+    TYPE_OF_PROFILE,
+    AboutUser,
+    FriendRequest,
+    Profile,
+    ProfileType,
+    Visitor,
+)
 
 
 @tag("p")
@@ -332,3 +339,25 @@ class VisitorModelTest(TestCase):
 
     def test_should_return_6_visitors_models(self):
         self.assertEquals(Visitor.get_visitor(self.profile.user, 6).count(), 6)
+
+
+@tag("fr")
+class FriendRequestModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(FriendRequestModelTest, cls).setUpClass()
+        user_one, user_two = UserFactory.create_batch(2)
+        FriendRequestFactory.create(from_user=user_one, to_user=user_two)
+
+    def setUp(self):
+        self.fr = FriendRequest.objects.first()
+
+    def test_should_create_one_request_factory(self):
+        self.assertEquals(FriendRequest.objects.count(), 1)
+
+    def test_should_accept_when_users_do_not_have_each_other_in_the_friends_list(self):
+        self.assertTrue(self.fr.accept())
+        profile_one, profile_two = Profile.objects.all()
+
+        self.assertTrue(profile_one.friends.filter(pk=profile_two.user.pk).exists())
+        self.assertTrue(profile_two.friends.filter(pk=profile_one.user.pk).exists())
