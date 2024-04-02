@@ -10,4 +10,4 @@ class UsernameMatchesMixin(UserPassesTestMixin):
     """
 
     def test_func(self):
-        return self.kwargs.get("username") == self.request.user
+        return self.kwargs.get("username") == self.request.user.username

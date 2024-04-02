@@ -129,8 +129,10 @@ class AddBestFriendsView(LoginRequiredMixin, UsernameMatchesMixin, View):
         user_to_add = User.objects.get(pk=pk)
         try:
             request.user.profile.add_best_friend(friend=user_to_add)
+            messages.success(
+                request, f"{user_to_add} has been added to your best friends list."
+            )
         except ValidationError as e:
-            print(e.messages)
             messages.error(request, e.messages[0])
 
         return redirect("account:best-friends", username=username)
