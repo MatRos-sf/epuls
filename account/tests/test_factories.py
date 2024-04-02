@@ -1,13 +1,26 @@
 from django.contrib.auth.models import User
 from django.test import TestCase, tag
+from faker import Faker
 
-from account.factories import (
-    DiaryFactory,
-    UserFactory,
-    generate_email,
-    generate_username,
-)
-from account.models import Diary
+from account.factories import AboutUserFactory, ProfileFactory, UserFactory
+from account.models import AboutUser, Diary, Profile
+from puls.models import Puls
+
+FAKE = Faker()
+
+
+def generate_username() -> str:
+    """
+    Returns a random username
+    """
+    return FAKE.profile(fields=["username"])["username"]
+
+
+def generate_email() -> str:
+    """
+    Returns a random username
+    """
+    return FAKE.profile(fields=["mail"])["mail"]
 
 
 class TestUserFactory(TestCase):
@@ -19,6 +32,18 @@ class TestUserFactory(TestCase):
     def test_should_created_eleven_users(self):
         self.assertEqual(User.objects.count(), 10)
 
+    def test_when_user_is_created_should_trigger_signals(self):
+        """
+        When user is created, it should create models: AboutUser, Profile and Puls
+        """
+        amt_of_users = User.objects.count()
+        self.assertTrue(
+            amt_of_users
+            == Profile.objects.count()
+            == AboutUser.objects.count()
+            == Puls.objects.count()
+        )
+
     def test_should_create_custom_user(self):
         expected_username = generate_username()
         expected_email = generate_email()
@@ -29,29 +54,30 @@ class TestUserFactory(TestCase):
         self.assertEqual(User.objects.last(), user)
 
 
-class TestGenerateUsername(TestCase):
-    def test_should_generate_username(self):
-        username = generate_username()
-        self.assertIsInstance(username, str)
-
-
-@tag("d_t")
-class DiaryFactoryTest(TestCase):
+class ProfileFactoryTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        super(DiaryFactoryTest, cls).setUpClass()
-        user_one = UserFactory.create(username="user_one")
-        user_two = UserFactory.create(username="user_two")
+        super(ProfileFactoryTest, cls).setUpClass()
+        UserFactory.create_batch(2)
 
-        for _ in range(5):
-            DiaryFactory(author=user_one)
-            DiaryFactory(author=user_two)
+    def setUp(self):
+        self.profile = Profile.objects.first()
 
-    def test_should_created_10_diaries(self):
-        self.assertEqual(Diary.objects.count(), 10)
+    def test_should_create_two_profile(self):
+        self.assertEquals(Profile.objects.count(), 2)
 
-    def test_user_one_should_have_five_diaries(self):
-        self.assertEqual(Diary.objects.filter(author__username="user_one").count(), 5)
+    def test_should_create_two_aboutuser_models(self):
+        self.assertEquals(AboutUser.objects.count(), 2)
 
-    def test_user_two_should_have_five_diaries(self):
-        self.assertEqual(Diary.objects.filter(author__username="user_two").count(), 5)
+    def test_should_create_two_pulses_models(self):
+        self.assertEquals(Puls.objects.count(), 2)
+
+
+class AboutUserFactoryTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(AboutUserFactoryTest, cls).setUpClass()
+        AboutUserFactory.create_batch(3)
+
+    def test_should_create_three_models(self):
+        self.assertEquals(AboutUser.objects.count(), 3)

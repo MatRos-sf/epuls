@@ -15,12 +15,11 @@ from .emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 
 # paths
 PROFILE_PICTURE_PATH = "profile_picture"
-AMOUNT_OF_BEST_FRIENDS = {"P": 5, "X": 10, "D": 20}
 
 BASIC_TYPE = {
     "power": 0,
     "friends": 60,
-    "best_friends": 1,
+    "best_friends": 0,
     "picture": 5 * 1024 * 1024,
     "gallery": 1,
 }
@@ -128,7 +127,8 @@ class Profile(models.Model):
         ],
         default=BasicEmotion.HAPPINESS,
     )
-    # country = models.CharField(max_length=)
+
+    # TODO country = models.CharField(max_length=)
     voivodeship = models.CharField(
         choices=VOIVODESHIP_CHOICES, max_length=100, blank=True, null=True
     )
@@ -137,7 +137,10 @@ class Profile(models.Model):
 
     # type of profile
     type_of_profile = models.TextField(
-        choices=ProfileType.choices, default=ProfileType.BASIC, max_length=1
+        choices=ProfileType.choices,
+        default=ProfileType.BASIC,
+        max_length=1,
+        help_text="WARNING! To change the profile type correctly, please use the 'change_type_of_profile' method",
     )
     expire_of_tier = models.DateField(
         blank=True,
@@ -158,10 +161,19 @@ class Profile(models.Model):
 
     __currently_type = None
 
-    def __init__(self, *args, **kwargs):
+    def __str__(self) -> str:
+        return f"{self.user.username}"
+
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.__currently_type = self.type_of_profile
-        self.__previous_type = None
+
+    def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
+        self.__currently_type = self.type_of_profile
+
+    def get_absolute_url(self) -> str:
+        return reverse("account:profile", kwargs={"username": self.user.username})
 
     @property
     def count_visitors(self) -> int:
@@ -179,6 +191,10 @@ class Profile(models.Model):
         dob = self.date_of_birth
         return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
 
+    @property
+    def currently_type(self) -> str:
+        return str(self.__currently_type)
+
     def is_image_permitted(self, size: int) -> bool:
         return (self.size_of_pictures + size) < TYPE_OF_PROFILE[self.type_of_profile][
             "picture"
@@ -186,9 +202,6 @@ class Profile(models.Model):
 
     def pull_field_limit(self, name_field):
         return TYPE_OF_PROFILE[self.type_of_profile].get(name_field, None)
-
-    def get_absolute_url(self):
-        return reverse("account:profile", kwargs={"username": self.user.username})
 
     def add_friend(self, friend: User):
         if friend.pk != self.user.pk:
@@ -205,8 +218,10 @@ class Profile(models.Model):
 
     def add_best_friend(self, friend: User):
         if self.type_of_profile != "B":
-            if self.user.pk != friend.pk and friend.pk in self.friends:
-                max_amt_best_friends = AMOUNT_OF_BEST_FRIENDS[self.type_of_profile]
+            if self.user.pk != friend.pk and friend.pk in self.friends.values_list(
+                "pk", flat=True
+            ):
+                max_amt_best_friends = TYPE_OF_PROFILE[self.type_of_profile]["friends"]
                 if self.best_friends.count() <= max_amt_best_friends:
                     self.best_friends.add(friend)
                     self.save()
@@ -223,7 +238,7 @@ class Profile(models.Model):
                 "You cannot add best friend because you have a basic account!"
             )
 
-    def remove_best_friend(self, friend):
+    def remove_best_friend(self, friend) -> None:
         self.friends.remove(friend)
         self.save()
 
@@ -243,14 +258,25 @@ class Profile(models.Model):
         Updates the visitor count for a gender-specific field in the Profile model.
         """
         if gender in ["male", "female"]:
+            # TODO -> different way ?
             Profile.objects.filter(pk=self.pk).update(
                 **{f"{gender}_visitor": F(f"{gender}_visitor") + 1}
             )
+            # visitor = getattr(self, f'{gender}_visitor')
+            # visitor =
         else:
             raise ValueError("Gender must be 'male' or 'female'!")
 
-    def __str__(self):
-        return f"Profile {self.user.username}"
+    def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
+        power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
+        power_of_new_type = TYPE_OF_PROFILE[new_type]["power"]
+
+        if power_of_old_type > power_of_new_type:
+            self.revert_profile(TYPE_OF_PROFILE[new_type])
+            self.change_default_emotion(new_type)
+
+        self.type_of_profile = new_type
+        self.save()
 
     def reduce_friends(self, max_amt: int) -> None:
         friends_to_delete = list(self.friends.all()[max_amt:])
@@ -314,29 +340,6 @@ class Profile(models.Model):
                 self.emotion = ProEmotion.NEUTRALITY
             case "X":
                 self.emotion = XtremeEmotion.CONFUSION
-
-    def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
-        power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
-        power_of_new_type = TYPE_OF_PROFILE[new_type]["power"]
-
-        if power_of_old_type > power_of_new_type:
-            self.revert_profile(TYPE_OF_PROFILE[new_type])
-            self.change_default_emotion(new_type)
-
-        self.type_of_profile = new_type
-        self.save()
-
-    def save(self, *args, **kwargs) -> None:
-        super().save(*args, **kwargs)
-        self.__currently_type = self.type_of_profile
-
-    @property
-    def currently_type(self) -> str:
-        return str(self.__currently_type)
-
-    @property
-    def previous_type(self) -> Optional[str]:
-        return str(self.__previous_type) if self.__previous_type else None
 
 
 class Visitor(models.Model):
