@@ -5,6 +5,8 @@ from puls.views import PulsDetailView, update_puls
 
 from .views import (
     AboutUserUpdateView,
+    AddBestFriendsView,
+    BestFriendsListView,
     DiaryCreateView,
     DiaryDeleteView,
     DiaryDetailView,
@@ -16,6 +18,7 @@ from .views import (
     InvitesListView,
     ProfileUpdateView,
     ProfileView,
+    RemoveBestFriendsView,
     UserListView,
     invite_accept,
     send_to_friends,
@@ -81,6 +84,26 @@ urlpatterns = [
                     ),
                 ),
                 path("friends/", FriendsListView.as_view(), name="friends"),
+                path(
+                    "best-friends/",
+                    include(
+                        [
+                            path(
+                                "", BestFriendsListView.as_view(), name="best-friends"
+                            ),
+                            path(
+                                "remove/<int:pk>/",
+                                RemoveBestFriendsView.as_view(),
+                                name="best-friend-remove",
+                            ),
+                            path(
+                                "add/<int:pk>/",
+                                AddBestFriendsView.as_view(),
+                                name="best-friend-add",
+                            ),
+                        ]
+                    ),
+                ),
                 path(
                     "puls/",
                     include(

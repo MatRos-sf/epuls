@@ -221,8 +221,10 @@ class Profile(models.Model):
             if self.user.pk != friend.pk and friend.pk in self.friends.values_list(
                 "pk", flat=True
             ):
-                max_amt_best_friends = TYPE_OF_PROFILE[self.type_of_profile]["friends"]
-                if self.best_friends.count() <= max_amt_best_friends:
+                max_amt_best_friends = TYPE_OF_PROFILE[self.type_of_profile][
+                    "best_friends"
+                ]
+                if self.best_friends.count() < max_amt_best_friends:
                     self.best_friends.add(friend)
                     self.save()
                 else:
@@ -238,8 +240,8 @@ class Profile(models.Model):
                 "You cannot add best friend because you have a basic account!"
             )
 
-    def remove_best_friend(self, friend) -> None:
-        self.friends.remove(friend)
+    def remove_best_friend(self, friend: User) -> None:
+        self.best_friends.remove(friend)
         self.save()
 
     def set_profile_picture(self, image_field: ImageField) -> None:

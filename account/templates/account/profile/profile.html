@@ -141,7 +141,9 @@
                 </div>
                 {% if self %}
                     <div class="container text-end m-1">
-                        <a type="button" class="btn btn-sm btn-success" href="#">Edit BFs</a>
+                        <a type="button"
+                           class="btn btn-sm btn-success"
+                           href="{% url 'account:best-friends' object.user.username %}">Edit BFs</a>
                     </div>
                 {% endif %}
             </div>

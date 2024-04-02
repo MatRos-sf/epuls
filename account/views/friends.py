@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.forms import ValidationError
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import ListView
+from django.views.generic import ListView, View
 
-from ..models import FriendRequest
+from ..models import FriendRequest, Profile, ProfileType
 
 
 class FriendsListView(LoginRequiredMixin, ListView):
@@ -66,3 +67,61 @@ def invite_reject(request, username, pk):
     instance.delete()
 
     return redirect("account:invites", username=username)
+
+
+class BestFriendsListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Profile
+    template_name = "account/bf_list.html"
+
+    def get_queryset(self):
+        owner = self.request.user
+        return Profile.objects.get(user=owner).friends.all()
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Extra context:
+            * bf_list: list of pk who are best friends
+        """
+        context = super().get_context_data(*args, **kwargs)
+        profile_instance = Profile.objects.get(user=self.request.user)
+        bf = profile_instance.best_friends.values_list("pk", flat=True)
+
+        context["bf_list"] = bf
+
+        return context
+
+    def test_func(self):
+        return self.request.user.profile.type_of_profile != ProfileType.BASIC
+
+
+class RemoveBestFriendsView(LoginRequiredMixin, UserPassesTestMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, username, pk):
+        """
+        Removes best friends from user best friends list.
+        """
+        user_to_del = User.objects.get(pk=pk)
+        request.user.profile.remove_best_friend(friend=user_to_del)
+        messages.success(
+            request, f"{user_to_del} has been removed for your best friends."
+        )
+        return redirect("account:best-friends", username=username)
+
+    def test_func(self):
+        login_user = self.request.user
+        return self.kwargs.get("username") == login_user.username
+
+
+class AddBestFriendsView(LoginRequiredMixin, View):
+    http_method_names = ["post"]
+
+    def post(self, request, username, pk):
+        user_to_add = User.objects.get(pk=pk)
+        try:
+            request.user.profile.add_best_friend(friend=user_to_add)
+        except ValidationError as e:
+            print(e.messages)
+            messages.error(request, e.messages[0])
+
+        return redirect("account:best-friends", username=username)
