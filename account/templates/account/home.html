@@ -17,19 +17,5 @@
                class="display-3 text-decoration-none">JOIN US!</a>
         </div>
         <!-- TODO: ostatnio zalogowani m/k i top 3 -->
-        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-            <div class="row">
-                <h1>Recently logged</h1>
-                {% for u in recently_login_users %}
-                    <div class="col text-center">
-                        <img src="{{ u.profile.profile_picture.url }}"
-                             class="img-thumbnail"
-                             alt="..."
-                             width="250"
-                             height="350">
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
     </div>
 {% endblock %}
