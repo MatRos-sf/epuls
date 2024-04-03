@@ -131,8 +131,18 @@ class AddBestFriendsViewTestCase(SimpleDBTestCase):
         self.user.profile.change_type_of_profile(ProfileType.BASIC)
         self.user.profile.save()
 
+        self.assertEqual(self.user.profile.best_friends.count(), 0)
+
         new_bf = User.objects.last()
         self.client.login(username=self.user.username, password=PASSWORD)
-        self.client.post(self.url(kwargs={"pk": new_bf.pk}))
+        response = self.client.post(self.url(kwargs={"pk": new_bf.pk}))
 
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
         self.assertEqual(self.user.profile.best_friends.count(), 0)
+
+    def test_should_return_404_when_user_does_not_exist(self):
+        from random import randint
+
+        self.client.login(username=self.user.username, password=PASSWORD)
+        rseponse = self.client.post(self.url(kwargs={"pk": randint(15, 100)}))
+        self.assertEqual(rseponse.status_code, 404)
