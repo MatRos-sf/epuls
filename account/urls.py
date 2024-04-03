@@ -50,6 +50,24 @@ urlpatterns = [
     path("users/", UserListView.as_view(), name="user-list"),
     path("unfriend/<str:username>/", unfriend, name="unfriend"),
     path(
+        "best-friends/",
+        include(
+            [
+                path("", BestFriendsListView.as_view(), name="best-friends"),
+                path(
+                    "remove/<int:pk>/",
+                    RemoveBestFriendsView.as_view(),
+                    name="best-friend-remove",
+                ),
+                path(
+                    "add/<int:pk>/",
+                    AddBestFriendsView.as_view(),
+                    name="best-friend-add",
+                ),
+            ]
+        ),
+    ),
+    path(
         "<str:username>/",
         include(
             [
@@ -84,26 +102,6 @@ urlpatterns = [
                     ),
                 ),
                 path("friends/", FriendsListView.as_view(), name="friends"),
-                path(
-                    "best-friends/",
-                    include(
-                        [
-                            path(
-                                "", BestFriendsListView.as_view(), name="best-friends"
-                            ),
-                            path(
-                                "remove/<int:pk>/",
-                                RemoveBestFriendsView.as_view(),
-                                name="best-friend-remove",
-                            ),
-                            path(
-                                "add/<int:pk>/",
-                                AddBestFriendsView.as_view(),
-                                name="best-friend-add",
-                            ),
-                        ]
-                    ),
-                ),
                 path(
                     "puls/",
                     include(

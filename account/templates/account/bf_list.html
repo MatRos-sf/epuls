@@ -36,14 +36,12 @@
                         </div>
                         <div class="col-1 {% if forloop.counter|divisibleby:'2' %}bg-orange{% endif %}">
                             {% if u.pk in bf_list %}
-                                <form method="post"
-                                      action="{% url 'account:best-friend-remove' user.username u.pk %}">
+                                <form method="post" action="{% url 'account:best-friend-remove' u.pk %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-success">Remove</button>
                                 </form>
                             {% else %}
-                                <form method="post"
-                                      action="{% url 'account:best-friend-add' user.username u.pk %}">
+                                <form method="post" action="{% url 'account:best-friend-add' u.pk %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-sm btn-success">Add</button>
                                 </form>

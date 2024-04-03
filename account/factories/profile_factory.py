@@ -25,6 +25,7 @@ __all__ = [
     "ProfileFactory",
     "VisitorFactory",
     "FriendRequestFactory",
+    "PASSWORD",
 ]
 
 PASSWORD = "1_test_TEST_!"

@@ -103,12 +103,10 @@ class BestFriendsListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         return self.request.user.profile.type_of_profile != ProfileType.BASIC
 
 
-class RemoveBestFriendsView(LoginRequiredMixin, UsernameMatchesMixin, View):
+class RemoveBestFriendsView(LoginRequiredMixin, View):
     http_method_names = ["post"]
 
-    def post(
-        self, request, username, pk
-    ) -> HttpResponsePermanentRedirect | HttpResponseRedirect:
+    def post(self, request, pk) -> HttpResponsePermanentRedirect | HttpResponseRedirect:
         """
         Removes best friends from user best friends list.
         """
@@ -117,15 +115,13 @@ class RemoveBestFriendsView(LoginRequiredMixin, UsernameMatchesMixin, View):
         messages.success(
             request, f"{user_to_del} has been removed for your best friends."
         )
-        return redirect("account:best-friends", username=username)
+        return redirect("account:best-friends")
 
 
-class AddBestFriendsView(LoginRequiredMixin, UsernameMatchesMixin, View):
+class AddBestFriendsView(LoginRequiredMixin, View):
     http_method_names = ["post"]
 
-    def post(
-        self, request, username, pk
-    ) -> HttpResponsePermanentRedirect | HttpResponseRedirect:
+    def post(self, request, pk) -> HttpResponsePermanentRedirect | HttpResponseRedirect:
         user_to_add = User.objects.get(pk=pk)
         try:
             request.user.profile.add_best_friend(friend=user_to_add)
@@ -135,4 +131,4 @@ class AddBestFriendsView(LoginRequiredMixin, UsernameMatchesMixin, View):
         except ValidationError as e:
             messages.error(request, e.messages[0])
 
-        return redirect("account:best-friends", username=username)
+        return redirect("account:best-friends")
