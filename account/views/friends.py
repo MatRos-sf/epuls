@@ -10,7 +10,7 @@ from django.shortcuts import (
 )
 from django.views.generic import ListView, View
 
-from ..mixins import UsernameMatchesMixin
+from ..mixins import NotBasicTypeMixin, UsernameMatchesMixin
 from ..models import FriendRequest, Profile, ProfileType
 
 
@@ -78,7 +78,7 @@ def invite_reject(
     return redirect("account:invites", username=username)
 
 
-class BestFriendsListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+class BestFriendsListView(LoginRequiredMixin, NotBasicTypeMixin, ListView):
     model = Profile
     template_name = "account/bf_list.html"
 
@@ -99,18 +99,15 @@ class BestFriendsListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
 
         return context
 
-    def test_func(self):
-        return self.request.user.profile.type_of_profile != ProfileType.BASIC
 
-
-class RemoveBestFriendsView(LoginRequiredMixin, View):
+class RemoveBestFriendsView(LoginRequiredMixin, NotBasicTypeMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, pk) -> HttpResponsePermanentRedirect | HttpResponseRedirect:
         """
         Removes best friends from user best friends list.
         """
-        user_to_del = User.objects.get(pk=pk)
+        user_to_del = get_object_or_404(User, pk=pk)
         request.user.profile.remove_best_friend(friend=user_to_del)
         messages.success(
             request, f"{user_to_del} has been removed for your best friends."
@@ -118,11 +115,14 @@ class RemoveBestFriendsView(LoginRequiredMixin, View):
         return redirect("account:best-friends")
 
 
-class AddBestFriendsView(LoginRequiredMixin, View):
+class AddBestFriendsView(LoginRequiredMixin, NotBasicTypeMixin, View):
     http_method_names = ["post"]
 
     def post(self, request, pk) -> HttpResponsePermanentRedirect | HttpResponseRedirect:
-        user_to_add = User.objects.get(pk=pk)
+        """
+        Adds new best friend to the user best friends list when pass all conditionals.
+        """
+        user_to_add = get_object_or_404(User, pk=pk)
         try:
             request.user.profile.add_best_friend(friend=user_to_add)
             messages.success(
