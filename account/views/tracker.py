@@ -47,6 +47,7 @@ class EpulsTracker:
 
         last_action = Action.objects.filter(who=self.request.user).first()
 
+        # create or update Action
         if last_action.action == action:
             last_action.date = timezone.now()
             last_action.save(update_fields=["date"])
