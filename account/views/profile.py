@@ -9,15 +9,15 @@ from django.views.generic import DetailView
 from account.models import Profile, ProfileType, Visitor
 from action.models import Action, ActionMessage
 
+from .tracker import ActionType, EpulsTracker
 
-class ProfileView(LoginRequiredMixin, DetailView):
+
+class ProfileView(LoginRequiredMixin, DetailView, EpulsTracker):
     model = Profile
     template_name = "account/profile/profile.html"
     slug_field = "user__username"
     slug_url_kwarg = "username"
-
-    def __get_user_for_path(self):
-        return self.kwargs.get("username", None)
+    activity = ActionType.PROFILE
 
     def get_object(self, queryset=None):
         user_instance = super().get_object(queryset)
@@ -38,7 +38,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
         # take last action
         context["action"] = Action.objects.filter(
-            who__username=self.__get_user_for_path()
+            who__username=self.get_username_from_url()
         ).first()
 
         # check is user's profile
@@ -68,32 +68,10 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
         return Visitor.get_visitor(profile.user, size) if size else None
 
-    def __action(self, activity: str = "PROFILE") -> None:
-        username = self.kwargs.get("username")
-        whom = User.objects.get(username=username)
-        is_own_action = self.request.user == whom
-        if is_own_action:
-            whom = None
-        action = (
-            getattr(ActionMessage, f"OWN_{activity}")
-            if is_own_action
-            else getattr(ActionMessage, f"SB_{activity}")
-        )
-
-        last_action = Action.objects.filter(who=self.request.user).first()
-
-        if not last_action:
-            Action.objects.create(who=self.request.user, action=action, whom=whom)
-        elif last_action.action == action:
-            last_action.date = timezone.now()
-            last_action.save(update_fields=["date"])
-        else:
-            Action.objects.create(who=self.request.user, whom=whom, action=action)
-
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
-        self.__action()
+        self.action()
 
         return self.render_to_response(context)
 
