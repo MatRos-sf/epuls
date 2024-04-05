@@ -1,12 +1,10 @@
-from enum import StrEnum
-from typing import Optional
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views import View
 
+from account.models import Visitor
 from action.models import Action, ActionMessage
 
 
@@ -21,42 +19,58 @@ def validate_view_inheritance(method):
     return wrapper
 
 
-class ActionType(StrEnum):
-    PROFILE = "PROFILE"
-
-
 class EpulsTracker:
     activity = None
 
-    @validate_view_inheritance
-    def action(self) -> None:
+    def action(self, *, login_user: User, whom, is_current) -> None:
         """
         Track user activity and create or update Action models.
         If the last recorded Action from the user is the same as the current activity, only update the date field
         of the last action. Unless the last Action is different or there's no previous action then create new one.
-
         """
-        if self.activity is None:
-            raise ImproperlyConfigured("activity field must be set before action")
-        username = self.kwargs.get("username")
-        is_owner = self.request.user.username == username
+        action = self.get_action_message(self.activity, is_current)
 
-        whom = None if is_owner else get_object_or_404(User, username=username)
-
-        action = self.get_action_message(self.activity, is_owner)
-
-        last_action = Action.objects.filter(who=self.request.user).first()
+        last_action = Action.last_user_action(who=login_user)
 
         # create or update Action
-        if last_action.action == action:
+        if last_action and last_action.action == action:
             last_action.date = timezone.now()
             last_action.save(update_fields=["date"])
         else:
-            Action.objects.create(who=self.request.user, whom=whom, action=action)
+            Action.objects.create(who=login_user, whom=whom, action=action)
+
+    def visitor(self, whom: User, login_user: User) -> None:
+        """
+        Creates a visitor who visits the profile of someone and updates the 'male_visitor' or 'female_visitor' field
+        depending on the gender of the visiting user.
+        Parameters:
+            - whom (User): The user whose profile is being visited.
+            - login_user (User): The user who is visiting the profile.
+        """
+        Visitor.objects.create(visitor=login_user, receiver=whom)
+
+        gender = login_user.profile.get_gender_display().lower()
+
+        # add gender to the counter
+        whom.profile.add_visitor(gender)
 
     @validate_view_inheritance
-    def get_username_from_url(self) -> Optional[str]:
-        return self.kwargs.get("username", None)
+    def tracker(self) -> None:
+        if self.activity is None:
+            raise ImproperlyConfigured("activity field must be set before action")
+
+        url_user = self.kwargs.get("username")
+        login_user: User = self.request.user
+        is_current_user = login_user.username == url_user
+
+        whom: User | None = (
+            None if is_current_user else get_object_or_404(User, username=url_user)
+        )
+
+        self.action(login_user=login_user, whom=whom, is_current=is_current_user)
+
+        if not is_current_user:
+            self.visitor(whom, login_user)
 
     @staticmethod
     def get_action_message(activity: str, is_owner: bool) -> str:

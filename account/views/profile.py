@@ -1,53 +1,49 @@
-from typing import List, Optional
+from typing import Optional
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.db.models import QuerySet
-from django.utils import timezone
-from django.views.generic import DetailView
 
-from account.models import Profile, ProfileType, Visitor
-from action.models import Action, ActionMessage
+from account.models import TYPE_OF_PROFILE, Profile, Visitor
+from action.models import Action
 
-from .tracker import ActionType, EpulsTracker
+from .base import ActionType, EpulsDetailView
+
+__all__ = ["ProfileView"]
 
 
-class ProfileView(LoginRequiredMixin, DetailView, EpulsTracker):
+class ProfileView(LoginRequiredMixin, EpulsDetailView):
     model = Profile
     template_name = "account/profile/profile.html"
     slug_field = "user__username"
     slug_url_kwarg = "username"
     activity = ActionType.PROFILE
 
-    def get_object(self, queryset=None):
-        user_instance = super().get_object(queryset)
-
-        if user_instance != self.request.user:
-            # user is Visitor
-            Visitor.objects.create(
-                visitor=self.request.user, receiver=user_instance.user
-            )
-
-            gender = self.request.user.profile.get_gender_display().lower()
-            user_instance.add_visitor(gender)
-
-        return user_instance
-
     def get_context_data(self, **kwargs):
+        """
+        Extra context:
+            * action: (Action) last user's Action
+            * self: (bool)  is current user's profile
+            * visitors: (List[Visitor]) list of last visitors
+        """
         context = super(ProfileView, self).get_context_data(**kwargs)
 
-        # take last action
-        context["action"] = Action.objects.filter(
-            who__username=self.get_username_from_url()
-        ).first()
+        # get profile from object -> object.user.username == self.kwargs.get("username")
+        profile_instance = context.get("object")
+        profile_instance_user = profile_instance.user
 
-        # check is user's profile
-        instance = context["object"]
-        is_user_profile = instance.user.username == self.request.user.username
-        context["self"] = is_user_profile
+        # get currently login user
+        login_user = self.request.user
+
+        # take last action
+        context["action"] = Action.last_user_action(profile_instance_user)
+
+        # if it's currently login user's profile, then set True
+        is_login_user = login_user == profile_instance_user
+        context["self"] = is_login_user
 
         # take last visitors:
-        context["visitors"] = self.voyeur(instance, is_user_profile)
+        context["visitors"] = self.voyeur(profile_instance, is_login_user)
 
         return context
 
@@ -58,28 +54,24 @@ class ProfileView(LoginRequiredMixin, DetailView, EpulsTracker):
         When user is in on their own profile, they can see 5, 10, or 14 visitors depending on the profile type.
         If a user visits someone else's profile, they can see 0, 5, 10, 14 visitors depending on the profile type.
         """
-        list_of_visitors_size = (5, 10, 14, 14) if is_user_profile else (0, 5, 10, 14)
-        list_of_profile_type: List[str] = [t[0] for t in ProfileType.choices]
+        profile_type = self.request.user.profile.type_of_profile
 
-        login_user_profile_type = self.request.user.profile.type_of_profile
-        size: int = list_of_visitors_size[
-            list_of_profile_type.index(login_user_profile_type)
+        size: int = TYPE_OF_PROFILE[profile_type][
+            "own_visitors" if is_user_profile else "sb_visitors"
         ]
 
         return Visitor.get_visitor(profile.user, size) if size else None
 
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-        self.action()
-
-        return self.render_to_response(context)
-
     def post(self, request, *args, **kwargs):
         # delete profile picture
-        profile = self.get_object().profile
-        profile.delete_profile_picture()
+        # TODO zobacz czy test inny nie usunie foty
+        profile = self.get_object()
+        if self.request.user == profile.user:
+            profile.delete_profile_picture()
+            messages.success(request, "Profile picture has been deleted.")
+        else:
+            messages.error(
+                request,
+                "You can't delete profile picture because you are not the owner of this profile.",
+            )
         return self.get(request, *args, **kwargs)
-
-
-__all__ = ["ProfileView"]

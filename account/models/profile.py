@@ -20,6 +20,8 @@ BASIC_TYPE = {
     "power": 0,
     "friends": 60,
     "best_friends": 0,
+    "own_visitors": 5,
+    "sb_visitors": 0,
     "picture": 5 * 1024 * 1024,
     "gallery": 1,
 }
@@ -27,6 +29,8 @@ PRO_TYPE = {
     "power": 1,
     "friends": 80,
     "best_friends": 2,
+    "own_visitors": 10,
+    "sb_visitors": 5,
     "picture": 10 * 1024 * 1024,
     "gallery": 10,
 }
@@ -34,6 +38,8 @@ XTREME_TYPE = {
     "power": 2,
     "friends": 130,
     "best_friends": 3,
+    "own_visitors": 14,
+    "sb_visitors": 10,
     "picture": 15 * 1024 * 1024,
     "gallery": 15,
 }
@@ -41,6 +47,8 @@ DIVINE_TYPE = {
     "power": 3,
     "friends": 200,
     "best_friends": 4,
+    "own_visitors": 14,
+    "sb_visitors": 14,
     "picture": 1000 * 1024 * 1024,
     "gallery": 500,
 }
