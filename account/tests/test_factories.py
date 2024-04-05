@@ -2,8 +2,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase, tag
 from faker import Faker
 
-from account.factories import AboutUserFactory, ProfileFactory, UserFactory
-from account.models import AboutUser, Diary, Profile
+from account.factories import AboutUserFactory, UserFactory, VisitorFactory
+from account.models import AboutUser, Diary, Profile, Visitor
+from action.factories import ActionFactory
+from action.models import Action
 from puls.models import Puls
 
 FAKE = Faker()
@@ -81,3 +83,46 @@ class AboutUserFactoryTest(TestCase):
 
     def test_should_create_three_models(self):
         self.assertEquals(AboutUser.objects.count(), 3)
+
+
+@tag("fv")
+class VisitorFactoryTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(VisitorFactoryTest, cls).setUpClass()
+        VisitorFactory.create_batch(3)
+
+    def test_should_create_six_users(self):
+        self.assertEqual(User.objects.count(), 6)
+
+    def test_should_create_three_visitors(self):
+        self.assertEqual(Visitor.objects.count(), 3)
+
+    def test_should_create_new_visitors(self):
+        from collections import Counter
+
+        users = UserFactory.create_batch(2)
+        visitors = VisitorFactory.create_batch(3, visitor=users[0], receiver=users[1])
+        self.assertEqual(len(visitors), 3)
+        count_visitors = Counter([v.visitor for v in visitors])
+        count_receiver = Counter([v.receiver for v in visitors])
+
+        self.assertEqual(count_receiver[users[1]], 3)
+        self.assertEqual(count_visitors[users[0]], 3)
+
+
+@tag("af")
+class ActionFactoriesTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        ActionFactory.create_batch(5)
+
+    def test_should_create_10_users(self):
+        self.assertEqual(User.objects.count(), 10)
+
+    def test_should_create_5_actions(self):
+        self.assertEqual(Action.objects.count(), 5)
+
+    def test_all_actions_do_not_have_action_field_when_is_default(self):
+        self.assertFalse(all([a.action for a in Action.objects.all()]))

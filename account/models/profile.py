@@ -20,6 +20,8 @@ BASIC_TYPE = {
     "power": 0,
     "friends": 60,
     "best_friends": 0,
+    "own_visitors": 5,
+    "sb_visitors": 0,
     "picture": 5 * 1024 * 1024,
     "gallery": 1,
 }
@@ -27,6 +29,8 @@ PRO_TYPE = {
     "power": 1,
     "friends": 80,
     "best_friends": 2,
+    "own_visitors": 10,
+    "sb_visitors": 5,
     "picture": 10 * 1024 * 1024,
     "gallery": 10,
 }
@@ -34,6 +38,8 @@ XTREME_TYPE = {
     "power": 2,
     "friends": 130,
     "best_friends": 3,
+    "own_visitors": 14,
+    "sb_visitors": 10,
     "picture": 15 * 1024 * 1024,
     "gallery": 15,
 }
@@ -41,6 +47,8 @@ DIVINE_TYPE = {
     "power": 3,
     "friends": 200,
     "best_friends": 4,
+    "own_visitors": 14,
+    "sb_visitors": 14,
     "picture": 1000 * 1024 * 1024,
     "gallery": 500,
 }
@@ -221,8 +229,10 @@ class Profile(models.Model):
             if self.user.pk != friend.pk and friend.pk in self.friends.values_list(
                 "pk", flat=True
             ):
-                max_amt_best_friends = TYPE_OF_PROFILE[self.type_of_profile]["friends"]
-                if self.best_friends.count() <= max_amt_best_friends:
+                max_amt_best_friends = TYPE_OF_PROFILE[self.type_of_profile][
+                    "best_friends"
+                ]
+                if self.best_friends.count() < max_amt_best_friends:
                     self.best_friends.add(friend)
                     self.save()
                 else:
@@ -238,8 +248,8 @@ class Profile(models.Model):
                 "You cannot add best friend because you have a basic account!"
             )
 
-    def remove_best_friend(self, friend) -> None:
-        self.friends.remove(friend)
+    def remove_best_friend(self, friend: User) -> None:
+        self.best_friends.remove(friend)
         self.save()
 
     def set_profile_picture(self, image_field: ImageField) -> None:

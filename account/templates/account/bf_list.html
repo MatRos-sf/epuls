@@ -1,0 +1,57 @@
+{% extends "account/base.html" %}
+{% load custom_tags %}
+{% load image_tags %}
+{% load action_tags %}
+{% load static %}
+{% block content %}
+    <div class="shadow p-3 mb-2 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1 class="fs-1 epuls-style-text">Best Friends</h1>
+            <p class="fs-4">Here you can manage who are your best friends ;)</p>
+        </div>
+    </div>
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <div class="container m-3">
+                {% for u in object_list %}
+                    <div class="row text-start mx-3  justify-content-center ">
+                        <div class="col-1 {% if forloop.counter|divisibleby:'2' %}bg-orange{% endif %}">
+                            {% if u.profile.profile_picture %}
+                                <img src="{{ u.profile.profile_picture.url }}"
+                                     class="img-thumbnail"
+                                     alt="..."
+                                     width="50"
+                                     height="100">
+                            {% else %}
+                                {% get_default_picture_photo u.profile.gender as default_picture %}
+                                <img src="{% static default_picture %}"
+                                     class="img-thumbnail"
+                                     alt="..."
+                                     width="50"
+                                     height="100">
+                            {% endif %}
+                        </div>
+                        <div class="col-2 {% if forloop.counter|divisibleby:'2' %}bg-orange{% endif %} text-start">
+                            <a class="my-0" href="{{ u.profile.get_absolute_url }}">{{ u }}</a>
+                        </div>
+                        <div class="col-1 {% if forloop.counter|divisibleby:'2' %}bg-orange{% endif %}">
+                            {% if u.pk in bf_list %}
+                                <form method="post" action="{% url 'account:best-friend-remove' u.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Remove</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'account:best-friend-add' u.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Add</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <h1 class="fs-1 epuls-style-text">User is Billy no-mates !!</h1>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

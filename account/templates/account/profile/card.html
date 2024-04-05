@@ -170,13 +170,13 @@
                             </div>
                         </div>
                     </div>
-                    <a type="button"
-                       class="btn btn-sm btn-success"
-                       href="{% url 'account:update-profile' %}">Edit Profile</a>
-                    <a type="button"
-                       class="btn btn-sm btn-success end-0"
-                       href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
                 {% endif %}
+                <a type="button"
+                   class="btn btn-sm btn-success"
+                   href="{% url 'account:update-profile' %}">Edit Profile</a>
+                <a type="button"
+                   class="btn btn-sm btn-success end-0"
+                   href="{% url 'photo:profile-picture-request' %}">Edit Profile Picture</a>
             {% elif object.user in user.profile.friends.all %}
                 <a type="button"
                    class="btn btn-sm btn-success end-0"

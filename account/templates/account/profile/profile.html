@@ -115,12 +115,39 @@
                 {% endif %}
             </div>
         {% endwith %}
-        <!--TODO section bf -->
-        <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-            <div class="container overflow-hidden text-start">
-                <h1 class="text-start">BF</h1>
+        <!-- BF section -->
+        {% if object.type_of_profile != 'B' %}
+            <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+                <div class="row justify-content-center mx-5">
+                    <h1 class="text-center">Best Friends</h1>
+                    {% for bf in object.best_friends.all %}
+                        <div class="col-3">
+                            {% if bf.profile_picture %}
+                                <img src="{{ bf.profile_picture.url }}"
+                                     class="img-thumbnail"
+                                     alt="..."
+                                     width="150"
+                                     height="250">
+                            {% else %}
+                                {% get_default_picture_photo bf.profile.gender as default_picture %}
+                                <img src="{% static default_picture %}"
+                                     class="img-thumbnail"
+                                     alt="..."
+                                     width="150"
+                                     height="250">
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if self %}
+                    <div class="container text-end m-1">
+                        <a type="button"
+                           class="btn btn-sm btn-success"
+                           href="{% url 'account:best-friends' %}">Edit BFs</a>
+                    </div>
+                {% endif %}
             </div>
-        </div>
+        {% endif %}
         <!-- section presentation -->
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
             <div>
