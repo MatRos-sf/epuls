@@ -10,16 +10,7 @@ from parameterized import parameterized
 from account.factories import PASSWORD, UserFactory
 from account.models import ProfileType
 
-
-class SimpleDBTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(SimpleDBTestCase, cls).setUpClass()
-        users = UserFactory.create_batch(6)
-        main_user = users[0]
-
-        for user in users[1:]:
-            main_user.profile.friends.add(user)
+from .test_data import SimpleDBTestCase
 
 
 @tag("bf")
