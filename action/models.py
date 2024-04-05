@@ -25,3 +25,8 @@ class Action(models.Model):
 
     class Meta:
         ordering = ["-date"]
+
+    # https://stackoverflow.com/questions/44640479/type-annotation-for-classmethod-returning-instance
+    @classmethod
+    def last_user_action(cls, who: User) -> "Action":
+        return cls.objects.filter(who=who).first()
