@@ -1,24 +1,27 @@
-from enum import StrEnum
+from enum import StrEnum, auto
 
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 from .tracker import EpulsTracker
 
 
 class ActionType(StrEnum):
-    PROFILE = "PROFILE"
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
+    PROFILE = auto()
+    GUESTBOOK = auto()
 
 
 class EpulsDetailView(DetailView, EpulsTracker):
-    """
-    Custom DetailView
-    """
-
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object)
-
-        # track user action
+        response = super().get(request, *args, **kwargs)
         self.tracker()
+        return response
 
-        return self.render_to_response(context)
+
+class EpulsListView(ListView, EpulsTracker):
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        self.tracker()
+        return response
