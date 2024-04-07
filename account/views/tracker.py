@@ -59,12 +59,12 @@ class EpulsTracker:
         if self.activity is None:
             raise ImproperlyConfigured("activity field must be set before action")
 
-        url_user = self.kwargs.get("username")
+        url_username = self.kwargs.get("username")
         login_user: User = self.request.user
-        is_current_user = login_user.username == url_user
+        is_current_user = login_user.username == url_username
 
         whom: User | None = (
-            None if is_current_user else get_object_or_404(User, username=url_user)
+            None if is_current_user else get_object_or_404(User, username=url_username)
         )
 
         self.action(login_user=login_user, whom=whom, is_current=is_current_user)

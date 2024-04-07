@@ -76,7 +76,6 @@ class GuestbookView(LoginRequiredMixin, ListView):
         context = super(GuestbookView, self).get_context_data(**kwargs)
 
         context["self"] = self.request.user.username == self.__get_username_from_url()
-        print(context)
         return context
 
 
