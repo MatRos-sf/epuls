@@ -10,7 +10,9 @@ class ActionType(StrEnum):
 
 
 class EpulsDetailView(DetailView, EpulsTracker):
-    activity = ActionType.PROFILE
+    """
+    Custom DetailView
+    """
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
