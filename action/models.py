@@ -5,6 +5,8 @@ from django.db import models
 class ActionMessage(models.TextChoices):
     OWN_PROFILE = "own_profile", "OWN_PROFILE"
     SB_PROFILE = "sb_profile", "SB_PROFILE"
+    OWN_GUESTBOOK = "own_guestbook", "OWN_GUESTBOOK"
+    SB_GUESTBOOK = "sb_guestbook", "SB_GUESTBOOK"
     OWN_DIARY = "own_diary", "OWN_DIARY"
 
 
