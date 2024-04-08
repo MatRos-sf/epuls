@@ -2,8 +2,13 @@ from django.contrib.auth.models import User
 from django.test import TestCase, tag
 from faker import Faker
 
-from account.factories import AboutUserFactory, UserFactory, VisitorFactory
-from account.models import AboutUser, Diary, Profile, Visitor
+from account.factories import (
+    AboutUserFactory,
+    GuestbookFactory,
+    UserFactory,
+    VisitorFactory,
+)
+from account.models import AboutUser, Diary, Guestbook, Profile, Visitor
 from action.factories import ActionFactory
 from action.models import Action
 from puls.models import Puls
@@ -126,3 +131,18 @@ class ActionFactoriesTestCase(TestCase):
 
     def test_all_actions_do_not_have_action_field_when_is_default(self):
         self.assertFalse(all([a.action for a in Action.objects.all()]))
+
+
+@tag("f_gb")
+class GuestbookFactoryTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        GuestbookFactory.create_batch(3)
+
+    def test_should_create_six_users(self):
+        self.assertEqual(User.objects.count(), 6)
+
+    def test_when_factory_is_created_should_set_random_entry(self):
+        entry = GuestbookFactory()
+        self.assertIsInstance(entry.entry, str)
