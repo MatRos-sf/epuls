@@ -79,3 +79,8 @@ class EpulsTracker:
             if is_owner
             else getattr(ActionMessage, f"SB_{activity}")
         )
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+        self.tracker()
+        return response

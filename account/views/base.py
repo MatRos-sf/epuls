@@ -19,15 +19,11 @@ class ActionType(StrEnum):
     PULS = auto()
 
 
-class EpulsDetailView(DetailView, EpulsTracker):
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        self.tracker()
-        return response
+class EpulsDetailView(EpulsTracker, DetailView):
+    """
+    Render a "detail" view of an object and tracking user actions.
+    """
 
 
-class EpulsListView(ListView, EpulsTracker):
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-        self.tracker()
-        return response
+class EpulsListView(EpulsTracker, ListView):
+    """Render a list of objects and tracking user actions."""
