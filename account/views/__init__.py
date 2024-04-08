@@ -1,3 +1,4 @@
+from .base import *
 from .diary import *
 from .friends import *
 from .profile import *

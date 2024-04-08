@@ -2,25 +2,26 @@ from typing import Optional
 
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, reverse
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-)
 
 from account.forms import DiaryForm
 from account.models import Diary
+from account.views.base import (
+    ActionType,
+    EpulsCreateView,
+    EpulsDeleteView,
+    EpulsDetailView,
+    EpulsListView,
+    EpulsUpdateView,
+)
 
 
-class DiaryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+class DiaryCreateView(LoginRequiredMixin, UserPassesTestMixin, EpulsCreateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
     extra_context = {"action": "Edit"}
+    activity = ActionType.DIARY
 
     def form_valid(self, form):
         instance = form.save(commit=False)
@@ -33,9 +34,10 @@ class DiaryCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
         return self.request.user.username == username
 
 
-class DiaryDetailView(LoginRequiredMixin, DetailView):
+class DiaryDetailView(LoginRequiredMixin, EpulsDetailView):
     template_name = "account/diary/detail.html"
     model = Diary
+    activity = ActionType.DIARY
 
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
@@ -50,11 +52,12 @@ class DiaryDetailView(LoginRequiredMixin, DetailView):
             return instance
 
 
-class DiaryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class DiaryUpdateView(LoginRequiredMixin, UserPassesTestMixin, EpulsUpdateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
     extra_context = {"action": "Update"}
+    activity = ActionType.DIARY
 
     def test_func(self):
         username = self.kwargs.get("username")
@@ -68,9 +71,10 @@ class DiaryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         )
 
 
-class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, EpulsDeleteView):
     model = Diary
     template_name = "account/diary/confirm_delete.html"
+    activity = ActionType.DIARY
 
     def get_success_url(self):
         username = self.request.user.username
@@ -88,9 +92,10 @@ class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         )
 
 
-class DiaryListView(LoginRequiredMixin, ListView):
+class DiaryListView(LoginRequiredMixin, EpulsListView):
     template_name = "account/diary/list.html"
     paginate_by = 10
+    activity = ActionType.DIARY
 
     def __get_user_for_url(self) -> Optional[str]:
         return self.kwargs.get("username", None)
