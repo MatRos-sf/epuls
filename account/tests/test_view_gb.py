@@ -6,7 +6,8 @@ from django.shortcuts import reverse
 from django.test import tag
 
 from account.factories import PASSWORD, GuestbookFactory
-from account.models import Guestbook
+from account.models import Guestbook, Visitor
+from action.models import Action, ActionMessage
 
 from .test_data import SimpleDBTestCase
 
@@ -83,3 +84,15 @@ class GuestbookViewTestCase(SimpleDBTestCase):
 
         self.assertEqual(messages[0], "You have created a entry for this guestbook.")
         self.assertEqual(Guestbook.objects.filter(sender=self.user).count(), 1)
+
+    def test_should_create_action_and_visitor_when_user_post_entry(self):
+        payload = {"entry": "Hello"}
+        user = User.objects.last()
+        self.client.post(self.url(kwargs={"username": user.username}), data=payload)
+
+        action = Action.objects.first()
+        self.assertEqual(action.action, ActionMessage.SB_GUESTBOOK)
+
+        visitor = Visitor.objects.first()
+        self.assertEqual(visitor.visitor, self.user)
+        self.assertEqual(visitor.receiver, user)
