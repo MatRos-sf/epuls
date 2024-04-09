@@ -1,8 +1,6 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
-from puls.views import PulsDetailView, update_puls
-
 from .views import (
     AboutUserUpdateView,
     AddBestFriendsView,
@@ -70,15 +68,7 @@ urlpatterns = [
                 path("gb/", GuestbookView.as_view(), name="guestbook"),
                 path("diary/", include("diary.urls")),
                 path("friends/", FriendsListView.as_view(), name="friends"),
-                path(
-                    "puls/",
-                    include(
-                        [
-                            path("update/", update_puls, name="puls-update"),
-                            path("", PulsDetailView.as_view(), name="puls"),
-                        ]
-                    ),
-                ),
+                path("puls/", include("puls.urls")),
                 path(
                     "invites/",
                     include(
