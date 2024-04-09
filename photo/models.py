@@ -1,5 +1,3 @@
-import os
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -8,8 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 from account.models.profile import PROFILE_PICTURE_PATH
+from epuls_tools.scaler import give_away_puls
 from puls.models import PulsType
-from puls.scaler import give_away_puls
 
 # PROFILE_PICTURE_PATH = "profile_picture"
 

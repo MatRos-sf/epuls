@@ -4,9 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 
+from epuls_tools.scaler import give_away_puls
 from epuls_tools.views import ActionType, EpulsListView
 from puls.models import PulsType
-from puls.scaler import give_away_puls
 
 from .forms import GuestbookUserForm
 from .models import Guestbook
