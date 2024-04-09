@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
@@ -33,7 +33,7 @@ class DiaryCreateView(LoginRequiredMixin, UsernameMatchesMixin, EpulsCreateView)
 
 
 class DiaryDetailView(LoginRequiredMixin, EpulsDetailView):
-    template_name = "account/diary/detail.html"
+    template_name = "diary/detail.html"
     model = Diary
     activity = ActionType.DIARY
 
@@ -50,13 +50,13 @@ class DiaryDetailView(LoginRequiredMixin, EpulsDetailView):
 
 
 class DiaryUpdateView(LoginRequiredMixin, UsernameMatchesMixin, EpulsUpdateView):
-    template_name = "account/diary/create.html"
+    template_name = "diary/create.html"
     model = Diary
     form_class = DiaryForm
     extra_context = {"action": "Update"}
     activity = ActionType.DIARY
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset=None) -> Any:
         return get_object_or_404(
             Diary,
             author=self.url_user(),
@@ -66,14 +66,14 @@ class DiaryUpdateView(LoginRequiredMixin, UsernameMatchesMixin, EpulsUpdateView)
 
 class DiaryDeleteView(LoginRequiredMixin, UsernameMatchesMixin, EpulsDeleteView):
     model = Diary
-    template_name = "account/diary/confirm_delete.html"
+    template_name = "diary/confirm_delete.html"
     activity = ActionType.DIARY
 
     def get_success_url(self):
         user = self.login_user()
         return reverse("account:diary", kwargs={"username": user.username})
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset=None) -> Any:
         return get_object_or_404(
             Diary,
             author=self.url_user(),
@@ -82,11 +82,11 @@ class DiaryDeleteView(LoginRequiredMixin, UsernameMatchesMixin, EpulsDeleteView)
 
 
 class DiaryListView(LoginRequiredMixin, EpulsListView):
-    template_name = "account/diary/list.html"
+    template_name = "diary/list.html"
     paginate_by = 10
     activity = ActionType.DIARY
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         user = self.url_user()
         user = get_object_or_404(User, username=user.username)
 
@@ -95,7 +95,7 @@ class DiaryListView(LoginRequiredMixin, EpulsListView):
 
         return Diary.objects.filter(author=user, is_hide=False)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """
         Extra context:
             * owner -> it's username form url
