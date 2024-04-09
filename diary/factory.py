@@ -1,9 +1,9 @@
 from factory import Faker, SubFactory
 from factory.django import DjangoModelFactory
 
-from account.models import Diary
+from account.factories import UserFactory
 
-from .factories import UserFactory
+from .models import Diary
 
 __all__ = ["DiaryFactory"]
 

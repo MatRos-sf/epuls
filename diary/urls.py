@@ -8,7 +8,7 @@ from .views import (
     DiaryUpdateView,
 )
 
-app_name = "diary"
+# app_name = "diary"
 
 urlpatterns = [
     path("", DiaryListView.as_view(), name="diary"),

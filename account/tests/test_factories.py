@@ -4,12 +4,11 @@ from faker import Faker
 
 from account.factories import (
     AboutUserFactory,
-    DiaryFactory,
     GuestbookFactory,
     UserFactory,
     VisitorFactory,
 )
-from account.models import AboutUser, Diary, Guestbook, Profile, Visitor
+from account.models import AboutUser, Guestbook, Profile, Visitor
 from action.factories import ActionFactory
 from action.models import Action
 from puls.models import Puls
@@ -147,25 +146,3 @@ class GuestbookFactoryTestCase(TestCase):
     def test_when_factory_is_created_should_set_random_entry(self):
         entry = GuestbookFactory()
         self.assertIsInstance(entry.entry, str)
-
-
-@tag("f_d")
-class DiaryFactoryTest(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        DiaryFactory.create_batch(3)
-
-    def test_should_create_three_different_users(self):
-        self.assertEqual(User.objects.count(), 3)
-
-    def test_should_create_3_diary_models(self):
-        self.assertEqual(Diary.objects.count(), 3)
-
-    def test_should_create_random_title_and_content_when_is_created_factory(self):
-        diart = Diary()
-
-        self.assertIsInstance(diart.title, str)
-        self.assertIsInstance(diart.content, str)
-        print(diart.title)
-        print(diart.content)

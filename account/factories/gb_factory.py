@@ -3,7 +3,7 @@ from factory.django import DjangoModelFactory
 
 from account.models import Guestbook
 
-from .factories import UserFactory
+from .profile_factory import UserFactory
 
 __all__ = ["GuestbookFactory"]
 

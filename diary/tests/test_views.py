@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import tag
 
-from account.factories import PASSWORD, DiaryFactory
-from account.models import Diary
-
-from .test_data import SimpleDBTestCase
+from account.factories import PASSWORD
+from account.tests.test_data import SimpleDBTestCase
+from diary.factory import DiaryFactory
+from diary.models import Diary
 
 # TODO test for:
 
