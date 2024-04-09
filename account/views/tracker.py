@@ -22,7 +22,7 @@ def validate_view_inheritance(method):
 class EpulsTracker:
     activity = None
 
-    def action(self, *, login_user: User, whom, is_current) -> None:
+    def action(self, *, login_user: User, whom: User, is_current: bool) -> None:
         """
         Track user activity and create or update Action models.
         If the last recorded Action from the user is the same as the current activity, only update the date field

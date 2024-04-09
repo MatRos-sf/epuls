@@ -7,11 +7,6 @@ from .views import (
     AboutUserUpdateView,
     AddBestFriendsView,
     BestFriendsListView,
-    DiaryCreateView,
-    DiaryDeleteView,
-    DiaryDetailView,
-    DiaryListView,
-    DiaryUpdateView,
     FriendsListView,
     GuestbookView,
     HomeView,
@@ -73,34 +68,7 @@ urlpatterns = [
             [
                 path("", ProfileView.as_view(), name="profile"),
                 path("gb/", GuestbookView.as_view(), name="guestbook"),
-                path(
-                    "diary/",
-                    include(
-                        [
-                            path("", DiaryListView.as_view(), name="diary"),
-                            path(
-                                "create/",
-                                DiaryCreateView.as_view(),
-                                name="diary-create",
-                            ),
-                            path(
-                                "<int:pk>/",
-                                DiaryDetailView.as_view(),
-                                name="diary-detail",
-                            ),
-                            path(
-                                "<int:pk>/update/",
-                                DiaryUpdateView.as_view(),
-                                name="diary-update",
-                            ),
-                            path(
-                                "<int:pk>/delete/",
-                                DiaryDeleteView.as_view(),
-                                name="diary-delete",
-                            ),
-                        ]
-                    ),
-                ),
+                path("diary/", include("diary.urls")),
                 path("friends/", FriendsListView.as_view(), name="friends"),
                 path(
                     "puls/",

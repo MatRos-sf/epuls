@@ -4,8 +4,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, reverse
 
-from account.forms import DiaryForm
-from account.models import Diary
 from account.views.base import (
     ActionType,
     EpulsCreateView,
@@ -14,6 +12,9 @@ from account.views.base import (
     EpulsListView,
     EpulsUpdateView,
 )
+
+from .forms import DiaryForm
+from .models import Diary
 
 
 class DiaryCreateView(LoginRequiredMixin, UserPassesTestMixin, EpulsCreateView):

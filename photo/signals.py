@@ -25,11 +25,14 @@ def delete_picture(sender, instance, **kwargs) -> None:
         os.remove(old_instance.path)
 
 
+# ????
 @receiver(pre_save, sender=Picture)
 def delete_picture_when_updated(sender, instance, **kwargs) -> None:
     """
     Deletes old picture when user update the new one.
     """
+    if not instance.pk:
+        return
 
     old_instance = Picture.objects.get(pk=instance.pk)
 

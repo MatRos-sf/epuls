@@ -1,5 +1,7 @@
+from typing import Any, Dict
+
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.forms import ValidationError
 from django.shortcuts import (
@@ -11,11 +13,13 @@ from django.shortcuts import (
 from django.views.generic import ListView, View
 
 from ..mixins import NotBasicTypeMixin, UsernameMatchesMixin
-from ..models import FriendRequest, Profile, ProfileType
+from ..models import FriendRequest, Profile
+from .base import ActionType, EpulsListView
 
 
-class FriendsListView(LoginRequiredMixin, ListView):
+class FriendsListView(LoginRequiredMixin, EpulsListView):
     template_name = "account/friends.html"
+    activity = ActionType.FRIENDS
 
     def get_queryset(self):
         username = self.kwargs.get("username")
@@ -23,7 +27,7 @@ class FriendsListView(LoginRequiredMixin, ListView):
 
         return user.profile.friends.all()
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         username = self.kwargs.get("username")
         context["username"] = username
@@ -86,7 +90,7 @@ class BestFriendsListView(LoginRequiredMixin, NotBasicTypeMixin, ListView):
         owner = self.request.user
         return Profile.objects.get(user=owner).friends.all()
 
-    def get_context_data(self, *args, **kwargs):
+    def get_context_data(self, *args, **kwargs) -> Dict[str, Any]:
         """
         Extra context:
             * bf_list: list of pk who are best friends

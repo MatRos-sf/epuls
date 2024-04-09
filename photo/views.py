@@ -180,6 +180,7 @@ class PictureCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.profile = self.request.user.profile
+        instance.profile.save()
         return super(PictureCreateView, self).form_valid(form)
 
     def get_success_url(self):
