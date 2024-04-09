@@ -13,26 +13,30 @@ from django.shortcuts import (
 from django.views.generic import ListView, View
 
 from epuls_tools.mixins import NotBasicTypeMixin, UsernameMatchesMixin
+from epuls_tools.views import ActionType, EpulsListView
 
 from ..models import FriendRequest, Profile
-from .base import ActionType, EpulsListView
 
 
 class FriendsListView(LoginRequiredMixin, EpulsListView):
     template_name = "account/friends.html"
     activity = ActionType.FRIENDS
 
-    def get_queryset(self):
-        username = self.kwargs.get("username")
-        user = get_object_or_404(User, username=username)
-
+    def get_queryset(self) -> Any:
+        user = self.url_user()
         return user.profile.friends.all()
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        """
+        Extra context:
+            * username (str): username from url
+            * self (bool): is user's view
+        """
         context = super().get_context_data(**kwargs)
-        username = self.kwargs.get("username")
-        context["username"] = username
-        context["self"] = self.request.user.username == username
+        user = self.url_user()
+        context["username"] = user.username
+        context["self"] = self.check_users()
+
         return context
 
 
@@ -87,7 +91,7 @@ class BestFriendsListView(LoginRequiredMixin, NotBasicTypeMixin, ListView):
     model = Profile
     template_name = "account/bf_list.html"
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         owner = self.request.user
         return Profile.objects.get(user=owner).friends.all()
 
@@ -97,6 +101,7 @@ class BestFriendsListView(LoginRequiredMixin, NotBasicTypeMixin, ListView):
             * bf_list: list of pk who are best friends
         """
         context = super().get_context_data(*args, **kwargs)
+
         profile_instance = Profile.objects.get(user=self.request.user)
         bf = profile_instance.best_friends.values_list("pk", flat=True)
 
