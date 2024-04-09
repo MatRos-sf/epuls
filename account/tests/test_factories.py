@@ -66,13 +66,14 @@ class ProfileFactoryTest(TestCase):
         self.profile = Profile.objects.first()
 
     def test_should_create_two_profile(self):
-        self.assertEquals(Profile.objects.count(), 2)
+        self.assertEqual(Profile.objects.count(), 2)
 
     def test_should_create_two_aboutuser_models(self):
-        self.assertEquals(AboutUser.objects.count(), 2)
+        self.assertEqual(AboutUser.objects.count(), 2)
 
+    @tag("xxx")
     def test_should_create_two_pulses_models(self):
-        self.assertEquals(Puls.objects.count(), 2)
+        self.assertEqual(Puls.objects.count(), 2)
 
 
 class AboutUserFactoryTest(TestCase):
@@ -82,7 +83,7 @@ class AboutUserFactoryTest(TestCase):
         AboutUserFactory.create_batch(3)
 
     def test_should_create_three_models(self):
-        self.assertEquals(AboutUser.objects.count(), 3)
+        self.assertEqual(AboutUser.objects.count(), 3)
 
 
 @tag("fv")

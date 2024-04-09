@@ -318,7 +318,7 @@ class Profile(models.Model):
 
     def revert_profile(self, new_type):
         for key in new_type.keys():
-            if key == "power":
+            if key in ["power", "own_visitors", "sb_visitors"]:
                 continue
 
             amt = new_type[key]

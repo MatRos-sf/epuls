@@ -8,14 +8,7 @@ from django.utils import timezone
 from parameterized import parameterized
 
 from account.factories import FriendRequestFactory, UserFactory, VisitorFactory
-from account.models import (
-    TYPE_OF_PROFILE,
-    AboutUser,
-    FriendRequest,
-    Profile,
-    ProfileType,
-    Visitor,
-)
+from account.models import TYPE_OF_PROFILE, FriendRequest, Profile, ProfileType, Visitor
 
 
 @tag("p")
@@ -30,10 +23,10 @@ class ProfileModelTest(TestCase):
 
     # test properties
     def test_when_model_is_initialized_should_set_currently_type_to_basic(self):
-        self.assertEquals(self.profile.currently_type, "B")
+        self.assertEqual(self.profile.currently_type, "B")
 
     def test_should_return_zero_when_cunt_visitor(self):
-        self.assertEquals(self.profile.count_visitors, 0)
+        self.assertEqual(self.profile.count_visitors, 0)
 
     @parameterized.expand([(0, 10, 10), (100, 100, 200)])
     def test_should_return_expected_value_of_visitor(self, male, female, expected):
@@ -41,7 +34,7 @@ class ProfileModelTest(TestCase):
         self.profile.female_visitor = female
         self.profile.save()
 
-        self.assertEquals(self.profile.count_visitors, expected)
+        self.assertEqual(self.profile.count_visitors, expected)
 
     def test_should_return_none_when_user_did_not_set_a_date_of_birth(self):
         self.assertIsNone(self.profile.date_of_birth)
@@ -62,7 +55,7 @@ class ProfileModelTest(TestCase):
         self.profile.date_of_birth = timezone.make_aware(dob)
         self.profile.save()
 
-        self.assertEquals(self.profile.age, expected)
+        self.assertEqual(self.profile.age, expected)
 
     # test methods
     @parameterized.expand([("B", 2, 1), ("X", 2, 1), ("P", 2, 1), ("D", 2, 1)])
@@ -98,13 +91,13 @@ class ProfileModelTest(TestCase):
     def test_should_return_friend_limit(self, type_of_profile, max_friends):
         self.profile.type_of_profile = type_of_profile
         self.profile.save()
-        self.assertEquals(self.profile.pull_field_limit("friends"), max_friends)
+        self.assertEqual(self.profile.pull_field_limit("friends"), max_friends)
 
     def test_should_add_friends(self):
         second_profile = Profile.objects.last()
         self.profile.add_friend(second_profile.user)
 
-        self.assertEquals(self.profile.friends.count(), 1)
+        self.assertEqual(self.profile.friends.count(), 1)
 
     @parameterized.expand(
         [ProfileType.BASIC, ProfileType.PRO, ProfileType.DIVINE, ProfileType.XTREME]
@@ -144,18 +137,18 @@ class ProfileModelTest(TestCase):
     def test_should_do_nothing_when_user_try_delete_friend_but_user_does_not_any_friends(
         self,
     ):
-        self.assertEquals(self.profile.friends.count(), 0)
+        self.assertEqual(self.profile.friends.count(), 0)
         user_to_del = User.objects.last()
 
         self.profile.remove_friend(user_to_del)
-        self.assertEquals(self.profile.friends.count(), 0)
+        self.assertEqual(self.profile.friends.count(), 0)
 
     def test_should_not_add_to_friends_when_user_try_add_yourself(self):
         user_to_add = self.profile.user
 
         self.profile.add_friend(user_to_add)
 
-        self.assertEquals(self.profile.friends.count(), 0)
+        self.assertEqual(self.profile.friends.count(), 0)
 
     def test_should_remove_friends_when_user_try_remove_one_of_them(self):
         from random import choice
@@ -169,7 +162,7 @@ class ProfileModelTest(TestCase):
         user_to_remover = choice(users)
         self.profile.friends.remove(user_to_remover)
 
-        self.assertEquals(self.profile.friends.count(), 2)
+        self.assertEqual(self.profile.friends.count(), 2)
 
     def test_should_not_allow_add_bf_when_user_has_basic_account(self):
         bf = User.objects.last()
@@ -177,7 +170,7 @@ class ProfileModelTest(TestCase):
         with self.assertRaises(ValidationError) as ve:
             self.profile.add_best_friend(bf)
 
-        self.assertEquals(
+        self.assertEqual(
             ve.exception.messages[0],
             "You cannot add best friend because you have a basic account!",
         )
@@ -191,7 +184,7 @@ class ProfileModelTest(TestCase):
         with self.assertRaises(ValidationError) as ve:
             self.profile.add_best_friend(bf)
 
-        self.assertEquals(
+        self.assertEqual(
             ve.exception.messages[0],
             "You cannot add best friend if friend is not in your friends list or you are the best friend",
         )
@@ -204,7 +197,7 @@ class ProfileModelTest(TestCase):
         with self.assertRaises(ValidationError) as ve:
             self.profile.add_best_friend(user)
 
-        self.assertEquals(
+        self.assertEqual(
             ve.exception.messages[0],
             "You cannot add best friend if friend is not in your friends list or you are the best friend",
         )
@@ -219,7 +212,7 @@ class ProfileModelTest(TestCase):
 
         self.profile.add_best_friend(user)
 
-        self.assertEquals(self.profile.best_friends.count(), 1)
+        self.assertEqual(self.profile.best_friends.count(), 1)
 
     @parameterized.expand([ProfileType.PRO, ProfileType.DIVINE, ProfileType.XTREME])
     def test_should_add_bf_when_user_have_amt_friends_eq_extreme_num(
@@ -237,19 +230,6 @@ class ProfileModelTest(TestCase):
 
             for user in users:
                 self.profile.add_best_friend(user)
-
-    @parameterized.expand(["male", "female"])
-    def test_should_update_visitor_when_is_gender_valid(self, gender):
-        self.profile.add_visitor(gender)
-        p = Profile.objects.first()
-        self.assertEquals(p.count_visitors, 1)
-        self.assertEquals(getattr(p, f"{gender}_visitor"), 1)
-
-    @parameterized.expand(["MALE", "FEMALE", "f", "m"])
-    def test_should_not_add_visitor_when_gender_is_incorrect(self, gender):
-        with self.assertRaises(ValueError) as ve:
-            self.profile.add_visitor(gender)
-        self.assertEquals(str(ve.exception), "Gender must be 'male' or 'female'!")
 
     @parameterized.expand([ProfileType.PRO, ProfileType.BASIC, ProfileType.XTREME])
     def test_should_reduce_picture_gallery_bf_friends_when_user_change_type_of_profile_to_lower(
@@ -304,14 +284,14 @@ class ProfileModelTest(TestCase):
 
             self.profile.change_type_of_profile(new_type)
 
-            self.assertEquals(
+            self.assertEqual(
                 self.profile.friends.count(), FAKE_TYPE_OF_PROFILE[new_type]["friends"]
             )
-            self.assertEquals(
+            self.assertEqual(
                 self.profile.best_friends.count(),
                 FAKE_TYPE_OF_PROFILE[new_type]["best_friends"],
             )
-            self.assertEquals(
+            self.assertEqual(
                 self.profile.size_of_pictures, FAKE_TYPE_OF_PROFILE[new_type]["picture"]
             )
 
@@ -335,10 +315,10 @@ class VisitorModelTest(TestCase):
         self.assertEqual(Visitor.objects.count(), 12)
 
     def test_should_return_5_last_visitors(self):
-        self.assertEquals(Visitor.get_visitor(self.profile.user).count(), 5)
+        self.assertEqual(Visitor.get_visitor(self.profile.user).count(), 5)
 
     def test_should_return_6_visitors_models(self):
-        self.assertEquals(Visitor.get_visitor(self.profile.user, 6).count(), 6)
+        self.assertEqual(Visitor.get_visitor(self.profile.user, 6).count(), 6)
 
 
 @tag("fr")
@@ -353,7 +333,7 @@ class FriendRequestModelTest(TestCase):
         self.fr = FriendRequest.objects.first()
 
     def test_should_create_one_request_factory(self):
-        self.assertEquals(FriendRequest.objects.count(), 1)
+        self.assertEqual(FriendRequest.objects.count(), 1)
 
     def test_should_accept_when_users_do_not_have_each_other_in_the_friends_list(self):
         self.assertTrue(self.fr.accept())

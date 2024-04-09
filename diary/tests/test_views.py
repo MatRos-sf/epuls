@@ -5,9 +5,9 @@ from django.shortcuts import reverse
 from django.test import tag
 
 from account.factories import PASSWORD
-from account.tests.test_data import SimpleDBTestCase
 from diary.factory import DiaryFactory
 from diary.models import Diary
+from epuls_tools.test import SimpleDBTestCase
 
 # TODO test for: CUDL
 
@@ -27,7 +27,6 @@ class DiaryDB(SimpleDBTestCase):
         self.client.login(username=self.user, password=PASSWORD)
 
 
-@tag("v_dc")
 class DiaryDetailViewTestCase(DiaryDB):
     def setUp(self):
         super(DiaryDetailViewTestCase, self).setUp()
@@ -59,6 +58,7 @@ class DiaryDetailViewTestCase(DiaryDB):
 
         self.assertEqual(hide_diary, diary_instance)
 
+    @tag("v_dc")
     def test_guest_should_not_see_hide_entry(self):
         last_user = User.objects.last()
         hide_diary = Diary.objects.first()

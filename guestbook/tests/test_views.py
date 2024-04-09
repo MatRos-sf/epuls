@@ -7,8 +7,8 @@ from django.test import tag
 
 from account.factories import PASSWORD
 from account.models import Visitor
-from account.tests.test_data import SimpleDBTestCase
 from action.models import Action, ActionMessage
+from epuls_tools.test import SimpleDBTestCase
 from guestbook.factory import GuestbookFactory
 from guestbook.models import Guestbook
 

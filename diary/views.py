@@ -44,7 +44,7 @@ class DiaryDetailView(LoginRequiredMixin, EpulsDetailView):
         diary_instance = get_object_or_404(Diary, author=user, pk=pk)
 
         if diary_instance.is_hide and not self.check_users():
-            return Diary.objects.none()
+            return
 
         return diary_instance
 
