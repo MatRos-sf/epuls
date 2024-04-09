@@ -5,6 +5,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 
 from account.models import ProfileType
 
+from .views.tracker import EpulsTracker
+
 
 class UsernameMatchesMixin(UserPassesTestMixin):
     """
@@ -12,6 +14,8 @@ class UsernameMatchesMixin(UserPassesTestMixin):
     """
 
     def test_func(self) -> bool:
+        if issubclass(self.__class__, EpulsTracker):
+            return getattr(self, "check_users")
         return self.kwargs.get("username") == self.request.user.username
 
 
