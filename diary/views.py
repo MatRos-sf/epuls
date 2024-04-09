@@ -1,9 +1,10 @@
 from typing import Any, Optional
 
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, reverse
 
+from epuls_tools.mixins import UsernameMatchesMixin
 from epuls_tools.views import (
     ActionType,
     EpulsCreateView,
@@ -17,7 +18,7 @@ from .forms import DiaryForm
 from .models import Diary
 
 
-class DiaryCreateView(LoginRequiredMixin, UserPassesTestMixin, EpulsCreateView):
+class DiaryCreateView(LoginRequiredMixin, UsernameMatchesMixin, EpulsCreateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
@@ -29,9 +30,6 @@ class DiaryCreateView(LoginRequiredMixin, UserPassesTestMixin, EpulsCreateView):
         instance.author = self.login_user()
         instance.save()
         return super().form_valid(form)
-
-    def test_func(self):
-        return self.check_users()
 
 
 class DiaryDetailView(LoginRequiredMixin, EpulsDetailView):
@@ -51,15 +49,12 @@ class DiaryDetailView(LoginRequiredMixin, EpulsDetailView):
         return diary_instance
 
 
-class DiaryUpdateView(LoginRequiredMixin, UserPassesTestMixin, EpulsUpdateView):
+class DiaryUpdateView(LoginRequiredMixin, UsernameMatchesMixin, EpulsUpdateView):
     template_name = "account/diary/create.html"
     model = Diary
     form_class = DiaryForm
     extra_context = {"action": "Update"}
     activity = ActionType.DIARY
-
-    def test_func(self):
-        return self.check_users()
 
     def get_object(self, queryset=None):
         return get_object_or_404(
@@ -69,7 +64,7 @@ class DiaryUpdateView(LoginRequiredMixin, UserPassesTestMixin, EpulsUpdateView):
         )
 
 
-class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, EpulsDeleteView):
+class DiaryDeleteView(LoginRequiredMixin, UsernameMatchesMixin, EpulsDeleteView):
     model = Diary
     template_name = "account/diary/confirm_delete.html"
     activity = ActionType.DIARY
@@ -77,9 +72,6 @@ class DiaryDeleteView(LoginRequiredMixin, UserPassesTestMixin, EpulsDeleteView):
     def get_success_url(self):
         user = self.login_user()
         return reverse("account:diary", kwargs={"username": user.username})
-
-    def test_func(self):
-        return self.check_users()
 
     def get_object(self, queryset=None):
         return get_object_or_404(
