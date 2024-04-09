@@ -27,7 +27,7 @@ class ProfileView(LoginRequiredMixin, EpulsDetailView):
         """
         context = super(ProfileView, self).get_context_data(**kwargs)
 
-        # get profile from object -> object.user.username == self.kwargs.get("username")
+        # get user from url
         instance_user = self.url_user()
 
         # take last action
@@ -57,10 +57,10 @@ class ProfileView(LoginRequiredMixin, EpulsDetailView):
 
         return Visitor.get_visitor(profile.user, size) if size else None
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> Any:
         # delete profile picture
-        # TODO zobacz czy test inny nie usunie foty
         profile = self.get_object()
+
         if self.request.user == profile.user:
             profile.delete_profile_picture()
             messages.success(request, "Profile picture has been deleted.")
