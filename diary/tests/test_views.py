@@ -9,7 +9,7 @@ from account.tests.test_data import SimpleDBTestCase
 from diary.factory import DiaryFactory
 from diary.models import Diary
 
-# TODO test for:
+# TODO test for: CUDL
 
 
 class DiaryDB(SimpleDBTestCase):
