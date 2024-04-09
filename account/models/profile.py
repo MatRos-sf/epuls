@@ -158,6 +158,7 @@ class Profile(models.Model):
     )
 
     # visitor
+    visitors = models.ManyToManyField(User, blank=True, related_name="visited_by")
     male_visitor = models.IntegerField(default=0)
     female_visitor = models.IntegerField(default=0)
 
@@ -262,20 +263,6 @@ class Profile(models.Model):
     def delete_profile_picture(self) -> None:
         self.profile_picture = None
         self.save(update_fields=["profile_picture"])
-
-    def add_visitor(self, gender: str) -> NoReturn:
-        """
-        Updates the visitor count for a gender-specific field in the Profile model.
-        """
-        if gender in ["male", "female"]:
-            # TODO -> different way ?
-            Profile.objects.filter(pk=self.pk).update(
-                **{f"{gender}_visitor": F(f"{gender}_visitor") + 1}
-            )
-            # visitor = getattr(self, f'{gender}_visitor')
-            # visitor =
-        else:
-            raise ValueError("Gender must be 'male' or 'female'!")
 
     def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
         power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
