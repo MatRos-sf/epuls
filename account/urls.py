@@ -6,7 +6,6 @@ from .views import (
     AddBestFriendsView,
     BestFriendsListView,
     FriendsListView,
-    GuestbookView,
     HomeView,
     InvitesListView,
     ProfileUpdateView,
@@ -65,7 +64,7 @@ urlpatterns = [
         include(
             [
                 path("", ProfileView.as_view(), name="profile"),
-                path("gb/", GuestbookView.as_view(), name="guestbook"),
+                path("gb/", include("guestbook.urls")),
                 path("diary/", include("diary.urls")),
                 path("friends/", FriendsListView.as_view(), name="friends"),
                 path("puls/", include("puls.urls")),

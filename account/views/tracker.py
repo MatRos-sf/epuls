@@ -49,10 +49,10 @@ class EpulsTracker:
         """
         Visitor.objects.create(visitor=login_user, receiver=whom)
 
-        gender = login_user.profile.get_gender_display().lower()
+        # gender = login_user.profile.get_gender_display().lower()
 
         # add gender to the counter
-        whom.profile.add_visitor(gender)
+        # whom.profile.add_visitor(gender)
 
     @validate_view_inheritance
     def tracker(self) -> None:

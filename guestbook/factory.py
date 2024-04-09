@@ -1,9 +1,9 @@
 from factory import Faker, SubFactory
 from factory.django import DjangoModelFactory
 
-from account.models import Guestbook
+from account.factories import UserFactory
 
-from .profile_factory import UserFactory
+from .models import Guestbook
 
 __all__ = ["GuestbookFactory"]
 
