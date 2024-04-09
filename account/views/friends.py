@@ -12,7 +12,8 @@ from django.shortcuts import (
 )
 from django.views.generic import ListView, View
 
-from ..mixins import NotBasicTypeMixin, UsernameMatchesMixin
+from epuls_tools.mixins import NotBasicTypeMixin, UsernameMatchesMixin
+
 from ..models import FriendRequest, Profile
 from .base import ActionType, EpulsListView
 

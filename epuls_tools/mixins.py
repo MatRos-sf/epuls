@@ -3,7 +3,7 @@ Here are custom mixins for views
 """
 from django.contrib.auth.mixins import UserPassesTestMixin
 
-from .models import ProfileType
+from account.models import ProfileType
 
 
 class UsernameMatchesMixin(UserPassesTestMixin):
