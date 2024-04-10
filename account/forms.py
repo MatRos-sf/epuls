@@ -124,3 +124,9 @@ class AboutUserForm(forms.ModelForm):
             ),
             Submit("submit", "Update", css_class="btn btn-sm btn-success m-2"),
         )
+
+
+class PresentationForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ("presentation",)

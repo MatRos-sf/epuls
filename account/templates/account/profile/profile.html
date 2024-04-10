@@ -150,32 +150,12 @@
         {% endif %}
         <!-- section presentation -->
         <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-            <div>
-                <header style="background-color: #3498db; color: #fff; padding: 10px;">
-                    <h1>Witaj na mojej stronie!</h1>
-                </header>
-                <div style="margin-top: 20px;">
-                    <h2>O mnie</h2>
-                    <p>
-                        Cześć, nazywam się Anna Kowalska. Jestem entuzjastką technologii, programowania i podróży. Moją pasją jest odkrywanie nowych rzeczy i dzielenie się wiedzą z innymi.
-                    </p>
-                </div>
-                <div style="margin-top: 20px;">
-                    <h2>Umiejętności</h2>
-                    <p>
-                        Posiadam szeroką gamę umiejętności programistycznych, w tym HTML, CSS, JavaScript. Interesuję się również projektowaniem interfejsów użytkownika i tworzeniem responsywnych stron internetowych.
-                    </p>
-                </div>
-                <div style="margin-top: 20px;">
-                    <h2>Hobby</h2>
-                    <p>
-                        W wolnym czasie lubię czytać książki fantasy, uprawiać jogging i eksperymentować z nowymi przepisami kulinarnymi. Moje ulubione miejsce na ziemi to góry, gdzie uwielbiam wędrować.
-                    </p>
-                </div>
-            </div>
+            {{ object.presentation|myfilter }}
             {% if self %}
                 <div class="container text-end m-1">
-                    <a type="button" class="btn btn-sm btn-success" href="#">Edit Presentation</a>
+                    <a type="button"
+                       class="btn btn-sm btn-success"
+                       href="{% url 'account:presentation' %}">Edit Presentation</a>
                 </div>
             {% endif %}
         </div>

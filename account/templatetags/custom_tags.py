@@ -1,7 +1,9 @@
 import os
-from typing import Dict, Optional
+import re
+from typing import Dict, List, Optional, Tuple
 
 from django import template
+from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from typing_extensions import LiteralString
 
@@ -42,3 +44,50 @@ def get_information_about_visitor(user_profile: Profile):
         )
 
     return mark_safe(html_code)  # nosec
+
+
+#
+# def find_username(html):
+#     matches = re.finditer(r"<a href=@(\w+).*></a>", html)
+#     for match in matches:
+#         print(match.groups()[0])
+#         print(match.group())
+#
+#
+# @register.filter(is_safe=True)
+# def myfilter(value):
+#     html = Presentation(value)
+#     html.convert()
+#     return mark_safe(html.html)
+#
+#
+# class Presentation:
+#     def __init__(self, html: str):
+#         self.html = html
+#         self.user_pattern = re.compile(r"<a href=@(\w+).*></a>")
+#         self.a_template = '<a href="{href}{username}">{username}</a>'
+#
+#         self.url_user = "http://127.0.0.1:8000/"
+#
+#     def convert(self):
+#         self.convert_users()
+#
+#     def convert_users(self) -> None:
+#         found_users = self.find_users()
+#         if not found_users:
+#             return
+#         self.sub_users(found_users)
+#
+#     def sub_users(self, users):
+#         for p, username in users:
+#             # print(self.a_template.format(username=username))
+#             self.html = self.html.replace(
+#                 p, self.a_template.format(username=username, href=self.url_user)
+#             )
+#
+#     def find_users(self) -> List[Tuple[str, str]]:
+#         users = []
+#         matches = self.user_pattern.finditer(self.html)
+#         for match in matches:
+#             users.append((match.group(), match.groups()[0]))
+#         return users

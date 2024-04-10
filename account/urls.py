@@ -8,6 +8,7 @@ from .views import (
     FriendsListView,
     HomeView,
     InvitesListView,
+    PresentationUpdateView,
     ProfileUpdateView,
     ProfileView,
     RemoveBestFriendsView,
@@ -59,6 +60,7 @@ urlpatterns = [
             ]
         ),
     ),
+    path("presentation/", PresentationUpdateView.as_view(), name="presentation"),
     path(
         "<str:username>/",
         include(
