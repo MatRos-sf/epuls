@@ -110,7 +110,7 @@ class Profile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
 
     short_description = models.TextField(blank=True, null=True, max_length=100)
-    description = models.TextField(blank=True, null=True)
+    presentation = models.TextField(blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
 
