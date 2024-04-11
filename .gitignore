@@ -161,7 +161,3 @@ cython_debug/
 
 source.txt
 media
-
-#temporary
-account/forms.py
-account/templatetags/custom_tags.py
