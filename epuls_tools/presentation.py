@@ -215,9 +215,9 @@ class Presentation:
 
         This is useful for sanitizing HTML code and remove potentially harmful or unwanted sources from image or script tags
         """
-        pattern = re.compile(r"src\s*=\s*\"\S+\" ")
+        pattern = re.compile(r"\ssrc\s*=\s*[\"\']\S+[\"\'](?=[\s>])")
 
-        self.html = pattern.sub('src=""', self.html)
+        self.html = pattern.sub(' src=""', self.html)
 
     def convert(self):
         self.check_html()
