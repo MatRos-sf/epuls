@@ -2,7 +2,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import partial
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from django.shortcuts import reverse
 
@@ -26,7 +26,6 @@ class BasicComponent(ABC):
         """
         pass
 
-    @abstractmethod
     def find(self, html) -> None:
         """
         This method should find all tags according to self._pattern and sets all of them in self.tags.
@@ -101,8 +100,8 @@ class ProfilePictureComponent(BasicComponent):
     """
 
     def __init__(self):
-        self.pattern = re.compile(r"<img src=@prof-([a-zA-Z0-9@/./+/-/_]+) (.*)>")
-        self.template = (
+        self._pattern = re.compile(r"<img src=@prof-([a-zA-Z0-9@/./+/-/_]+) (.*)>")
+        self._template = (
             '<a href="{url_user}" ><img src="{url_img}" {extra_property} ></a>'
         )
         self.endpoint = partial(reverse, "account:profile")
@@ -110,10 +109,14 @@ class ProfilePictureComponent(BasicComponent):
         self.tags = []
 
     def sub(self, html: str) -> str:
+        """
+        Replaces old tags in HTML code with new ones based on user data.
+        """
+
         for tag in self.tags:
             html = html.replace(
                 tag.tag,
-                self.template.format(
+                self._template.format(
                     extra_property=tag.extra_property,
                     url_user=reverse(
                         "account:profile", kwargs={"username": tag.username}
@@ -124,35 +127,48 @@ class ProfilePictureComponent(BasicComponent):
 
         return html
 
-    def find(self, html):
-        matches = self.pattern.finditer(html)
+    def find(self, html: str) -> None:
+        """
+        Finds all tags according to self._pattern using regular expressions and sets them in self.tags.
+        """
+        matches = self._pattern.finditer(html)
         for match in matches:
             username, extra_property = match.groups()
             tag = Tag(
-                tag=match.group(), username=username, extra_property=extra_property
+                tag=match.group(),
+                username=username,
+                extra_property=extra_property.replace(" ", ""),
             )
             self.tags.append(tag)
 
-    def update_tags(self, values):
+    def update_tags(self, values: Dict[str, str]):
+        """
+        Updates self.tags based on the provided values dictionary.
+        'values' should be a dictionary mapping usernames to profile picture URLs.
+        """
         for tag in self.tags:
             if values.get(tag.username, None):
                 tag.url = values.get(tag.username)
 
-    def get_default_profile_picture(self, gender):
+    def get_default_profile_picture(self, gender: str):
+        """This method generates a default profile picture URL based on the provided gender."""
         return f"/static/account/profile_picture/default_{gender}_picture.jpeg"
 
-    def get_user_url_picture(self, users):
+    def pull_url_profile_picture(self) -> Dict[str, str]:
+        """
+        This method sends a request to the database to retrieve information about users' profile picture.
+        If user does not have a profile picture, it triggers the method self.get_default_profile_picture to generate a default URL.
+        Returns a dictionary mapping usernames to profile picture URLs.
         """
 
-        :param users: List
-        :return: Dict[str, str]
-        """
+        # get users
+        users = [tag.username for tag in self.tags]
 
         users_dataset = Profile.objects.filter(user__username__in=users).values(
             "user__username", "profile_picture", "gender"
         )
 
-        info_about_users = {}
+        profile_pictures = {}
 
         for dataset in users_dataset:
             username = dataset.pop("user__username")
@@ -163,21 +179,24 @@ class ProfilePictureComponent(BasicComponent):
                 profile_picture = self.get_default_profile_picture(gender)
             else:
                 profile_picture = "/media/" + profile_picture
-            info_about_users[username] = profile_picture
+            profile_pictures[username] = profile_picture
 
-        return info_about_users
+        return profile_pictures
 
     def link(self, html):
+        """
+        Combines the sub and find methods to return modified HTML code if the pattern is matched.
+        Returns the original HTML if no pattern is matched.
+
+        """
         self.find(html)
+
         if not self.tags:
             return html
 
-        # get users
-        users = [tag.username for tag in self.tags]
+        # pull url for profile picture
+        url_pictures: Dict[str, str] = self.pull_url_profile_picture()
 
-        # get information about users
-
-        url_pictures = self.get_user_url_picture(users)
         self.update_tags(url_pictures)
 
         return self.sub(html)
