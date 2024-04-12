@@ -10,7 +10,12 @@ from PIL import Image
 
 from account.factories import UserFactory
 from account.models import Profile
-from epuls_tools.presentation import ProfilePictureComponent, Tag, UserComponent
+from epuls_tools.presentation import (
+    Presentation,
+    ProfilePictureComponent,
+    Tag,
+    UserComponent,
+)
 
 
 def generate_photo_file(name="test"):
@@ -195,3 +200,79 @@ class ProfilePictureComponentTestCase(TestCase):
     #         result = component.pull_url_profile_picture()
     #
     #         self.assertEqual(result, expected)
+
+
+@tag("ep_p_p")
+class PresentationTestCase(TestCase):
+    @parameterized.expand(
+        [
+            (
+                '<img src=  "www.sample.pl" >',
+                '<img src="" >',
+            ),
+            (
+                '<img src           =  "www.sample.pl" >',
+                '<img src="" >',
+            ),
+            (
+                '<img src="www.sample.pl" >',
+                '<img src="" >',
+            ),
+            (
+                '<img src="www.sample.pl"         >',
+                '<img src=""         >',
+            ),
+            (
+                '<img src        ="www.sample.pl" >',
+                '<img src="" >',
+            ),
+            (
+                '<img src=  "www.sample.pl">',
+                '<img src="">',
+            ),
+            (
+                '<img class="src="www.sample.pl"" src=  "www.sample.pl">',
+                '<img class="src="www.sample.pl"" src="">',
+            ),
+            (
+                '<img src="www.sample.pl" class="test">',
+                '<img src="" class="test">',
+            ),
+            # change char " -> '
+            (
+                "<img src='www.sample.pl'>",
+                '<img src="">',
+            ),
+            (
+                "<a src='www.sample.pl'>",
+                '<a src="">',
+            ),
+        ]
+    )
+    def test_should_sanitize_unwanted_tag(self, html, expected):
+        presentation = Presentation(html)
+        presentation.check_html()
+        self.assertEqual(presentation.html, expected)
+
+    @parameterized.expand(["<a></a>", "<img class='test'>", "<p class='test'></p>"])
+    def test_check_html_handles_no_src_attribute(self, html):
+        presentation = Presentation(html)
+        presentation.check_html()
+        self.assertEqual(presentation.html, html)
+
+    def test_check_html_handles_different_formats_of_src_attribute(self):
+        html_with_different_formats = "<img src='image.jpg'> <img src=\"image2.jpg\">"
+        presentation = Presentation(html_with_different_formats)
+
+        presentation.check_html()
+
+        self.assertNotIn("src='image.jpg'", presentation.html)
+        self.assertNotIn('src="image2.jpg"', presentation.html)
+
+    def test_check_html_handles_malicious_src_attribute(self):
+        malicious_html = "<img src='http://malicious.com/malware.js'>"
+        presentation = Presentation(malicious_html)
+
+        presentation.check_html()
+        presentation.check_html()
+        self.assertNotIn("http://malicious.com/malware.js", presentation.html)
