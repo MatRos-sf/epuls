@@ -47,7 +47,7 @@ class UserComponent(BasicComponent):
     """
 
     def __init__(self):
-        self._pattern = re.compile(r"<a href=@(\w+) (.*)></a>")
+        self._pattern = re.compile(r"<a href=@([a-zA-Z0-9@/./+/-/_]+) (.*)></a>")
         self._template = '<a href="{url}" {extra_property} >{username}</a>'
         self.endpoint = partial(reverse, "account:profile")
 
@@ -96,8 +96,12 @@ class UserComponent(BasicComponent):
 
 
 class ProfilePictureComponent(BasicComponent):
+    """
+    The class is responsible for changing HTML when it mentions users profile photo.
+    """
+
     def __init__(self):
-        self.pattern = re.compile(r"<img src=@prof-(\w+) (.*)>")
+        self.pattern = re.compile(r"<img src=@prof-([a-zA-Z0-9@/./+/-/_]+) (.*)>")
         self.template = (
             '<a href="{url_user}" ><img src="{url_img}" {extra_property} ></a>'
         )
