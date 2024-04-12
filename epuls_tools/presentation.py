@@ -9,20 +9,6 @@ from django.shortcuts import reverse
 from account.models import Profile
 
 
-class BasicComponent(ABC):
-    @abstractmethod
-    def sub(self, html) -> str:
-        pass
-
-    @abstractmethod
-    def find(self, html) -> None:
-        pass
-
-    @abstractmethod
-    def link(self, html) -> str:
-        pass
-
-
 @dataclass
 class Tag:
     tag: str
@@ -31,36 +17,76 @@ class Tag:
     url: str = ""
 
 
+class BasicComponent(ABC):
+    @abstractmethod
+    def sub(self, html: str) -> str:
+        """
+        This method replaces old tags with new ones.
+        Don't forget to implement the 'tags' attribute.
+        """
+        pass
+
+    @abstractmethod
+    def find(self, html) -> None:
+        """
+        This method should find all tags according to self._pattern and sets all of them in self.tags.
+        """
+        pass
+
+    @abstractmethod
+    def link(self, html) -> str:
+        """
+        This method combines the other two methods, find and sub, and returns a new HTML string.
+        """
+        pass
+
+
 class UserComponent(BasicComponent):
+    """
+    The class is responsible for changing HTML when it mentions users.
+    """
+
     def __init__(self):
-        self.pattern = re.compile(r"<a href=@(\w+) (.*)></a>")
-        self.template = '<a href="{url}" {extra_property} >{username}</a>'
+        self._pattern = re.compile(r"<a href=@(\w+) (.*)></a>")
+        self._template = '<a href="{url}" {extra_property} >{username}</a>'
         self.endpoint = partial(reverse, "account:profile")
 
         self.tags = []
 
     def sub(self, html: str) -> str:
+        """
+        Replaces old tags in HTML code with new ones based on user data.
+        """
         for tag in self.tags:
             url = reverse("account:profile", kwargs={"username": tag.username})
             html = html.replace(
                 tag.tag,
-                self.template.format(
+                self._template.format(
                     username=tag.username, url=url, extra_property=tag.extra_property
                 ),
             )
 
         return html
 
-    def find(self, html) -> List[Tag]:
-        matches = self.pattern.finditer(html)
+    def find(self, html: str) -> None:
+        """
+        Finds all tags according to self._pattern using regular expressions and sets them in self.tags.
+        """
+        matches = self._pattern.finditer(html)
         for match in matches:
             username, extra_property = match.groups()
             tag = Tag(
-                tag=match.group(), username=username, extra_property=extra_property
+                tag=match.group(),
+                username=username,
+                extra_property=extra_property.replace(" ", ""),
             )
             self.tags.append(tag)
 
-    def link(self, html):
+    def link(self, html: str) -> str:
+        """
+        Combines the sub and find methods to return modified HTML code if the pattern is matched.
+        Returns the original HTML if no pattern is matched.
+        """
         self.find(html)
 
         if not self.tags:
