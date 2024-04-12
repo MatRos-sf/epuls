@@ -1,11 +1,16 @@
 import os
-from typing import Dict, Optional
+import re
+from functools import partial
+from typing import Dict, List, Optional, Tuple
 
 from django import template
+from django.shortcuts import reverse
+from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from typing_extensions import LiteralString
 
 from account.models import PROFILE_PICTURE_PATH, Profile, ProfileType
+from epuls_tools.presentation import Presentation
 
 register = template.Library()
 
@@ -42,3 +47,18 @@ def get_information_about_visitor(user_profile: Profile):
         )
 
     return mark_safe(html_code)  # nosec
+
+
+def find_username(html):
+    matches = re.finditer(r"<a href=@(\w+).*></a>", html)
+    for match in matches:
+        print(match.groups()[0])
+        print(match.group())
+
+
+@register.filter(is_safe=True)
+def myfilter(value):
+    html = Presentation(value)
+    a = html.convert()
+
+    return mark_safe(a)  # nosec

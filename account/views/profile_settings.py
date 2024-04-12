@@ -4,8 +4,8 @@ from django.views.generic import UpdateView
 
 from account.forms import AboutUserForm, ProfileForm
 from account.models import AboutUser, Profile
+from epuls_tools.scaler import give_away_puls
 from puls.models import PulsType, SinglePuls
-from puls.scaler import give_away_puls
 
 
 class UserSettings(UserPassesTestMixin):

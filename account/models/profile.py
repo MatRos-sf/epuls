@@ -110,7 +110,7 @@ class Profile(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
 
     short_description = models.TextField(blank=True, null=True, max_length=100)
-    description = models.TextField(blank=True, null=True)
+    presentation = models.TextField(blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
 
@@ -158,6 +158,7 @@ class Profile(models.Model):
     )
 
     # visitor
+    visitors = models.ManyToManyField(User, blank=True, related_name="visited_by")
     male_visitor = models.IntegerField(default=0)
     female_visitor = models.IntegerField(default=0)
 
@@ -263,20 +264,6 @@ class Profile(models.Model):
         self.profile_picture = None
         self.save(update_fields=["profile_picture"])
 
-    def add_visitor(self, gender: str) -> NoReturn:
-        """
-        Updates the visitor count for a gender-specific field in the Profile model.
-        """
-        if gender in ["male", "female"]:
-            # TODO -> different way ?
-            Profile.objects.filter(pk=self.pk).update(
-                **{f"{gender}_visitor": F(f"{gender}_visitor") + 1}
-            )
-            # visitor = getattr(self, f'{gender}_visitor')
-            # visitor =
-        else:
-            raise ValueError("Gender must be 'male' or 'female'!")
-
     def change_type_of_profile(self, new_type: ProfileType = ProfileType.BASIC) -> None:
         power_of_old_type = TYPE_OF_PROFILE[self.type_of_profile]["power"]
         power_of_new_type = TYPE_OF_PROFILE[new_type]["power"]
@@ -331,7 +318,7 @@ class Profile(models.Model):
 
     def revert_profile(self, new_type):
         for key in new_type.keys():
-            if key == "power":
+            if key in ["power", "own_visitors", "sb_visitors"]:
                 continue
 
             amt = new_type[key]

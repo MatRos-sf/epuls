@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from .models import AboutUser, Diary, Gender, Guestbook, Profile
+from .models import AboutUser, Gender, Profile
 from .models.emotion import BasicEmotion, DivineEmotion, ProEmotion, XtremeEmotion
 
 FORM_CLASS = "form-group col-md-6 m-0 p-3"
@@ -126,51 +126,7 @@ class AboutUserForm(forms.ModelForm):
         )
 
 
-class GuestbookUserForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(GuestbookUserForm, self).__init__(*args, **kwargs)
-        self.fields["entry"].help_text = None
-        self.fields["entry"].label = ""
-
+class PresentationForm(forms.ModelForm):
     class Meta:
-        model = Guestbook
-        fields = ["entry"]
-        widgets = {
-            "entry": forms.Textarea(
-                attrs={
-                    "rows": 3,
-                    "class": "form-control",
-                    "placeholder": "Leave a entry here.",
-                }
-            )
-        }
-
-    def clean(self) -> dict:
-        cd = self.cleaned_data
-        # sender = cd['sender']
-        # receiver = cd['receiver']
-        #
-        # if Guestbook.objects.filter(sender=sender, receiver=receiver).exists():
-        #     raise forms.ValidationError("You already have had an entry for this user!")
-
-        return cd
-
-
-class DiaryForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["content"].widget.attrs["class"] = "form-control mx-4 "
-        self.fields["content"].widget.attrs["placeholder"] = (
-            "Today is a new day, full of possibilities and experiences. "
-            "Write down your thoughts, dreams, and experiences below to "
-            "immortalize the moments that made today special."
-        )
-        self.fields["content"].label = ""
-
-        self.fields["title"].widget.attrs["class"] = "form-control mx-4 my-2"
-        self.fields["title"].widget.attrs["placeholder"] = "Title"
-        self.fields["title"].label = ""
-
-    class Meta:
-        model = Diary
-        fields = ["title", "content", "is_hide"]
+        model = Profile
+        fields = ("presentation",)

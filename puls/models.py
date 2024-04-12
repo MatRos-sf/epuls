@@ -1,6 +1,8 @@
+from typing import Optional
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Q, QuerySet, Sum
 
 
 class PulsTypeVariableValue(models.TextChoices):
@@ -97,6 +99,7 @@ class Puls(models.Model):
             "type": self.type,
         }
 
+    @property
     def puls(self) -> int:
         """
         Returns sum of Puls. I mean all fields and round it to integer
@@ -117,7 +120,7 @@ class Puls(models.Model):
 
         return value or is_pulses
 
-    def pull_not_accepted_puls(self):
+    def pull_not_accepted_puls(self) -> Optional[QuerySet["SinglePuls"]]:
         pulses = self.pulses.filter(is_accepted=False).aggregate(
             profile_photo=Sum(
                 "quantity", default=0, filter=Q(type=PulsType.PROFILE_PHOTO)

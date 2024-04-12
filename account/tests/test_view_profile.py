@@ -14,12 +14,11 @@ from django.utils import timezone
 from parameterized import parameterized
 from PIL import Image
 
-from account.factories import PASSWORD, UserFactory, VisitorFactory
+from account.factories import PASSWORD, VisitorFactory
 from account.models import Profile, ProfileType, Visitor
 from action.factories import ActionFactory
 from action.models import Action, ActionMessage
-
-from .test_data import SimpleDBTestCase
+from epuls_tools.test import SimpleDBTestCase
 
 
 @tag("vp")

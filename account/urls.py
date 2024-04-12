@@ -1,21 +1,14 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import include, path
 
-from puls.views import PulsDetailView, update_puls
-
 from .views import (
     AboutUserUpdateView,
     AddBestFriendsView,
     BestFriendsListView,
-    DiaryCreateView,
-    DiaryDeleteView,
-    DiaryDetailView,
-    DiaryListView,
-    DiaryUpdateView,
     FriendsListView,
-    GuestbookView,
     HomeView,
     InvitesListView,
+    PresentationUpdateView,
     ProfileUpdateView,
     ProfileView,
     RemoveBestFriendsView,
@@ -67,50 +60,16 @@ urlpatterns = [
             ]
         ),
     ),
+    path("presentation/", PresentationUpdateView.as_view(), name="presentation"),
     path(
         "<str:username>/",
         include(
             [
                 path("", ProfileView.as_view(), name="profile"),
-                path("gb/", GuestbookView.as_view(), name="guestbook"),
-                path(
-                    "diary/",
-                    include(
-                        [
-                            path("", DiaryListView.as_view(), name="diary"),
-                            path(
-                                "create/",
-                                DiaryCreateView.as_view(),
-                                name="diary-create",
-                            ),
-                            path(
-                                "<int:pk>/",
-                                DiaryDetailView.as_view(),
-                                name="diary-detail",
-                            ),
-                            path(
-                                "<int:pk>/update/",
-                                DiaryUpdateView.as_view(),
-                                name="diary-update",
-                            ),
-                            path(
-                                "<int:pk>/delete/",
-                                DiaryDeleteView.as_view(),
-                                name="diary-delete",
-                            ),
-                        ]
-                    ),
-                ),
+                path("gb/", include("guestbook.urls")),
+                path("diary/", include("diary.urls")),
                 path("friends/", FriendsListView.as_view(), name="friends"),
-                path(
-                    "puls/",
-                    include(
-                        [
-                            path("update/", update_puls, name="puls-update"),
-                            path("", PulsDetailView.as_view(), name="puls"),
-                        ]
-                    ),
-                ),
+                path("puls/", include("puls.urls")),
                 path(
                     "invites/",
                     include(

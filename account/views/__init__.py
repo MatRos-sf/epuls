@@ -1,6 +1,5 @@
-from .diary import *
 from .friends import *
+from .presentation import *
 from .profile import *
 from .profile_settings import *
-from .tracker import *
 from .views import *

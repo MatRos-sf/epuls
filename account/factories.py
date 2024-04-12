@@ -16,17 +16,9 @@ from factory import (
 from factory.django import DjangoModelFactory
 from faker import Faker
 
-from account.models import AboutUser, FriendRequest, Profile, Visitor
 from puls.factories import PulsFactory
 
-__all__ = [
-    "AboutUserFactory",
-    "UserFactory",
-    "ProfileFactory",
-    "VisitorFactory",
-    "FriendRequestFactory",
-    "PASSWORD",
-]
+from .models import AboutUser, FriendRequest, Profile, Visitor
 
 PASSWORD = "1_test_TEST_!"
 FAKE = Faker()

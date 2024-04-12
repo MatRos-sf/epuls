@@ -4,13 +4,12 @@ from http import HTTPStatus
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.shortcuts import reverse
-from django.test import TestCase, tag
+from django.test import tag
 from parameterized import parameterized
 
 from account.factories import PASSWORD, UserFactory
 from account.models import ProfileType
-
-from .test_data import SimpleDBTestCase
+from epuls_tools.test import SimpleDBTestCase
 
 
 @tag("bf")

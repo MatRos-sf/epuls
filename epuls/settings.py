@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     "django_filters",
 ]
 
-INSTALLED_EXTENSIONS = ["account", "puls", "action", "photo"]
+INSTALLED_EXTENSIONS = ["account", "diary", "guestbook", "puls", "action", "photo"]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
 

@@ -1,20 +1,33 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
-from django.views.generic.detail import DetailView
+
+from epuls_tools.views import ActionType, EpulsDetailView
 
 from .models import Puls
 
 
-class PulsDetailView(DetailView):
+class PulsDetailView(LoginRequiredMixin, EpulsDetailView):
     model = Puls
     template_name = "puls/detail.html"
     slug_field = "profile__user__username"
     slug_url_kwarg = "username"
+    activity = ActionType.PULS
 
     def get_context_data(self, **kwargs):
+        """
+        Extra context:
+         * pulses
+        :param kwargs:
+        :return:
+        """
         context_data = super(PulsDetailView, self).get_context_data(**kwargs)
         instance = context_data.get("object")
-        context_data["pulses"] = instance.pull_not_accepted_puls()
+        is_user_account = self.check_users()
+        if is_user_account:
+            context_data["pulses"] = instance.pull_not_accepted_puls()
+
+        context_data["self"] = is_user_account
 
         return context_data
 

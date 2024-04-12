@@ -4,8 +4,7 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 
 from account.models import Profile, ProfileType
-
-from .models import Bonus, PulsType, SinglePuls
+from puls.models import Bonus, PulsType, SinglePuls
 
 CONSTANT_PULS = ("profile_photo", "about_me", "presentation", "schools")
 CONSTANT_PULS_QTY = 15
