@@ -209,7 +209,19 @@ class Presentation:
 
         self.html = html
 
+    def check_html(self):
+        """
+        Search for unwanted 'src' attributes in the HTML code and replace them with an empty string.
+
+        This is useful for sanitizing HTML code and remove potentially harmful or unwanted sources from image or script tags
+        """
+        pattern = re.compile(r"src\s*=\s*\"\S+\" ")
+
+        self.html = pattern.sub('src=""', self.html)
+
     def convert(self):
+        self.check_html()
+
         self.html = self.user_component.link(self.html)
         self.html = self.profile_picture.link(self.html)
         return self.html
