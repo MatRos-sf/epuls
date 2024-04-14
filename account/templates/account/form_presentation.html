@@ -2,11 +2,91 @@
 {% block content %}
     <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
         <div class="container overflow-hidden text-center">
-            <h1>Introduce Yourself</h1>
+            <h1 class="fs-2 epuls-style-text">Presentation section</h1>
+            <p class="fs-6">
+                Here you can express yourself. Create amazing presentation about yourself, what you like to do or mention your friends.
+            </p>
+            <p class="fs-6">
+                Don't forget that you can style your presentation using HTML code. WWe've prepared some shortcuts to help you create an amazing presentation .
+                If you want to find out more about shortcuts, press the "Guidance" button.
+            </p>
+            <!-- Button trigger modal -->
+            <button type="button"
+                    class="btn btn-success"
+                    data-bs-toggle="modal"
+                    data-bs-target="#exampleModal">Guidance</button>
+            <!-- Modal -->
+            <div class="modal fade"
+                 id="exampleModal"
+                 tabindex="-1"
+                 aria-labelledby="exampleModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Guidance</h1>
+                            <button type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-3">
+                                    <div id="simple-list-example"
+                                         class="d-flex flex-column gap-2 simple-list-example-scrollspy text-center ">
+                                        <a class="p-1 rounded link-success" href="#user-mention">User's mention</a>
+                                        <a class="p-1 rounded link-success" href="#user-profile-photo">A user profile photo mentions</a>
+                                    </div>
+                                </div>
+                                <div class="col-9 text-start">
+                                    <div class="scrollspy-example" tabindex="0">
+                                        <h4 id="user-mention">A user mention</h4>
+                                        <p>
+                                            If you want to mention a user, use <code>@&lt;username&gt;</code> in the <code>href</code> attribute which is inside the  <code>a</code> tag. You can also use Bootstrap class. Example:
+                                        </p>
+                                        <p class="text-center">
+                                            <code>&lt;a href=@user &gt;&lt;/a&gt;</code>
+                                        </p>
+                                        <p>
+                                            If you want to use a different style attribute. You have to place it after <code>href</code> attribute. You can also use Bootstrap class. Example:
+                                        </p>
+                                        <p class="text-center">
+                                            <code>&lt;a href=@user class="text-uppercase" &gt;&lt;/a&gt;</code>
+                                        </p>
+                                        <hr>
+                                        <h4 id="user-profile-photo">A user profile photo mentions</h4>
+                                        <p>
+                                            If you want to mention a user profile photo, use <code>@prof-&lt;username &gt;</code> in the <code>src</code>  attribute which is inside the  <code>img</code> tag.
+                                        </p>
+                                        <p class="text-center">
+                                            <code>&lt;img href=@user&gt; </code>
+                                        </p>
+                                        <p>
+                                            If you want to use a different style attribute. You have to place it after <code>src</code> attribute. You can also use Bootstrap class. Example:
+                                        </p>
+                                        <p class="text-center">
+                                            <code>&lt;img href=@user width="500" height="600"&gt; </code>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1 class="fs-2 epuls-style-text">Yours presentation:</h1>
             <form method="post">
                 {% csrf_token %}
                 {{ form }}
-                <button class="submit">Save</button>
+                <button class="btn btn-success">Save</button>
             </form>
         </div>
     </div>
