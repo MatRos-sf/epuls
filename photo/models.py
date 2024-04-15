@@ -88,8 +88,14 @@ class Picture(models.Model):
     profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
 
+    presentation_tag = models.CharField(
+        max_length=50,
+        help_text="Required. 50 characters or fewer. Letters, digits and @/./+/-/_ only.",
+    )
+
     class Meta:
         ordering = ["-date_created"]
+        unique_together = [["title", "profile"]]
 
     # TODO likes
 
