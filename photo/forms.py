@@ -1,3 +1,5 @@
+import re
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Column, Layout, Row, Submit
 from django import forms
@@ -54,6 +56,14 @@ class PictureForm(forms.ModelForm):
         model = Picture
         exclude = ("profile", "date_created")
 
-    def clean_picture(self):
-        image = self.cleaned_data.get("picture")
-        return image
+    def clean_presentation_tag(self) -> str:
+        tag = self.cleaned_data.get("presentation_tag")
+
+        pattern = re.compile("^[a-zA-Z0-9@.+\\-_]+$")
+
+        if not pattern.match(tag):
+            raise forms.ValidationError(
+                "The 'presentation tag' should only include letters, digits and @/./+/-/_."
+            )
+
+        return tag
