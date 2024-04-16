@@ -1,11 +1,9 @@
 import os
 import re
 from functools import partial
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 from django import template
-from django.shortcuts import reverse
-from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from typing_extensions import LiteralString
 
@@ -57,8 +55,7 @@ def find_username(html):
 
 
 @register.filter(is_safe=True)
-def myfilter(value):
-    html = Presentation(value)
-    a = html.convert()
-
-    return mark_safe(a)  # nosec
+def transform_html_code(html, profile):
+    html_converter = Presentation(html, profile)
+    new_html = html_converter.convert()
+    return mark_safe(new_html)  # nosec
