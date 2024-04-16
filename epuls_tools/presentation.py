@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from functools import partial
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
+from django.conf import settings
 from django.shortcuts import reverse
 
 from account.models import Profile
@@ -42,6 +43,8 @@ class BasicComponent(ABC):
 
 
 class Component:
+    media_suffix = getattr(settings, "MEDIA_URL", None)
+    static_suffix = getattr(settings, "STATIC_URL", None)
     _pattern = re.compile(".")
     _template = ""
 
@@ -147,13 +150,14 @@ class ProfilePictureComponent(Component):
                 gender = dataset.pop("gender")
                 profile_picture = self.get_default_profile_picture(gender)
             else:
-                profile_picture = "/media/" + profile_picture
+                profile_picture = self.media_suffix + profile_picture
             profile_pictures[username] = profile_picture
         return profile_pictures
 
-    @staticmethod
-    def get_default_profile_picture(gender: str) -> str:
-        return f"/static/account/profile_picture/default_{gender}_picture.jpeg"
+    def get_default_profile_picture(self, gender: str) -> str:
+        return (
+            f"{self.static_suffix}account/profile_picture/default_{gender}_picture.jpeg"
+        )
 
     def link(self, html: str) -> str:
         self.find(html)
@@ -183,7 +187,7 @@ class PictureComponent(ProfilePictureComponent):
 
         for dataset in pictures:
             tag = dataset.get("presentation_tag")
-            pictures_url[tag] = dataset.get("picture")
+            pictures_url[tag] = self.media_suffix + dataset.get("picture")
 
         return pictures_url
 

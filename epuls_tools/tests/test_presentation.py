@@ -269,7 +269,7 @@ class PictureComponentTestCase(TestCase):
 
         response = component.link(html)
 
-        self.assertEqual(f'<img src="{self.picture_1.picture}" > ', response)
+        self.assertEqual(f'<img src="/media/{self.picture_1.picture}" > ', response)
 
     def test_user_can_not_mention_about_different_user_picture(self):
         new_user = UserFactory()
