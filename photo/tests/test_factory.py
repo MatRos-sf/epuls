@@ -47,7 +47,7 @@ class PictureFactoryTestCase(TestCase):
             if os.path.exists(path):
                 os.remove(path)
 
-        super(PictureFactoryTestCase, cls).setUpClass()
+        super(PictureFactoryTestCase, cls).tearDownClass()
 
     def test_should_create_three_picture_models(self):
         self.assertEqual(Picture.objects.count(), 3)

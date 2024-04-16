@@ -1,8 +1,7 @@
-from django.core.files.base import ContentFile
-from factory import Faker, LazyAttribute, Sequence, SubFactory
+from factory import Faker, Sequence, SubFactory
 from factory.django import DjangoModelFactory, ImageField
 
-from account.factories import ProfileFactory, UserFactory
+from account.factories import ProfileFactory
 
 from .models import Gallery, Picture
 
