@@ -11,7 +11,7 @@ from PIL import Image
 from account.factories import UserFactory
 from account.models import Profile
 from epuls_tools.presentation import (
-    Presentation,
+    Component,
     ProfilePictureComponent,
     Tag,
     UserComponent,
@@ -28,6 +28,23 @@ def generate_photo_file(name="test"):
     file_obj.seek(0)
 
     return File(file_obj, name=name)
+
+
+@tag("1")
+class ComponentTestCase(TestCase):
+    def setUp(self):
+        self.component = Component()
+
+    @parameterized.expand(["", "test", "tes t"])
+    def test_should_find_everything(self, html):
+        self.component.find(html)
+
+        self.assertFalse(self.component.tags)
+
+    @parameterized.expand(["<a href=@user1>John</a>", "<p>No tags here</p>"])
+    def tes_should_return_the_same_html(self, html):
+        response = self.component.link(html)
+        self.assertEqual(html, response)
 
 
 @tag("ep_p_uc")
@@ -58,18 +75,20 @@ class UserComponentTestCase(TestCase):
 
     def test_should_find_four_tags(self):
         self.component.find(self.dummy_presentation)
-
         self.assertEqual(len(self.component.tags), 4)
 
     def test_should_create_appropriate_tags(self):
         expected_list = [
-            Tag(tag="<a href=@Test ></a>", username="Test", extra_property=""),
-            Tag(tag="<a href=@Test  ></a>", username="Test", extra_property=""),
-            Tag(tag="<a href=@Test    ></a>", username="Test", extra_property=""),
+            Tag(tag="<a href=@Test ></a>", username="Test", extra_property="", url=""),
+            Tag(tag="<a href=@Test  ></a>", username="Test", extra_property="", url=""),
+            Tag(
+                tag="<a href=@Test    ></a>", username="Test", extra_property="", url=""
+            ),
             Tag(
                 tag='<a href=@Test class="test" ></a>',
                 username="Test",
                 extra_property='class="test"',
+                url="",
             ),
         ]
         self.component.find(self.dummy_presentation)
@@ -80,35 +99,36 @@ class UserComponentTestCase(TestCase):
 
     def test_should_edit_html_and_replace_correctly_tag_to_new_one(self):
         tags = [
-            Tag(tag="<a href=@Test ></a>", username="Test", extra_property=""),
-            Tag(tag="<a href=@Test  ></a>", username="Test", extra_property=""),
-            Tag(tag="<a href=@Test    ></a>", username="Test", extra_property=""),
+            Tag(tag="<a href=@Test ></a>", username="Test", extra_property="", url=""),
+            Tag(tag="<a href=@Test  ></a>", username="Test", extra_property="", url=""),
+            Tag(
+                tag="<a href=@Test    ></a>", username="Test", extra_property="", url=""
+            ),
             Tag(
                 tag='<a href=@Test class="test" ></a>',
                 username="Test",
                 extra_property='class="test"',
+                url="",
             ),
         ]
-        with patch.object(UserComponent, "tags", tags):
-            result = self.component.sub(self.dummy_presentation)
+        self.component.tags = tags
+        html = (
+            "<a href=@Test ></a> "
+            "<a href=@Test  ></a> "
+            "<a href=@Test    ></a> "
+            '<a href=@Test class="test" ></a> '
+        )
 
-            expected = """"
-        # pass
-        <a href=@Test ></a>
-        <a href=@Test ></a>
-        <a href=@Test ></a>
-        <a href=@Test class=\"test\" ></a>
+        result = self.component.sub(html)
 
-        #fail
-        a href=@Test ></a>
-        <a href=@Test ></a
-        <a href=@Test > </a>
-        <href=@Test ></a>
-        <a class=@Test href=@Test></a>
-        <a class=@Test ></a>
-        """
+        expected = (
+            '<a href="/Test/" >Test</a> '
+            '<a href="/Test/" >Test</a> '
+            '<a href="/Test/" >Test</a> '
+            '<a href="/Test/" class="test">Test</a> '
+        )
 
-            self.assertEqual(result, expected)
+        self.assertEqual(result, expected)
 
 
 @tag("ep_p_ppc")
@@ -178,101 +198,26 @@ class ProfilePictureComponentTestCase(TestCase):
 
         self.assertEqual(len(component.tags), 0)
 
-    # def test_should_return_expected_dict_when_trigger_pull_url_profile_picture(self):
-    #     # mock tags
-    #     user1, user2, user3 = User.objects.all()
-    #     tags = [
-    #         Tag(tag="...", username=user1.username),
-    #         Tag(tag="...", username=user2.username),
-    #         Tag(tag="...", username=user3.username),
-    #     ]
-    #
-    #     # create expected dict
-    #     expected = {
-    #         user1.username: "/media/" + user1.profile.profile_picture.url,
-    #         user2.username: "/media/" + user2.profile.profile_picture.url,
-    #         user3.username: f"/static/account/profile_picture/default_{user3.profile.gender}_picture.jpeg"
-    #     }
-    #
-    #     with patch("epuls_tools.presentation.ProfilePictureComponent.tags", new=tags):
-    #         component = ProfilePictureComponent()
-    #
-    #         result = component.pull_url_profile_picture()
-    #
-    #         self.assertEqual(result, expected)
-
-
-@tag("ep_p_p")
-class PresentationTestCase(TestCase):
-    @parameterized.expand(
-        [
-            (
-                '<img src=  "www.sample.pl" >',
-                '<img src="" >',
-            ),
-            (
-                '<img src           =  "www.sample.pl" >',
-                '<img src="" >',
-            ),
-            (
-                '<img src="www.sample.pl" >',
-                '<img src="" >',
-            ),
-            (
-                '<img src="www.sample.pl"         >',
-                '<img src=""         >',
-            ),
-            (
-                '<img src        ="www.sample.pl" >',
-                '<img src="" >',
-            ),
-            (
-                '<img src=  "www.sample.pl">',
-                '<img src="">',
-            ),
-            (
-                '<img class="src="www.sample.pl"" src=  "www.sample.pl">',
-                '<img class="src="www.sample.pl"" src="">',
-            ),
-            (
-                '<img src="www.sample.pl" class="test">',
-                '<img src="" class="test">',
-            ),
-            # change char " -> '
-            (
-                "<img src='www.sample.pl'>",
-                '<img src="">',
-            ),
-            (
-                "<a src='www.sample.pl'>",
-                '<a src="">',
-            ),
+    def test_should_return_expected_dict_when_trigger_pull_url_profile_picture(self):
+        # mock tags
+        user1, user2, user3 = User.objects.all()
+        tags = [
+            Tag(tag="...", username=user1.username, extra_property="", url=""),
+            Tag(tag="...", username=user2.username, extra_property="", url=""),
+            Tag(tag="...", username=user3.username, extra_property="", url=""),
         ]
-    )
-    def test_should_sanitize_unwanted_tag(self, html, expected):
-        presentation = Presentation(html)
-        presentation.check_html()
-        self.assertEqual(presentation.html, expected)
 
-    @parameterized.expand(["<a></a>", "<img class='test'>", "<p class='test'></p>"])
-    def test_check_html_handles_no_src_attribute(self, html):
-        presentation = Presentation(html)
-        presentation.check_html()
-        self.assertEqual(presentation.html, html)
+        # create expected dict
+        expected = {
+            user1.username: user1.profile.profile_picture.url,
+            user2.username: user2.profile.profile_picture.url,
+            user3.username: f"/static/account/profile_picture/default_{user3.profile.gender}_picture.jpeg",
+        }
 
-    def test_check_html_handles_different_formats_of_src_attribute(self):
-        html_with_different_formats = "<img src='image.jpg'> <img src=\"image2.jpg\">"
-        presentation = Presentation(html_with_different_formats)
+        component = ProfilePictureComponent()
 
-        presentation.check_html()
+        component.tags = tags
 
-        self.assertNotIn("src='image.jpg'", presentation.html)
-        self.assertNotIn('src="image2.jpg"', presentation.html)
+        result = component.pull_url_profile_picture()
 
-    def test_check_html_handles_malicious_src_attribute(self):
-        malicious_html = "<img src='http://malicious.com/malware.js'>"
-        presentation = Presentation(malicious_html)
-
-        presentation.check_html()
-        presentation.check_html()
-        self.assertNotIn("http://malicious.com/malware.js", presentation.html)
+        self.assertEqual(result, expected)
