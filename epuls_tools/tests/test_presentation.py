@@ -12,10 +12,14 @@ from account.factories import UserFactory
 from account.models import Profile
 from epuls_tools.presentation import (
     Component,
+    PictureComponent,
+    Presentation,
     ProfilePictureComponent,
     Tag,
     UserComponent,
 )
+from photo.factories import GalleryFactory, PictureFactory
+from photo.models import Picture
 
 
 def generate_photo_file(name="test"):
@@ -30,7 +34,6 @@ def generate_photo_file(name="test"):
     return File(file_obj, name=name)
 
 
-@tag("1")
 class ComponentTestCase(TestCase):
     def setUp(self):
         self.component = Component()
@@ -218,6 +221,119 @@ class ProfilePictureComponentTestCase(TestCase):
 
         component.tags = tags
 
-        result = component.pull_url_profile_picture()
+        result = component.pull_url_picture()
 
         self.assertEqual(result, expected)
+
+    def test_should_return_expected_html_and_update_tags(self):
+        username = self.profile.user.username
+        html = f"<img src=@prof-{username} >"
+
+        component = ProfilePictureComponent()
+        response = component.link(html)
+
+        expected = f'<a href="/{username}/"><img src="/media/{self.profile.profile_picture}" ></a>'
+
+        self.assertEqual(response, expected)
+
+
+@tag("pctc")
+class PictureComponentTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(PictureComponentTestCase, cls).setUpClass()
+        user = UserFactory()
+        gallery = GalleryFactory(profile=user.profile)
+        PictureFactory.create_batch(3, profile=user.profile, gallery=gallery)
+
+    @classmethod
+    def tearDownClass(cls):
+        url_pictures_to_del = [
+            picture.picture.path for picture in Picture.objects.all()
+        ]
+
+        for path in url_pictures_to_del:
+            if os.path.exists(path):
+                os.remove(path)
+
+        super(PictureComponentTestCase, cls).tearDownClass()
+
+    def setUp(self):
+        for index, picture in enumerate(Picture.objects.all()):
+            setattr(self, f"picture_{index}", picture)
+        self.user = User.objects.first()
+
+    def test_should_create_src_when_pattern_is_correct(self):
+        html = f"<img src=@img-{self.picture_1.presentation_tag} > "
+        component = PictureComponent(self.user.profile)
+
+        response = component.link(html)
+
+        self.assertEqual(f'<img src="{self.picture_1.picture}" > ', response)
+
+    def test_user_can_not_mention_about_different_user_picture(self):
+        new_user = UserFactory()
+        gallery = GalleryFactory(profile=new_user.profile)
+        picture = PictureFactory(profile=new_user.profile, gallery=gallery)
+
+        html = f"<img src=@img-{picture.presentation_tag} >"
+
+        component = PictureComponent(self.user.profile)
+
+        response = component.link(html)
+        self.assertEqual(response, '<img src="" >')
+
+
+@tag("p_ts")
+class PresentationTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(PresentationTestCase, cls).setUpClass()
+        user = UserFactory()
+        user.profile.profile_picture = generate_photo_file()
+        user.profile.save()
+
+        gallery = GalleryFactory(profile=user.profile)
+        PictureFactory.create_batch(3, profile=user.profile, gallery=gallery)
+
+    @classmethod
+    def tearDownClass(cls):
+        url_pictures_to_del = [
+            picture.picture.path for picture in Picture.objects.all()
+        ]
+
+        for path in url_pictures_to_del:
+            if os.path.exists(path):
+                os.remove(path)
+
+        super(PresentationTestCase, cls).tearDownClass()
+
+    def setUp(self):
+        self.user = User.objects.first()
+
+    def test_should_delete_unwanted_src(self):
+        html = (
+            '<img src="test.js" > '
+            '<img src="test.js" class="sth" > '
+            '<img src="www.test.com" > '
+            '<a src="test.js" > '
+            '<a src="test.js" class="sth" > '
+            '<a src="www.test.com" ></a>'
+            ' <iframe src="https://www.test.com"></iframe> '
+        )
+
+        presentation = Presentation(html, self.user.profile)
+        presentation.check_html()
+
+        self.assertEqual(
+            presentation.html,
+            (
+                '<img src="" > '
+                '<img src="" class="sth" > '
+                '<img src="" > '
+                '<a src="" > '
+                '<a src="" class="sth" > '
+                '<a src="" ></a>'
+                ' <iframe src=""></iframe> '
+            ),
+        )
