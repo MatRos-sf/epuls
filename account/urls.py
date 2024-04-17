@@ -13,6 +13,7 @@ from .views import (
     ProfileView,
     RemoveBestFriendsView,
     UserListView,
+    activate,
     invite_accept,
     send_to_friends,
     signup,
@@ -23,6 +24,7 @@ app_name = "account"
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    path("activate/<uidb64>/<token>/", activate, name="activate"),
     path("login/", LoginView.as_view(template_name="account/login.html"), name="login"),
     path(
         "logout/",
