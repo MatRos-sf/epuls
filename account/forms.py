@@ -127,6 +127,18 @@ class AboutUserForm(forms.ModelForm):
 
 
 class PresentationForm(forms.ModelForm):
+    presentation = forms.CharField(
+        widget=forms.Textarea(
+            attrs={"class:": "form-control", "rows": "25", "cols": "100"}
+        )
+    )
+
     class Meta:
         model = Profile
         fields = ("presentation",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.fields.values():
+            field.label = ""
