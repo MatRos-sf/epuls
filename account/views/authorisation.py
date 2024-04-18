@@ -4,13 +4,19 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
-from django.http import HttpResponse
+from django.http import (
+    HttpResponse,
+    HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
+)
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from account.forms import UserSignupForm
+from epuls_tools.scaler import give_away_puls
+from puls.models import PulsType
 
 __all__ = [
     "generate_confirmation_token",
@@ -20,7 +26,7 @@ __all__ = [
 ]
 
 
-def generate_confirmation_token(user):
+def generate_confirmation_token(user) -> str:
     return default_token_generator.make_token(user)
 
 
@@ -30,7 +36,7 @@ def send_confirmation_email(current_site, user) -> None:
 
     subject = "Activate your account"
     message = render_to_string(
-        "account/email.html",
+        "account/authorisation/email.html",
         {
             "user": user,
             "domain": current_site.domain,
@@ -42,7 +48,9 @@ def send_confirmation_email(current_site, user) -> None:
     send_mail(subject, message, settings.EMAIL_HOST_USER, (user.email,))
 
 
-def signup(request) -> HttpResponse:
+def signup(
+    request,
+) -> HttpResponse | HttpResponseRedirect | HttpResponsePermanentRedirect:
     """
     View responsible for user signup.
     """
@@ -70,9 +78,14 @@ def signup(request) -> HttpResponse:
     )
 
 
-def activate(request, uidb64, token):
+def activate(
+    request, uidb64, token
+) -> HttpResponseRedirect | HttpResponsePermanentRedirect:
     """
-    Checks that given url adress is
+    Confirm the email associated with the user's profile.
+
+    If the provided token is valid, mark the profile as confirmed ('is_confirm' set) and award a point for email confirmation.
+    If the token has expired, generate a new token and send it to email user's.
     """
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -85,9 +98,10 @@ def activate(request, uidb64, token):
         if not user.profile.is_confirm and token_is_active:
             user.profile.is_confirm = True
             user.profile.save(update_fields=["is_confirm"])
-            # TODO: give puls
-
+            # give puls
+            give_away_puls(user_profile=user.profile, type=PulsType.ACCOUNT_CONFIRM)
             messages.success(request, "Your account has been confirmed!")
+
         elif not user.profile.is_confirm and not token_is_active:
             current_site = get_current_site(request)
             send_confirmation_email(current_site, user)
