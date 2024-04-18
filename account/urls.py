@@ -1,5 +1,12 @@
-from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import include, path
+from django.contrib.auth.views import (
+    LoginView,
+    LogoutView,
+    PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
+)
+from django.urls import include, path, reverse_lazy
 
 from .views import (
     AboutUserUpdateView,
@@ -22,6 +29,40 @@ from .views import (
 
 app_name = "account"
 
+urlpatterns_password_reset = [
+    path(
+        "password-reset/",
+        PasswordResetView.as_view(
+            template_name="account/authorisation/password_reset_form.html",
+            email_template_name="account/authorisation/password_reset_email.html",
+            success_url=reverse_lazy("account:password_reset_done"),
+        ),
+        name="password_reset",
+    ),
+    path(
+        "password-reset/done/",
+        PasswordResetDoneView.as_view(
+            template_name="account/authorisation/password_reset_done.html"
+        ),
+        name="password_reset_done",
+    ),
+    path(
+        "reset/<uidb64>/<token>/",
+        PasswordResetConfirmView.as_view(
+            template_name="account/authorisation/password_reset_confirm.html",
+            success_url=reverse_lazy("account:password_reset_complete"),
+        ),
+        name="password_reset_confirm",
+    ),
+    path(
+        "reset/done/",
+        PasswordResetCompleteView.as_view(
+            template_name="account/authorisation/password_reset_complete.html",
+        ),
+        name="password_reset_complete",
+    ),
+]
+
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     # authorisation
@@ -32,6 +73,8 @@ urlpatterns = [
         LogoutView.as_view(),
         name="logout",
     ),
+    # password reset
+    *urlpatterns_password_reset,
     path("signup/", signup, name="signup"),
     path("send_request/<str:username>/", send_to_friends, name="send_invitation"),
     path(
