@@ -1,6 +1,8 @@
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
+    PasswordChangeDoneView,
+    PasswordChangeView,
     PasswordResetCompleteView,
     PasswordResetConfirmView,
     PasswordResetDoneView,
@@ -75,6 +77,19 @@ urlpatterns = [
     ),
     # password reset
     *urlpatterns_password_reset,
+    path(
+        "password-change/",
+        PasswordChangeView.as_view(
+            template_name="account/authorisation/password_change_form.html",
+            success_url=reverse_lazy("account:password_change_done"),
+        ),
+        name="password_change",
+    ),
+    path(
+        "password-change/done/",
+        PasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
     path("signup/", signup, name="signup"),
     path("send_request/<str:username>/", send_to_friends, name="send_invitation"),
     path(
