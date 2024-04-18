@@ -20,6 +20,7 @@ class PulsType(models.TextChoices):
     ABOUT_ME = "about_me", "ABOUT ME"
     PRESENTATION = "presentation", "PRESENTATION"
     SCHOOLS = "schools", "SCHOOLS"
+    ACCOUNT_CONFIRM = "account_confirm", "ACCOUNT CONFIRM"
     LOGINS = "logins", "LOGINS"
     GUESTBOOKS = "guestbooks", "GUESTBOOKS"
     MESSAGES = "messages", "MESSAGES"
@@ -51,7 +52,11 @@ class Puls(models.Model):
         help_text="PLUS for fill schools in.",
         validators=[MinValueValidator(0), MaxValueValidator(15)],
     )
-
+    account_confirm = models.IntegerField(
+        default=0,
+        help_text="PLUS for fill schools in.",
+        validators=[MinValueValidator(0), MaxValueValidator(15)],
+    )
     logins = models.IntegerField(default=0, help_text="PLUS for log in to the server.")
     guestbooks = models.IntegerField(
         default=0, help_text="PLUS for entres to guestbooks."

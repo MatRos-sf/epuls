@@ -24,11 +24,12 @@ app_name = "account"
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
+    # authorisation
     path("activate/<uidb64>/<token>/", activate, name="activate"),
     path("login/", LoginView.as_view(template_name="account/login.html"), name="login"),
     path(
         "logout/",
-        LogoutView.as_view(template_name="account/logout.html"),
+        LogoutView.as_view(),
         name="logout",
     ),
     path("signup/", signup, name="signup"),

@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
@@ -10,7 +12,12 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from account.forms import UserSignupForm
 
-__all__ = ["generate_confirmation_token", "send_confirmation_email", "signup"]
+__all__ = [
+    "generate_confirmation_token",
+    "send_confirmation_email",
+    "signup",
+    "activate",
+]
 
 
 def generate_confirmation_token(user):
@@ -61,3 +68,36 @@ def signup(request) -> HttpResponse:
     return render(
         request, "account/base/basic_form.html", {"form": form, "title": "Sign Up"}
     )
+
+
+def activate(request, uidb64, token):
+    """
+    Checks that given url adress is
+    """
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user:
+        token_is_active = default_token_generator.check_token(user, token)
+        if not user.profile.is_confirm and token_is_active:
+            user.profile.is_confirm = True
+            user.profile.save(update_fields=["is_confirm"])
+            # TODO: give puls
+
+            messages.success(request, "Your account has been confirmed!")
+        elif not user.profile.is_confirm and not token_is_active:
+            current_site = get_current_site(request)
+            send_confirmation_email(current_site, user)
+            messages.warning(
+                request,
+                "Token has expired. New confirmation link has been sent to your email.",
+            )
+        else:
+            messages.warning(request, "Your email was confirmed!")
+    else:
+        messages.error(request, "Token is wrong!")
+
+    return redirect("account:login")
