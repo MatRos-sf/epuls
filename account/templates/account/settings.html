@@ -1,0 +1,28 @@
+{% extends "account/base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1 class="fs-1 epuls-style-text">Account</h1>
+            <div class="row justify-content-center">
+                <div class="list-group m-5 col-4 justify-content-center">
+                    <a href="{% url 'account:password_change' %}"
+                       class="list-group-item list-group-item-action">Change password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <h1 class="fs-1 epuls-style-text">Profile</h1>
+            <div class="row justify-content-center">
+                <div class="list-group m-5 col-4">
+                    <a href="{% url 'account:update-profile' %}"
+                       class="list-group-item list-group-item-action">Profile</a>
+                    <a href="{% url 'account:update-about' %}"
+                       class="list-group-item list-group-item-action">About</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

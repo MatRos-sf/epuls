@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, reverse
-from django.views.generic import UpdateView
+from django.views.generic import TemplateView, UpdateView, View
 
 from account.forms import AboutUserForm, ProfileForm
 from account.models import AboutUser, Profile
@@ -71,3 +71,7 @@ class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if not instance.is_set:
             if instance.check_model_is_fill_up():
                 give_away_puls(user_profile=model, type="about_me")
+
+
+class SettingsTemplateView(TemplateView):
+    template_name = "account/settings.html"
