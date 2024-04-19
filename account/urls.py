@@ -14,6 +14,7 @@ from .views import (
     AboutUserUpdateView,
     AddBestFriendsView,
     BestFriendsListView,
+    EpulsLoginView,
     FriendsListView,
     HomeView,
     InvitesListView,
@@ -100,7 +101,7 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     # authorisation
     path("activate/<uidb64>/<token>/", activate, name="activate"),
-    path("login/", LoginView.as_view(template_name="account/login.html"), name="login"),
+    path("login/", EpulsLoginView.as_view(), name="login"),
     path(
         "logout/",
         LogoutView.as_view(),

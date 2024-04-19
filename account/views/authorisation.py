@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.http import (
@@ -15,6 +17,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from account.forms import UserSignupForm
+from account.models import Profile
 from epuls_tools.scaler import give_away_puls
 from puls.models import PulsType
 
@@ -23,6 +26,7 @@ __all__ = [
     "send_confirmation_email",
     "signup",
     "activate",
+    "EpulsLoginView",
 ]
 
 
@@ -115,3 +119,24 @@ def activate(
         messages.error(request, "Token is wrong!")
 
     return redirect("account:login")
+
+
+class EpulsLoginView(LoginView):
+    template_name = "account/login.html"
+
+    def form_valid(self, form):
+        """
+        When form valid, user's will get points for login
+        """
+        username = form.cleaned_data.get("username")
+        user_profile = Profile.objects.get(user__username=username)
+        give_away_puls(user_profile=user_profile, type=PulsType.LOGINS)
+        return super().form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        # logout user when is login !
+        if request.user.is_authenticated:
+            messages.warning(request, "You have been logout!")
+            logout(request)
+
+        return super().get(request, *args, **kwargs)
