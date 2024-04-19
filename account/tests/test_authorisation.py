@@ -4,14 +4,28 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.messages import get_messages
+from django.db.models import Sum
 from django.shortcuts import reverse
 from django.test import TestCase, tag
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode
+from parameterized import parameterized
 
-from account.factories import UserFactory
-from epuls_tools.scaler import CONSTANT_PULS_QTY
+from account.factories import PASSWORD, UserFactory
+from account.models import ProfileType
+from epuls_tools.scaler import (
+    CONSTANT_PULS_QTY,
+    EXTRA_PULS_BY_PROFILE_TYPE,
+    PULS_FOR_ACTION,
+)
 from puls.models import PulsType, SinglePuls
+
+
+class DataSetWithOneUser(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        UserFactory()
 
 
 @tag("a_tc")
@@ -96,3 +110,64 @@ class ActivateTestCase(TestCase):
         messages = [m.message for m in get_messages(response.wsgi_request)]
 
         self.assertEqual(messages[0], expected_message)
+
+
+@tag("el_tc")
+class EpulsLoginViewTestCase(DataSetWithOneUser):
+    def setUp(self):
+        self.user = User.objects.first()
+        self.url = reverse("account:login")
+
+        self.credentials = {"username": self.user.username, "password": PASSWORD}
+
+    def test_should_login_user_when_credentials_is_correct(self):
+        response = self.client.post(self.url, data=self.credentials)
+
+        self.assertRedirects(response, reverse("account:home"))
+
+    def test_should_give_away_puls_when_user_login(self):
+        self.client.post(self.url, data=self.credentials)
+
+        puls = SinglePuls.objects.first()
+
+        self.assertEqual(puls.quantity, 0.05)
+
+    def test_should_give_away_pulses_when_user_login_and_logout_few_times(self):
+        expected = 0.05 * 10
+
+        for _ in range(10):
+            self.client.get(self.url, data=self.credentials)
+            self.client.post(self.url, data=self.credentials)
+
+        quantity = SinglePuls.objects.filter(puls__profile__user=self.user).aggregate(
+            Sum("quantity")
+        )["quantity__sum"]
+
+        self.assertAlmostEqual(quantity, expected)
+
+    def test_should_logout_user_when_user_try_login_when_is_login(self):
+        expected_message = "You have been logout!"
+
+        self.client.login(
+            username=self.credentials["username"], password=self.credentials["password"]
+        )
+
+        response = self.client.get(self.url)
+
+        messages = [m.message for m in get_messages(response.wsgi_request)]
+
+        self.assertEqual(messages[0], expected_message)
+
+    @parameterized.expand([ProfileType.PRO, ProfileType.XTREME, ProfileType.DIVINE])
+    def test_should_give_extra_puls_for_login_when_user_does_not_have_basic_account(
+        self, top
+    ):
+        self.user.profile.type_of_profile = top
+        self.user.profile.save()
+        expected = PULS_FOR_ACTION[PulsType.LOGINS] * EXTRA_PULS_BY_PROFILE_TYPE[top]
+
+        self.client.post(self.url, data=self.credentials)
+        puls = SinglePuls.objects.first()
+
+        self.assertAlmostEqual(puls.quantity, expected)
+        self.assertGreater(puls.quantity, PULS_FOR_ACTION.get(PulsType.LOGINS))
