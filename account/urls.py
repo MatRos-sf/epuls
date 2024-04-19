@@ -92,7 +92,7 @@ urlpatterns_settings = [
                 path(
                     "username-change/",
                     UserNameChangeView.as_view(),
-                    name="username-change",
+                    name="username_change",
                 ),
                 # Profile
                 path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
