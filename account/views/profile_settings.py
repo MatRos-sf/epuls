@@ -1,9 +1,13 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, reverse
-from django.views.generic import TemplateView, UpdateView, View
+from django.urls import reverse_lazy
+from django.views.generic import FormView, TemplateView, UpdateView
 
-from account.forms import AboutUserForm, ProfileForm
-from account.models import AboutUser, Profile
+from account.forms import AboutUserForm, ChangeUsernameForm, ProfileForm
+from account.models import AboutUser, Profile, ProfileType
 from epuls_tools.scaler import give_away_puls
 from puls.models import PulsType, SinglePuls
 
@@ -75,3 +79,24 @@ class AboutUserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class SettingsTemplateView(TemplateView):
     template_name = "account/settings.html"
+
+
+class UserNameChangeView(LoginRequiredMixin, UpdateView):
+    form_class = ChangeUsernameForm
+    template_name = "account/base/basic_form.html"
+    extra_context = {"title": "Username Change", "action": "Save"}
+    success_url = reverse_lazy("account:settings")
+
+    def get_object(self, queryset=None):
+        return User.objects.get(username=self.request.user.username)
+
+    def form_valid(self, form):
+        # TODO $ -> in get_succes_url we should take $
+        if self.request.user.profile.type_of_profile == ProfileType.BASIC:
+            messages.error(
+                self.request,
+                "Your profile type is BASIC, you are not allowed to change your username.",
+            )
+            return HttpResponseRedirect(self.get_success_url())
+
+        return super().form_valid(form)

@@ -24,6 +24,7 @@ from .views import (
     RemoveBestFriendsView,
     SettingsTemplateView,
     UserListView,
+    UserNameChangeView,
     activate,
     invite_accept,
     send_to_friends,
@@ -87,6 +88,11 @@ urlpatterns_settings = [
                     "password-change/done/",
                     PasswordChangeDoneView.as_view(),
                     name="password_change_done",
+                ),
+                path(
+                    "username-change/",
+                    UserNameChangeView.as_view(),
+                    name="username-change",
                 ),
                 # Profile
                 path("profile/", ProfileUpdateView.as_view(), name="update-profile"),
