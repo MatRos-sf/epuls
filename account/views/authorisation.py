@@ -6,6 +6,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
+from django.db.models import F
 from django.http import (
     HttpResponse,
     HttpResponsePermanentRedirect,
@@ -124,13 +125,21 @@ def activate(
 class EpulsLoginView(LoginView):
     template_name = "account/login.html"
 
+    def __increase_counter(self, user_profile: Profile):
+        """Increase the 'login_counter' attribute of the provided user profile by 1."""
+        Profile.objects.filter(user=user_profile.user).update(
+            login_counter=F("login_counter") + 1
+        )
+
     def form_valid(self, form):
         """
-        When form valid, user's will get points for login
+        When form valid, user's will get points for login and 'login_counter' is update.
         """
         username = form.cleaned_data.get("username")
         user_profile = Profile.objects.get(user__username=username)
         give_away_puls(user_profile=user_profile, type=PulsType.LOGINS)
+        self.__increase_counter(user_profile)
+
         return super().form_valid(form)
 
     def get(self, request, *args, **kwargs):
