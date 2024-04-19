@@ -22,7 +22,7 @@ EXTRA_PULS_BY_PROFILE_TYPE = {
     ProfileType.DIVINE: 4,
 }
 
-PULS_FOR_ACTION = {PulsType.GUESTBOOKS: 0.1}
+PULS_FOR_ACTION = {PulsType.GUESTBOOKS: 0.1, PulsType.LOGINS: 0.05}
 
 
 def give_away_bonus(func):
