@@ -1,9 +1,6 @@
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.views.generic import ListView, View
-
-from account.forms import UserSignupForm
 
 
 class HomeView(View):
@@ -17,23 +14,6 @@ class HomeView(View):
         context = {"recently_login_users": recently_login_users, "new_users": new_users}
 
         return render(request, "account/home.html", context)
-
-
-def signup(request) -> HttpResponse:
-    form = UserSignupForm()
-    if request.method == "POST":
-        form = UserSignupForm(request.POST)
-        if form.is_valid():
-            gender = form.cleaned_data.pop("gender")
-            instance = form.save()
-            # set a gender
-            profile = instance.profile
-            profile.gender = gender
-            profile.save()
-
-            return redirect("account:login")
-
-    return render(request, "account/forms.html", {"form": form, "title": "Sign Up"})
 
 
 class UserListView(ListView):

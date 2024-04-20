@@ -1,3 +1,4 @@
+from .authorisation import *
 from .friends import *
 from .presentation import *
 from .profile import *

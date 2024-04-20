@@ -19,6 +19,12 @@ class UserSignupForm(UserCreationForm):
         fields = ["username", "gender", "email", "password1", "password2"]
 
 
+class ChangeUsernameForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("username",)
+
+
 class ProfileForm(forms.ModelForm):
     # date_of_birth = forms.DateField(widget=forms.SelectDateWidget(years=range(1950, 2025)))
     date_of_birth = forms.DateField(

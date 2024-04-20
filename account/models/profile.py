@@ -168,6 +168,10 @@ class Profile(models.Model):
         help_text="Shows currently size of all pictures expressed by byte who belong to the particular user.",
     )
 
+    login_counter = models.IntegerField(
+        default=0, help_text="show how many time user's login"
+    )
+
     __currently_type = None
 
     def __str__(self) -> str:

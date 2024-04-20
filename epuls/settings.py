@@ -37,6 +37,10 @@ INSTALLED_EXTENSIONS = ["account", "diary", "guestbook", "puls", "action", "phot
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
 
+if DEBUG:
+    INSTALLED_APPS.append("silk")
+    INSTALLED_APPS.append("debug_toolbar")
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -46,6 +50,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+
 
 ROOT_URLCONF = "epuls.urls"
 
@@ -136,3 +145,16 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
+
+# EMAIL
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+# EMAIL_USE_SSL = env('EMAIL_USE_SSL')
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

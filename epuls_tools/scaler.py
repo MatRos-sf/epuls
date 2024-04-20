@@ -6,7 +6,13 @@ from django.utils import timezone
 from account.models import Profile, ProfileType
 from puls.models import Bonus, PulsType, SinglePuls
 
-CONSTANT_PULS = ("profile_photo", "about_me", "presentation", "schools")
+CONSTANT_PULS = (
+    "profile_photo",
+    "about_me",
+    "presentation",
+    "schools",
+    "account_confirm",
+)
 CONSTANT_PULS_QTY = 15
 
 EXTRA_PULS_BY_PROFILE_TYPE = {
@@ -16,7 +22,7 @@ EXTRA_PULS_BY_PROFILE_TYPE = {
     ProfileType.DIVINE: 4,
 }
 
-PULS_FOR_ACTION = {PulsType.GUESTBOOKS: 0.1}
+PULS_FOR_ACTION = {PulsType.GUESTBOOKS: 0.1, PulsType.LOGINS: 0.05}
 
 
 def give_away_bonus(func):
