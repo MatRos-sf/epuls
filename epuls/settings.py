@@ -166,3 +166,11 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
