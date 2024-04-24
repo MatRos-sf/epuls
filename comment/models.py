@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+from photo.models import Picture
+
 
 class Comment(models.Model):
     """Abstract model represents comment section"""
@@ -14,3 +16,10 @@ class Comment(models.Model):
     class Meta:
         abstract = True
         ordering = ["-created"]
+
+
+# TODO: subcomment
+class PhotoComment(Comment):
+    photo = models.ForeignKey(
+        Picture, on_delete=models.CASCADE, related_name="photo_comments"
+    )
