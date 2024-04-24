@@ -22,7 +22,11 @@ EXTRA_PULS_BY_PROFILE_TYPE = {
     ProfileType.DIVINE: 4,
 }
 
-PULS_FOR_ACTION = {PulsType.GUESTBOOKS: 0.1, PulsType.LOGINS: 0.05}
+PULS_FOR_ACTION = {
+    PulsType.GUESTBOOKS: 0.1,
+    PulsType.LOGINS: 0.05,
+    PulsType.SURFING: 0.5,
+}
 
 
 def give_away_bonus(func):
@@ -65,17 +69,17 @@ def give_away_bonus(func):
 
 
 @give_away_bonus
-def give_away_puls(*, user_profile: Profile, type: PulsType) -> float:
+def give_away_puls(
+    *, user_profile: Profile, type: PulsType, extra_points: int = 1
+) -> float:
     """
-    Generates SinglePuls for entry.
-              | Basic |  Pro  | Xtreme | Divine|
-    guestbook |  0.1  |  0.2  |  0.3   | 0.4  |
-
+    extra_points -> when user pay for activity, user will get extra point
     """
     if type not in CONSTANT_PULS:
         quantity = (
             PULS_FOR_ACTION[type]
             * EXTRA_PULS_BY_PROFILE_TYPE[user_profile.type_of_profile]
+            * extra_points
         )
     else:
         quantity = CONSTANT_PULS_QTY
