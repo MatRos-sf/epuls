@@ -41,6 +41,7 @@ INSTALLED_EXTENSIONS = [
     "action",
     "photo",
     "shouter",
+    "comment",
 ]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
