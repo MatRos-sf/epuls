@@ -208,6 +208,15 @@ class Profile(models.Model):
     def currently_type(self) -> str:
         return str(self.__currently_type)
 
+    def check_pulsars(self, value: int) -> bool:
+        """
+        TODO:
+            * create Pulsar model
+            * check Pulsar.pulsar - value > 0
+        It's sample property, when I implement Pulsar model, I will finish it.
+        """
+        raise NotImplementedError
+
     def is_image_permitted(self, size: int) -> bool:
         return (self.size_of_pictures + size) < TYPE_OF_PROFILE[self.type_of_profile][
             "picture"
