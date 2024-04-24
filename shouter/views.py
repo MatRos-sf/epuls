@@ -1,12 +1,12 @@
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import FormView
 
-from epuls_tools.expections import NotRunToUse, ValidationError
+from epuls_tools.scaler import give_away_puls
+from puls.models import PulsType
 
 from .forms import ShouterForm
 from .models import Shouter
@@ -40,5 +40,7 @@ class ShouterCreateView(LoginRequiredMixin, FormView):
 
         # create Shouter
         self.__create_shouter(text, time)
+        # TODO: coditional how many extra point should user get
+        give_away_puls(user_profile=self.request.user.profile, type=PulsType.SURFING)
 
         return super().form_valid(form)
