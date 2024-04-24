@@ -33,7 +33,15 @@ INSTALLED_APPS = [
     "django_filters",
 ]
 
-INSTALLED_EXTENSIONS = ["account", "diary", "guestbook", "puls", "action", "photo"]
+INSTALLED_EXTENSIONS = [
+    "account",
+    "diary",
+    "guestbook",
+    "puls",
+    "action",
+    "photo",
+    "shouter",
+]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
 
@@ -158,3 +166,11 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "unique-snowflake",
+    }
+}

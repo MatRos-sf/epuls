@@ -7,6 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     # conflict with profile
     path("silk/", include("silk.urls", namespace="silk")),
+    path("shouter/", include("shouter.urls")),
     path("", include("account.urls")),
     path("photo/", include("photo.urls")),
     path("__debug__/", include("debug_toolbar.urls")),

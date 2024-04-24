@@ -19,6 +19,8 @@
     <body style="background-color: #fff3d5">
         <!-- Navbar -->
         {% include "account/navibar.html" with user=user %}
+        <!-- Shouter -->
+        {% include "shouter/shouter.html" %}
         <!-- messages section -->
         {% if messages %}
             {% for message in messages %}
