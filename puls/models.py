@@ -26,6 +26,7 @@ class PulsType(models.TextChoices):
     MESSAGES = "messages", "MESSAGES"
     DIARIES = "diaries", "DIARIES"
     SURFING = "surfing", "SURFING"
+    COMMENT_ACTIVITY = "comment_activity", "COMMENT ACTIVITY"
     ACTIVITY = "activity", "ACTIVITY"
     TYPE = "type", "TYPE"
     BONUS = "bonus", "BONUS"
