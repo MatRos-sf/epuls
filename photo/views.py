@@ -11,8 +11,10 @@ from django.views.generic import (
     UpdateView,
     View,
 )
+from django.views.generic.edit import FormMixin
 
 from account.models import Profile
+from comment.forms import PhotoCommentForm
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
 from .models import Gallery, Picture, ProfilePictureRequest
@@ -198,9 +200,30 @@ class PictureUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PictureForm
 
 
-class PictureDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class PictureDetailView(LoginRequiredMixin, UserPassesTestMixin, FormMixin, DetailView):
     model = Picture
     template_name = "photo/picture/detail.html"
+    form_class = PhotoCommentForm
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+    def form_valid(self, form):
+        """Here we add neccesary fields: photo and author to create Commet model"""
+        instance = form.save(commit=False)
+        instance.photo = self.object
+        instance.author = self.request.user
+        instance.save()
+
+        return super().form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     def test_func(self):
         pk = self.kwargs.get("pk")

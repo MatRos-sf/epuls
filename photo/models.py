@@ -85,7 +85,7 @@ class Picture(models.Model):
     gallery = models.ForeignKey(
         Gallery, on_delete=models.CASCADE, related_name="pictures"
     )
-    profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)
+    profile = models.ForeignKey("account.Profile", on_delete=models.CASCADE)  # to del
     date_created = models.DateTimeField(auto_now_add=True)
 
     presentation_tag = models.CharField(

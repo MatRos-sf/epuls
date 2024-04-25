@@ -23,11 +23,11 @@
                             </div>
                         </div>
                         <!-- TODO section commends -->
-                        <div class="mb-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Example comment form</label>
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                        </div>
                     </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                    </form>
                 </div>
             </div>
         </div>
