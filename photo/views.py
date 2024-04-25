@@ -21,6 +21,7 @@ from django.views.generic.edit import FormMixin
 
 from account.models import Profile
 from comment.forms import PhotoCommentForm
+from comment.models import PhotoComment
 from epuls_tools.scaler import give_away_puls
 from puls.models import PulsType, SinglePuls
 
@@ -261,6 +262,13 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        comments = PhotoComment.objects.filter(photo=context["object"])
+        context["comments"] = comments
+        return context
 
 
 class PictureDeleteView(LoginRequiredMixin, DeleteView):
