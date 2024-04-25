@@ -1,8 +1,14 @@
+from datetime import timedelta
+from typing import Any
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.db.models import F
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils import timezone
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -15,6 +21,8 @@ from django.views.generic.edit import FormMixin
 
 from account.models import Profile
 from comment.forms import PhotoCommentForm
+from epuls_tools.scaler import give_away_puls
+from puls.models import PulsType, SinglePuls
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
 from .models import Gallery, Picture, ProfilePictureRequest
@@ -200,36 +208,59 @@ class PictureUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PictureForm
 
 
-class PictureDetailView(LoginRequiredMixin, UserPassesTestMixin, FormMixin, DetailView):
+class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
+    """
+    A view for displaying detailed information about a picture and with form for adding comment.
+    """
+
     model = Picture
     template_name = "photo/picture/detail.html"
     form_class = PhotoCommentForm
 
-    def get_success_url(self):
+    comment_gap = timedelta(minutes=5)
+
+    def get_success_url(self) -> str:
+        """Return the URL to redirect to after a successful form submission."""
         return self.object.get_absolute_url()
 
-    def form_valid(self, form):
-        """Here we add neccesary fields: photo and author to create Commet model"""
+    def puls_valid(self, user: User) -> None:
+        """
+        Give a points when author of comment it's different from tha current user
+        and time between comments is great than 5 minutes.
+        """
+        time_now = timezone.now()
+        if self.object.profile.user != user:
+            is_time_span = SinglePuls.objects.filter(
+                puls=user.profile.puls, created__gte=time_now - self.comment_gap
+            ).exists()
+            if not is_time_span:
+                give_away_puls(
+                    user_profile=user.profile, type=PulsType.COMMENT_ACTIVITY
+                )
+
+    def form_valid(self, form) -> HttpResponseRedirect:
+        """Add necessary fields (photo and author) to create a Comment model."""
         instance = form.save(commit=False)
         instance.photo = self.object
         instance.author = self.request.user
         instance.save()
 
+        # give away a point
+        self.puls_valid(self.request.user)
+
         return super().form_valid(form)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> HttpResponseRedirect | Any:
+        """Handle POST requests."""
+
         self.object = self.get_object()
+
         form = self.get_form()
+
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-
-    def test_func(self):
-        pk = self.kwargs.get("pk")
-        return Picture.objects.filter(
-            gallery__profile__user=self.request.user, pk=pk
-        ).exists()
 
 
 class PictureDeleteView(LoginRequiredMixin, DeleteView):
