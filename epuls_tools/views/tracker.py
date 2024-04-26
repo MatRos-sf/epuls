@@ -99,6 +99,8 @@ def create_action(
 
 
 class EpulsTracker:
+    """This class should be only using with django Views"""
+
     activity = None
 
     def login_user(self) -> User:
