@@ -1,5 +1,5 @@
 from enum import StrEnum, auto
-from functools import lru_cache, wraps
+from functools import wraps
 from typing import Any
 
 from django.contrib.auth.models import User
