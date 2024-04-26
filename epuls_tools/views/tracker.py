@@ -1,5 +1,6 @@
 from enum import StrEnum, auto
 from functools import lru_cache, wraps
+from typing import Any
 
 from django.contrib.auth.models import User
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
@@ -161,7 +162,10 @@ class EpulsTracker:
             else getattr(ActionMessage, f"SB_{activity}")
         )
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Any:
+        """
+        Overwrite method and add tracker system.
+        """
         response = super().get(request, *args, **kwargs)
         self.tracker()
         return response
