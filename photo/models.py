@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -62,6 +63,17 @@ class ProfilePictureRequest(models.Model):
         # TODO notification about reject
 
 
+class Stats(models.Model):
+    amt_comment = models.IntegerField(default=0)
+    amt_like = models.IntegerField(default=0)
+    popularity = models.GeneratedField(
+        expression=F("amt_comment") + F("amt_like"),
+        output_field=models.IntegerField(),
+        db_persist=True,
+        help_text="Number of comments and likes",
+    )
+
+
 class Gallery(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
@@ -69,6 +81,9 @@ class Gallery(models.Model):
         "account.Profile", on_delete=models.CASCADE, related_name="galleries"
     )
     date_created = models.DateTimeField(auto_now_add=True)
+
+    stats = models.OneToOneField(Stats, on_delete=models.CASCADE, null=True)
+
     # is_private = models.BooleanField(default=False)
 
     def get_absolute_url(self):
@@ -92,6 +107,8 @@ class Picture(models.Model):
         max_length=50,
         help_text="Required. 50 characters or fewer. Letters, digits and @/./+/-/_ only.",
     )
+
+    stats = models.OneToOneField(Stats, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ["-date_created"]
