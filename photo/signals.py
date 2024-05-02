@@ -6,21 +6,14 @@ from django.dispatch import receiver
 
 from account.models import Profile
 
-from .models import Gallery, Picture, Stats
+from .models import Gallery, GalleryStats, Picture, PictureStats
 
 
+# Picture Signals
 @receiver(post_save, sender=Picture)
 def create_stats_instance_on_picture(sender, instance, created, **kwargs):
     if created:
-        stats = Stats.objects.create()
-        instance.stats = stats
-
-
-@receiver(post_save, sender=Gallery)
-def create_stats_instance_on_gallery(sender, instance, created, **kwargs):
-    if created:
-        stats = Stats.objects.create()
-        instance.stats = stats
+        PictureStats.objects.create(picture=instance)
 
 
 @receiver(post_delete, sender=Picture)
@@ -62,3 +55,10 @@ def delete_picture_when_updated(sender, instance, **kwargs) -> None:
             Profile.objects.filter(user=instance.gallery.profile.user).update(
                 size_of_pictures=F("size_of_pictures") - old_size + new_size
             )
+
+
+# Gallery signal
+@receiver(post_save, sender=Gallery)
+def create_stats_instance_on_gallery(sender, instance, created, **kwargs):
+    if created:
+        GalleryStats.objects.create(gallery=instance)
