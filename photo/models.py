@@ -134,7 +134,7 @@ class Stats(models.Model):
         verbose_name_plural = "Stats"
 
 
-class GalleryStat(Stats):
+class GalleryStats(Stats):
     """Model representing statistic for a Gallery"""
 
     gallery = models.OneToOneField(
