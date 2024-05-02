@@ -10,8 +10,6 @@ from account.models.profile import PROFILE_PICTURE_PATH
 from epuls_tools.scaler import give_away_puls
 from puls.models import PulsType
 
-# PROFILE_PICTURE_PATH = "profile_picture"
-
 
 class ProfilePictureRequest(models.Model):
     picture = models.ImageField(
@@ -63,17 +61,6 @@ class ProfilePictureRequest(models.Model):
         # TODO notification about reject
 
 
-class Stats(models.Model):
-    amt_comment = models.IntegerField(default=0)
-    amt_like = models.IntegerField(default=0)
-    popularity = models.GeneratedField(
-        expression=F("amt_comment") + F("amt_like"),
-        output_field=models.IntegerField(),
-        db_persist=True,
-        help_text="Number of comments and likes",
-    )
-
-
 class Gallery(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
@@ -81,8 +68,6 @@ class Gallery(models.Model):
         "account.Profile", on_delete=models.CASCADE, related_name="galleries"
     )
     date_created = models.DateTimeField(auto_now_add=True)
-
-    stats = models.OneToOneField(Stats, on_delete=models.CASCADE, null=True)
 
     # is_private = models.BooleanField(default=False)
 
@@ -108,8 +93,6 @@ class Picture(models.Model):
         help_text="Required. 50 characters or fewer. Letters, digits and @/./+/-/_ only.",
     )
 
-    stats = models.OneToOneField(Stats, on_delete=models.CASCADE, null=True)
-
     class Meta:
         ordering = ["-date_created"]
         unique_together = [["title", "profile"]]
@@ -130,3 +113,42 @@ class Picture(models.Model):
 
     def get_absolute_url(self):
         return reverse("photo:picture-detail", kwargs={"pk": self.pk})
+
+
+class Stats(models.Model):
+    """Abstract model represents statistics."""
+
+    amt_comments = models.IntegerField(default=0)
+    amt_likes = models.IntegerField(default=0)
+    total_views = models.IntegerField(default=0)
+
+    popularity = models.GeneratedField(
+        expression=F("amt_comments") + F("amt_likes") + F("total_views"),
+        output_field=models.IntegerField(),
+        db_persist=True,
+        help_text="Calculated as the sum of comments, likes, and views.",
+    )
+
+    class Meta:
+        abstract = True
+        verbose_name_plural = "Stats"
+
+
+class GalleryStat(Stats):
+    """Model representing statistic for a Gallery"""
+
+    gallery = models.OneToOneField(
+        Gallery, on_delete=models.CASCADE, related_name="stats"
+    )
+
+    @property
+    def amt_pictures(self):
+        return self.gallery.pictures.count()
+
+
+class PictureStats(Stats):
+    """Model representing statistic for a picture."""
+
+    picture = models.OneToOneField(
+        Picture, on_delete=models.CASCADE, related_name="stats"
+    )
