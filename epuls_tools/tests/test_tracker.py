@@ -19,6 +19,7 @@ class EpulsTrackerTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.first()
 
+    # test method -> get_user()
     def test_should_return_user_when_user_object_is_set(self):
         tracker = EpulsTracker()
         tracker.user_object = self.user
