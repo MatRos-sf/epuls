@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, tag
@@ -81,3 +81,35 @@ class EpulsTrackerTestCase(TestCase):
         tracker = EpulsTracker()
         with self.assertRaises(TrackerUserNotFoundError):
             tracker.get_user()
+
+    # test method -> get_login_user()
+    def test_should_return_login_user_when_currently_user_was_set(self):
+        tracker = EpulsTracker()
+        tracker.current_user = self.user
+
+        response = tracker.get_login_user()
+
+        self.assertEqual(response, self.user)
+
+    def test_should_set_current_user(self):
+        tracker = EpulsTracker()
+
+        # create real User instance
+        tracker.request = self.client.request().wsgi_request
+
+        tracker.request.user = self.user
+
+        expected = tracker.get_login_user()
+
+        self.assertEqual(expected, self.user)
+
+    def test_should_set_current_user_with_mock(self):
+        tracker = EpulsTracker()
+
+        # mock object
+        tracker.request = Mock()
+        tracker.request.user = self.user
+
+        expected = tracker.get_login_user()
+
+        self.assertEqual(expected, self.user)
