@@ -105,10 +105,11 @@ class EpulsTracker:
 
     activity = None
 
-    def login_user(self) -> User:
+    def get_login_user(self) -> User:
         """
-        Returns the currently logged-in user. If the `current_user` attribute already exists in the object, it returns its value. Otherwise, it sets
-        `current_user` to the user from `self.request.user` and returns it.
+        Returns the currently logged-in user.
+        If the `current_user` attribute already exists in the object, it returns its value.
+        Otherwise, it sets `current_user` to the user from `self.request.user` and returns it.
         """
         try:
             login_user = getattr(self, "current_user")
@@ -181,7 +182,7 @@ class EpulsTracker:
         """
         Checks if the currently logged-in user (from 'login_user') is the same  as the user associated with the URL parameter 'username' (from 'url_user').
         """
-        return self.get_user() == self.login_user()
+        return self.get_user() == self.get_login_user()
 
     @validate_view_inheritance
     def tracker(self) -> None:
@@ -189,7 +190,7 @@ class EpulsTracker:
             raise ImproperlyConfigured("activity field must be set before action")
 
         whom = self.get_user()
-        login_user: User = self.login_user()
+        login_user: User = self.get_login_user()
         is_current_user = self.check_users()
 
         create_action(
