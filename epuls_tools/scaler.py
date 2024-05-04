@@ -24,8 +24,9 @@ EXTRA_PULS_BY_PROFILE_TYPE = {
 
 PULS_FOR_ACTION = {
     PulsType.GUESTBOOKS: 0.1,
-    PulsType.LOGINS: 0.05,
+    PulsType.LOGINS: 0.1,
     PulsType.SURFING: 0.5,
+    PulsType.COMMENT_ACTIVITY: 0.2,
 }
 
 
