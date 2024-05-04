@@ -23,10 +23,11 @@ from account.models import Profile
 from comment.forms import PhotoCommentForm
 from comment.models import PhotoComment
 from epuls_tools.scaler import give_away_puls
+from epuls_tools.views import ActionType, EpulsDetailView
 from puls.models import PulsType, SinglePuls
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
-from .models import Gallery, Picture, ProfilePictureRequest
+from .models import Gallery, GalleryStats, Picture, PictureStats, ProfilePictureRequest
 
 
 @login_required
@@ -209,7 +210,7 @@ class PictureUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PictureForm
 
 
-class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
+class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
     """
     A view for displaying detailed information about a picture and with form for adding comment.
     """
@@ -217,6 +218,7 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
     model = Picture
     template_name = "photo/picture/detail.html"
     form_class = PhotoCommentForm
+    activity = ActionType.PHOTO
 
     comment_gap = timedelta(minutes=5)
 
@@ -229,11 +231,13 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
         Give a points when author of comment it's different from tha current user
         and time between comments is great than 5 minutes.
         """
-        time_now = timezone.now()
-        if self.object.profile.user != user:
+        if not self.check_users():
+            time_now = timezone.now()
+
             is_time_span = SinglePuls.objects.filter(
                 puls=user.profile.puls, created__gte=time_now - self.comment_gap
             ).exists()
+
             if not is_time_span:
                 give_away_puls(
                     user_profile=user.profile, type=PulsType.COMMENT_ACTIVITY
@@ -241,15 +245,32 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def form_valid(self, form) -> HttpResponseRedirect:
         """Add necessary fields (photo and author) to create a Comment model."""
+        login_user = self.get_login_user()
+        object_instance = self.object
+
         instance = form.save(commit=False)
-        instance.photo = self.object
-        instance.author = self.request.user
+        instance.photo = object_instance
+        instance.author = login_user
         instance.save()
 
-        # give away a point
-        self.puls_valid(self.request.user)
+        # give away a puls
+        self.puls_valid(login_user)
+
+        # update stats
+        self.update_stats(
+            gallery_pk=object_instance.gallery.pk, picture_pk=object_instance.pk
+        )
 
         return super().form_valid(form)
+
+    def update_stats(self, gallery_pk: int, picture_pk: int) -> None:
+        """Increases field 'amt_comment' by 1 on GalleryStats and PictureStats model."""
+        GalleryStats.objects.filter(pk=gallery_pk).update(
+            amt_comments=F("amt_comments") + 1
+        )
+        PictureStats.objects.filter(pk=picture_pk).update(
+            amt_comments=F("amt_comments") + 1
+        )
 
     def post(self, request, *args, **kwargs) -> HttpResponseRedirect | Any:
         """Handle POST requests."""
@@ -257,7 +278,6 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
         self.object = self.get_object()
 
         form = self.get_form()
-
         if form.is_valid():
             return self.form_valid(form)
         else:
@@ -265,7 +285,6 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         comments = PhotoComment.objects.filter(photo=context["object"])
         context["comments"] = comments
         return context
