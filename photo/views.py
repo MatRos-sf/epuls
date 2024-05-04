@@ -23,7 +23,7 @@ from account.models import Profile
 from comment.forms import PhotoCommentForm
 from comment.models import PhotoComment
 from epuls_tools.scaler import give_away_puls
-from epuls_tools.views import ActionType, EpulsDetailView
+from epuls_tools.views import ActionType, EpulsDetailView, EpulsListView
 from puls.models import PulsType, SinglePuls
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
@@ -164,9 +164,10 @@ class GalleryDetailView(LoginRequiredMixin, DetailView):
         )
 
 
-class GalleryListView(LoginRequiredMixin, ListView):
+class GalleryListView(LoginRequiredMixin, EpulsListView):
     model = Gallery
     template_name = "photo/gallery/list.html"
+    activity = ActionType.GALLERY
 
     def get_queryset(self):
         username = self.kwargs.get("username")
@@ -174,7 +175,7 @@ class GalleryListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["self"] = self.kwargs.get("username") == self.request.user.username
+        context["self"] = self.check_users()
         return context
 
 
