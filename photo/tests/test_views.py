@@ -5,10 +5,11 @@ from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.utils import timezone
 
 from account.factories import PASSWORD, UserFactory
+from action.models import Action, ActionMessage
 from comment.models import PhotoComment
 from epuls_tools.scaler import PULS_FOR_ACTION
 from photo.factories import GalleryFactory, PictureFactory
@@ -117,3 +118,51 @@ class PictureDetailViewTestCase(TestCase):
         self.assertEqual(gallery_popularity, 1)
         self.assertEqual(picture_popularity, 1)
         self.assertEqual(PhotoComment.objects.count(), 1)
+
+
+class GalleryListViewTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        user = UserFactory()
+        GalleryFactory(profile=user.profile)
+
+    def setUp(self):
+        self.user = User.objects.first()
+        self.gallery = Gallery.objects.first()
+        self.client.login(username=self.user.username, password=PASSWORD)
+
+        self.url = self.url = partial(reverse, "photo:gallery")
+
+    def test_should_return_qs_with_one_object(self):
+        response = self.client.get(self.url(kwargs={"username": self.user}))
+        self.assertIn("object_list", response.context)
+
+        object_list = response.context.get("object_list")
+
+        self.assertEqual(len(object_list), 1)
+
+    def test_should_create_action_when_user_is_in_own_gallery_list(self):
+        self.client.get(self.url(kwargs={"username": self.user}))
+
+        action = Action.objects.first()
+
+        self.assertEqual(action.who, self.user)
+        self.assertEqual(action.action, ActionMessage.OWN_GALLERY)
+
+    def test_should_create_action_when_user_is_not_in_own_gallery_list(self):
+        new_user = UserFactory()
+        GalleryFactory(profile=new_user.profile)
+
+        self.client.get(self.url(kwargs={"username": new_user}))
+
+        action = Action.objects.first()
+
+        self.assertEqual(action.who, self.user)
+        self.assertEqual(action.whom, new_user)
+        self.assertEqual(action.action, ActionMessage.SB_GALLERY)
+
+    def test_should_be_self_value_in_context(self):
+        response = self.client.get(self.url(kwargs={"username": self.user}))
+
+        self.assertIn("self", response.context)
