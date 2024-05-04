@@ -18,6 +18,9 @@ class ActionMessage(models.TextChoices):
     OWN_GALLERY = "own_gallery", "OWN_GALLERY"
     SB_GALLERY = "sb_gallery", "SB_GALLERY"
 
+    OWN_PHOTO = "own_photo", "OWN_PHOTO"
+    SB_PHOTO = "sb_photo", "SB_PHOTO"
+
     OWN_PULS = "own_puls", "OWN_PULS"
     SB_PULS = "sb_puls", "SB_PULS"
 
