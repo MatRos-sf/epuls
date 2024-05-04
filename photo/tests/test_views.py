@@ -5,20 +5,17 @@ from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.utils import timezone
-from parameterized import parameterized
 
 from account.factories import PASSWORD, UserFactory
 from comment.models import PhotoComment
 from epuls_tools.scaler import PULS_FOR_ACTION
 from photo.factories import GalleryFactory, PictureFactory
-from photo.models import Gallery, Picture
-from puls.factories import PulsFactory
+from photo.models import Gallery, GalleryStats, Picture, PictureStats
 from puls.models import Puls, PulsType, SinglePuls
 
 
-@tag("pdv_ts")
 class PictureDetailViewTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -107,3 +104,16 @@ class PictureDetailViewTestCase(TestCase):
             self.client.post(self.url(kwargs={"pk": new_picture.pk}), data=self.payload)
 
         self.assertEqual(SinglePuls.objects.count(), 1)
+
+    def test_should_change_stats_when_was_add_comment(self):
+        _, picture = self.create_new_user_with_picture()
+
+        self.client.post(self.url(kwargs={"pk": picture.pk}), data=self.payload)
+
+        gallery_popularity = GalleryStats.objects.get(
+            gallery__pk=picture.gallery.pk
+        ).popularity
+        picture_popularity = PictureStats.objects.get(pk=picture.pk).popularity
+        self.assertEqual(gallery_popularity, 1)
+        self.assertEqual(picture_popularity, 1)
+        self.assertEqual(PhotoComment.objects.count(), 1)
