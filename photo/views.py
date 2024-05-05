@@ -1,22 +1,15 @@
 from datetime import timedelta
-from typing import Any
+from typing import Any, Dict
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import F
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-    View,
-)
+from django.views.generic import CreateView, DeleteView, DetailView, UpdateView, View
 from django.views.generic.edit import FormMixin
 
 from account.models import Profile
@@ -159,9 +152,12 @@ class GalleryDetailView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
         gallery_pk = self.kwargs.get("pk")
-        return get_object_or_404(
-            Gallery, profile__user__username=username, pk=gallery_pk
-        )
+        try:
+            return Gallery.objects.select_related("profile__user").get(
+                profile__user__username=username, pk=gallery_pk
+            )
+        except Gallery.DoesNotExist:
+            raise Http404()
 
 
 class GalleryListView(LoginRequiredMixin, EpulsListView):
@@ -169,11 +165,11 @@ class GalleryListView(LoginRequiredMixin, EpulsListView):
     template_name = "photo/gallery/list.html"
     activity = ActionType.GALLERY
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         username = self.kwargs.get("username")
         return Gallery.objects.filter(profile__user__username=username)
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["self"] = self.check_users()
         return context
