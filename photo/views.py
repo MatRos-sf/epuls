@@ -219,6 +219,12 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
 
     comment_gap = timedelta(minutes=5)
 
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get("pk")
+        return Picture.objects.select_related(
+            "gallery", "profile", "profile__user"
+        ).get(pk=pk)
+
     def get_success_url(self) -> str:
         """Return the URL to redirect to after a successful form submission."""
         return self.object.get_absolute_url()
@@ -282,8 +288,8 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        comments = PhotoComment.objects.filter(photo=context["object"])
-        context["comments"] = comments
+        comments = PhotoComment.objects.select_related("author", "author__profile")
+        context["comments"] = comments.filter(photo=context["object"])
         return context
 
 
