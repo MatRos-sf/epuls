@@ -166,8 +166,9 @@ class EpulsTracker:
         If the instance has a profile, the user is expected to be found within the profile.
 
         """
+        # query set isn't support
         try:
-            instance = self.get_object()
+            instance = self.object
         except AttributeError:
             return
 
