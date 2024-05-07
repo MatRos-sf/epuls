@@ -44,4 +44,21 @@
             </div>
         {% endif %}
     </div>
+    <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
+        <div class="container overflow-hidden text-center">
+            <!-- content -->
+            <div class="row justify-content-center">
+                <div class="col align-self-center">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form }}
+                        <button type="submit" class="btn btn-success m-3">Comment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if comments %}
+        {% include "comment/comment_section.html" %}
+    {% endif %}
 {% endblock content %}
