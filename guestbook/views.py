@@ -19,7 +19,7 @@ class GuestbookView(LoginRequiredMixin, EpulsListView):
     activity = ActionType.GUESTBOOK
 
     def get_queryset(self) -> Any:
-        return Guestbook.objects.filter(receiver=self.url_user())
+        return Guestbook.objects.filter(receiver=self.get_user())
 
     def post(self, request, *args, **kwargs) -> Any:
         """
@@ -32,10 +32,10 @@ class GuestbookView(LoginRequiredMixin, EpulsListView):
         form = GuestbookUserForm(request.POST)
 
         if form.is_valid():
-            receiver = self.url_user()
+            receiver = self.get_user()
             instance = form.save(commit=False)
 
-            sender = self.login_user()
+            sender = self.get_login_user()
 
             # create entry and give puls
             if self.check_permission_entry(sender, receiver):
