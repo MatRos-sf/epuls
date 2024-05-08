@@ -4,7 +4,7 @@ from typing import Any, Dict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic.edit import FormMixin
 
@@ -20,6 +20,7 @@ from epuls_tools.views import (
     EpulsListView,
     EpulsUpdateView,
 )
+from puls.models import PulsType
 
 from .forms import DiaryForm
 from .models import Diary
@@ -91,7 +92,9 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
         instance.save()
 
         if not self.check_users():
-            puls_valid_time_gap_comments(login_user, self.comment_gap)
+            puls_valid_time_gap_comments(
+                login_user, self.comment_gap, PulsType.COMMENT_ACTIVITY_DIARY
+            )
 
         return super().form_valid(form)
 

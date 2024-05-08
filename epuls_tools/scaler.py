@@ -26,7 +26,8 @@ PULS_FOR_ACTION = {
     PulsType.GUESTBOOKS: 0.1,
     PulsType.LOGINS: 0.1,
     PulsType.SURFING: 0.5,
-    PulsType.COMMENT_ACTIVITY: 0.2,
+    PulsType.COMMENT_ACTIVITY_PICTURE: 0.2,
+    PulsType.COMMENT_ACTIVITY_DIARY: 0.2,
 }
 
 
