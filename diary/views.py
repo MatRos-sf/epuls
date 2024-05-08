@@ -3,6 +3,7 @@ from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, reverse
 from django.views.generic.edit import FormMixin
@@ -45,7 +46,7 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
     activity = ActionType.DIARY
     comment_gap = timedelta(minutes=5)
 
-    def get_object(self, queryset=None) -> Diary | HttpResponseForbidden:
+    def get_object(self, queryset=None) -> Diary:
         user = self.get_user()
         pk = int(self.kwargs.get("pk"))
 
@@ -57,7 +58,7 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
             raise Http404("No Diary matches the given query.")
 
         if diary_instance.is_hide and not self.check_users():
-            return HttpResponseForbidden()
+            raise PermissionDenied()
 
         return diary_instance
 
