@@ -16,7 +16,9 @@ def puls_valid_time_gap_comments(user: User, comment_gap: timedelta) -> None:
     time_now = timezone.now()
 
     is_time_span = SinglePuls.objects.filter(
-        puls=user.profile.puls, created__gte=time_now - comment_gap
+        puls=user.profile.puls,
+        created__gte=time_now - comment_gap,
+        type=PulsType.COMMENT_ACTIVITY,
     ).exists()
 
     if not is_time_span:
