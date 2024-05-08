@@ -227,24 +227,6 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
         """Return the URL to redirect to after a successful form submission."""
         return self.object.get_absolute_url()
 
-    # def puls_valid(self, user: User) -> None:
-    #     """
-    #     Give a points when author of comment it's different from tha current user
-    #     and time between comments is great than 5 minutes.
-    #     """
-    #
-    #     if not self.check_users():
-    #         time_now = timezone.now()
-    #
-    #         is_time_span = SinglePuls.objects.filter(
-    #             puls=user.profile.puls, created__gte=time_now - self.comment_gap, type=PulsType.COMMENT_ACTIVITY
-    #         ).exists()
-    #
-    #         if not is_time_span:
-    #             give_away_puls(
-    #                 user_profile=user.profile, type=PulsType.COMMENT_ACTIVITY
-    #             )
-
     def form_valid(self, form) -> HttpResponseRedirect:
         """Add necessary fields (photo and author) to create a Comment model."""
         login_user = self.get_login_user()
