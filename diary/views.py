@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Any, Dict
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,6 +10,7 @@ from django.views.generic.edit import FormMixin
 from comment.forms import DiaryCommentForm
 from comment.models import DiaryComment
 from epuls_tools.mixins import UsernameMatchesMixin
+from epuls_tools.tools import puls_valid_time_gap_comments
 from epuls_tools.views import (
     ActionType,
     EpulsCreateView,
@@ -41,6 +43,7 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
     model = Diary
     form_class = DiaryCommentForm
     activity = ActionType.DIARY
+    comment_gap = timedelta(minutes=5)
 
     def get_object(self, queryset=None) -> Diary | HttpResponseForbidden:
         user = self.get_user()
@@ -78,7 +81,6 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
 
     def form_valid(self, form: Any) -> HttpResponseRedirect:
         """Extend form valid and add author and diary instance to the form"""
-        print("...")
         login_user = self.get_login_user()
         object_instance = self.object
 
@@ -86,6 +88,9 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
         instance.diary = object_instance
         instance.author = login_user
         instance.save()
+
+        if not self.check_users():
+            puls_valid_time_gap_comments(login_user, self.comment_gap)
 
         return super().form_valid(form)
 

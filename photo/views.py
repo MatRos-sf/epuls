@@ -4,20 +4,17 @@ from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
 from django.db.models import F
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, DetailView, UpdateView, View
 from django.views.generic.edit import FormMixin
 
 from account.models import Profile
 from comment.forms import PhotoCommentForm
 from comment.models import PhotoComment
-from epuls_tools.scaler import give_away_puls
+from epuls_tools.tools import puls_valid_time_gap_comments
 from epuls_tools.views import ActionType, EpulsDetailView, EpulsListView
-from puls.models import PulsType, SinglePuls
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
 from .models import Gallery, GalleryStats, Picture, PictureStats, ProfilePictureRequest
@@ -217,6 +214,7 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
     form_class = PhotoCommentForm
     activity = ActionType.PHOTO
 
+    # it's time between comments gap when user can get points.
     comment_gap = timedelta(minutes=5)
 
     def get_object(self, queryset=None):
@@ -229,22 +227,23 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
         """Return the URL to redirect to after a successful form submission."""
         return self.object.get_absolute_url()
 
-    def puls_valid(self, user: User) -> None:
-        """
-        Give a points when author of comment it's different from tha current user
-        and time between comments is great than 5 minutes.
-        """
-        if not self.check_users():
-            time_now = timezone.now()
-
-            is_time_span = SinglePuls.objects.filter(
-                puls=user.profile.puls, created__gte=time_now - self.comment_gap
-            ).exists()
-
-            if not is_time_span:
-                give_away_puls(
-                    user_profile=user.profile, type=PulsType.COMMENT_ACTIVITY
-                )
+    # def puls_valid(self, user: User) -> None:
+    #     """
+    #     Give a points when author of comment it's different from tha current user
+    #     and time between comments is great than 5 minutes.
+    #     """
+    #
+    #     if not self.check_users():
+    #         time_now = timezone.now()
+    #
+    #         is_time_span = SinglePuls.objects.filter(
+    #             puls=user.profile.puls, created__gte=time_now - self.comment_gap, type=PulsType.COMMENT_ACTIVITY
+    #         ).exists()
+    #
+    #         if not is_time_span:
+    #             give_away_puls(
+    #                 user_profile=user.profile, type=PulsType.COMMENT_ACTIVITY
+    #             )
 
     def form_valid(self, form) -> HttpResponseRedirect:
         """Add necessary fields (photo and author) to create a Comment model."""
@@ -256,8 +255,9 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
         instance.author = login_user
         instance.save()
 
-        # give away a puls
-        self.puls_valid(login_user)
+        # give away a puls when user isn't login one
+        if not self.check_users():
+            puls_valid_time_gap_comments(login_user, self.comment_gap)
 
         # update stats
         self.update_stats(
