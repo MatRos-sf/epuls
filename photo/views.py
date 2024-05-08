@@ -15,6 +15,7 @@ from comment.forms import PhotoCommentForm
 from comment.models import PhotoComment
 from epuls_tools.tools import puls_valid_time_gap_comments
 from epuls_tools.views import ActionType, EpulsDetailView, EpulsListView
+from puls.models import PulsType
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
 from .models import Gallery, GalleryStats, Picture, PictureStats, ProfilePictureRequest
@@ -239,7 +240,9 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
 
         # give away a puls when user isn't login one
         if not self.check_users():
-            puls_valid_time_gap_comments(login_user, self.comment_gap)
+            puls_valid_time_gap_comments(
+                login_user, self.comment_gap, PulsType.COMMENT_ACTIVITY_PICTURE
+            )
 
         # update stats
         self.update_stats(

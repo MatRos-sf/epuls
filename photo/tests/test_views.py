@@ -17,6 +17,7 @@ from photo.models import Gallery, GalleryStats, Picture, PictureStats
 from puls.models import Puls, PulsType, SinglePuls
 
 
+@tag("picture_dt")
 class PictureDetailViewTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -76,7 +77,7 @@ class PictureDetailViewTestCase(TestCase):
 
         self.assertEqual(single_puls.count(), 1)
         # points
-        excepted_puls = PULS_FOR_ACTION[PulsType.COMMENT_ACTIVITY]
+        excepted_puls = PULS_FOR_ACTION[PulsType.COMMENT_ACTIVITY_PICTURE]
 
         self.assertEqual(excepted_puls, single_puls.first().quantity)
 
