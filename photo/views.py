@@ -1,21 +1,24 @@
+from datetime import timedelta
+from typing import Any, Dict
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import F
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-    View,
-)
+from django.views.generic import CreateView, DeleteView, DetailView, UpdateView, View
+from django.views.generic.edit import FormMixin
 
 from account.models import Profile
+from comment.forms import PhotoCommentForm
+from comment.models import PhotoComment
+from epuls_tools.tools import puls_valid_time_gap_comments
+from epuls_tools.views import ActionType, EpulsDetailView, EpulsListView
+from puls.models import PulsType
 
 from .forms import GalleryForm, PictureForm, ProfilePictureRequestForm
-from .models import Gallery, Picture, ProfilePictureRequest
+from .models import Gallery, GalleryStats, Picture, PictureStats, ProfilePictureRequest
 
 
 @login_required
@@ -147,22 +150,26 @@ class GalleryDetailView(LoginRequiredMixin, DetailView):
     def get_object(self, queryset=None):
         username = self.kwargs.get("username")
         gallery_pk = self.kwargs.get("pk")
-        return get_object_or_404(
-            Gallery, profile__user__username=username, pk=gallery_pk
-        )
+        try:
+            return Gallery.objects.select_related("profile__user").get(
+                profile__user__username=username, pk=gallery_pk
+            )
+        except Gallery.DoesNotExist:
+            raise Http404()
 
 
-class GalleryListView(LoginRequiredMixin, ListView):
+class GalleryListView(LoginRequiredMixin, EpulsListView):
     model = Gallery
     template_name = "photo/gallery/list.html"
+    activity = ActionType.GALLERY
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         username = self.kwargs.get("username")
         return Gallery.objects.filter(profile__user__username=username)
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context["self"] = self.kwargs.get("username") == self.request.user.username
+        context["self"] = self.check_users()
         return context
 
 
@@ -198,15 +205,77 @@ class PictureUpdateView(LoginRequiredMixin, UpdateView):
     form_class = PictureForm
 
 
-class PictureDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
+    """
+    A view for displaying detailed information about a picture and with form for adding comment.
+    """
+
     model = Picture
     template_name = "photo/picture/detail.html"
+    form_class = PhotoCommentForm
+    activity = ActionType.PHOTO
 
-    def test_func(self):
+    # it's time between comments gap when user can get points.
+    comment_gap = timedelta(minutes=5)
+
+    def get_object(self, queryset=None):
         pk = self.kwargs.get("pk")
-        return Picture.objects.filter(
-            gallery__profile__user=self.request.user, pk=pk
-        ).exists()
+        return Picture.objects.select_related(
+            "gallery", "profile", "profile__user"
+        ).get(pk=pk)
+
+    def get_success_url(self) -> str:
+        """Return the URL to redirect to after a successful form submission."""
+        return self.object.get_absolute_url()
+
+    def form_valid(self, form) -> HttpResponseRedirect:
+        """Add necessary fields (photo and author) to create a Comment model."""
+        login_user = self.get_login_user()
+        object_instance = self.object
+
+        instance = form.save(commit=False)
+        instance.photo = object_instance
+        instance.author = login_user
+        instance.save()
+
+        # give away a puls when user isn't login one
+        if not self.check_users():
+            puls_valid_time_gap_comments(
+                login_user, self.comment_gap, PulsType.COMMENT_ACTIVITY_PICTURE
+            )
+
+        # update stats
+        self.update_stats(
+            gallery_pk=object_instance.gallery.pk, picture_pk=object_instance.pk
+        )
+
+        return super().form_valid(form)
+
+    def update_stats(self, gallery_pk: int, picture_pk: int) -> None:
+        """Increases field 'amt_comment' by 1 on GalleryStats and PictureStats model."""
+        GalleryStats.objects.filter(pk=gallery_pk).update(
+            amt_comments=F("amt_comments") + 1
+        )
+        PictureStats.objects.filter(pk=picture_pk).update(
+            amt_comments=F("amt_comments") + 1
+        )
+
+    def post(self, request, *args, **kwargs) -> HttpResponseRedirect | Any:
+        """Handle POST requests."""
+
+        self.object = self.get_object()
+
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        comments = PhotoComment.objects.select_related("author", "author__profile")
+        context["comments"] = comments.filter(photo=context["object"])
+        return context
 
 
 class PictureDeleteView(LoginRequiredMixin, DeleteView):

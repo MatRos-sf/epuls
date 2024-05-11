@@ -1,5 +1,6 @@
 from enum import StrEnum, auto
-from functools import lru_cache, wraps
+from functools import wraps
+from typing import Any, Optional
 
 from django.contrib.auth.models import User
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
@@ -10,6 +11,7 @@ from django.views import View
 
 from account.models import Profile, Visitor
 from action.models import Action, ActionMessage
+from epuls_tools.expections import TrackerUserNotFoundError
 
 
 class ActionType(StrEnum):
@@ -21,6 +23,7 @@ class ActionType(StrEnum):
     DIARY = auto()
     FRIENDS = auto()
     GALLERY = auto()
+    PHOTO = auto()
     PULS = auto()
 
 
@@ -98,12 +101,15 @@ def create_action(
 
 
 class EpulsTracker:
+    """This class should be only using with django Views"""
+
     activity = None
 
-    def login_user(self) -> User:
+    def get_login_user(self) -> User:
         """
-        Returns the currently logged-in user. If the `current_user` attribute already exists in the object, it returns its value. Otherwise, it sets
-        `current_user` to the user from `self.request.user` and returns it.
+        Returns the currently logged-in user.
+        If the `current_user` attribute already exists in the object, it returns its value.
+        Otherwise, it sets `current_user` to the user from `self.request.user` and returns it.
         """
         try:
             login_user = getattr(self, "current_user")
@@ -113,18 +119,63 @@ class EpulsTracker:
 
         return login_user
 
-    def url_user(self) -> User:
+    def get_user(self) -> User:
         """
-        Returns the user associated with the URL parameter 'username'.
-        If the user object is already stored in the instance attribute, it retrieves and returns it.
-        Otherwise, it fetches the user from the URL parameter and stores it in the attribute before returning it.
+        Retrieves the user associated with the instance. If the user object is already stored, it retrieves and returns it.
+        Otherwise, it tries to capture the user.
         """
+        user = getattr(self, "user_object", None)
+        if not user:
+            user = self.capture_user()
+            setattr(self, "user_object", user)
+
+        return user
+
+    def capture_user(self) -> User:
+        """
+        Tries to capture user instance.
+        You can customize the way user is captured by defining your own capture method starting with 'capture_user_'
+        and implementing them in this class or its subclasses.
+        """
+        capture_method = [
+            method for method in dir(self) if method.startswith("capture_user_")
+        ]
+
+        for method in capture_method:
+            user = getattr(self, method)()
+            if user:
+                return user
+
+        # user not found
+        raise TrackerUserNotFoundError()
+
+    def capture_user_from_url(self) -> Optional[User]:
+        """Tries to capture user from the URL parameter 'username'"""
         try:
-            user = getattr(self, "url_user_object")
+            url_username = self.kwargs.get("username", None)
         except AttributeError:
-            url_username = self.kwargs.get("username")
-            user = get_object_or_404(User, username=url_username)
-            setattr(self, "url_user_object", user)
+            return
+
+        return get_object_or_404(User, username=url_username) if url_username else None
+
+    def capture_user_from_instance(self) -> Optional[User]:
+        """
+        Tries to capture user from the instance.
+
+        The instance may contain the user information stored in different fields such as 'user' or 'profile'.
+        If the instance has a profile, the user is expected to be found within the profile.
+
+        """
+        # query set isn't support
+        try:
+            instance = self.object
+        except AttributeError:
+            return
+
+        user = getattr(instance, "user", None) or getattr(instance, "profile", None)
+
+        if isinstance(user, Profile):
+            user = user.user
 
         return user
 
@@ -132,15 +183,15 @@ class EpulsTracker:
         """
         Checks if the currently logged-in user (from 'login_user') is the same  as the user associated with the URL parameter 'username' (from 'url_user').
         """
-        return self.url_user() == self.login_user()
+        return self.get_user() == self.get_login_user()
 
     @validate_view_inheritance
     def tracker(self) -> None:
         if self.activity is None:
             raise ImproperlyConfigured("activity field must be set before action")
 
-        whom = self.url_user()
-        login_user: User = self.login_user()
+        whom = self.get_user()
+        login_user: User = self.get_login_user()
         is_current_user = self.check_users()
 
         create_action(
@@ -161,7 +212,10 @@ class EpulsTracker:
             else getattr(ActionMessage, f"SB_{activity}")
         )
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs) -> Any:
+        """
+        Overwrite method and add tracker system.
+        """
         response = super().get(request, *args, **kwargs)
         self.tracker()
         return response

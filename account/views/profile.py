@@ -28,7 +28,7 @@ class ProfileView(LoginRequiredMixin, EpulsDetailView):
         context = super(ProfileView, self).get_context_data(**kwargs)
 
         # get user from url
-        instance_user = self.url_user()
+        instance_user = self.get_user()
 
         # take last action
         context["action"] = Action.last_user_action(instance_user)
@@ -49,7 +49,7 @@ class ProfileView(LoginRequiredMixin, EpulsDetailView):
         When user is in on their own profile, they can see 5, 10, or 14 visitors depending on the profile type.
         If a user visits someone else's profile, they can see 0, 5, 10, 14 visitors depending on the profile type.
         """
-        profile_type = self.login_user().profile.type_of_profile
+        profile_type = self.get_login_user().profile.type_of_profile
 
         size: int = TYPE_OF_PROFILE[profile_type][
             "own_visitors" if is_user_profile else "sb_visitors"

@@ -33,7 +33,7 @@ def make_user_tag(user: User) -> str:
 
 def get_shouter_queryset() -> QuerySet:
     """Get queryset for Shouter object"""
-    return Shouter.objects.order_by("?")[:10]
+    return Shouter.objects.select_related("user").order_by("?")[:10]
 
 
 @register.simple_tag(takes_context=True)

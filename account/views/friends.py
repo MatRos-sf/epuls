@@ -23,7 +23,7 @@ class FriendsListView(LoginRequiredMixin, EpulsListView):
     activity = ActionType.FRIENDS
 
     def get_queryset(self) -> Any:
-        user = self.url_user()
+        user = self.get_user()
         return user.profile.friends.all()
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -33,7 +33,7 @@ class FriendsListView(LoginRequiredMixin, EpulsListView):
             * self (bool): is user's view
         """
         context = super().get_context_data(**kwargs)
-        user = self.url_user()
+        user = self.get_user()
         context["username"] = user.username
         context["self"] = self.check_users()
 
