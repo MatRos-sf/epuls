@@ -16,16 +16,13 @@ from .tracker import EpulsTracker
 class EpulsBaseView(EpulsTracker):
     """Handles a basic view of custom view."""
 
-    def send_notification(
-        self, actor: User, recipient: User, verb: str, act_obj: Any, **kwargs
-    ):
+    def send_notification(self, verb: str, **kwargs):
         """Creates notification."""
         notify.send(
-            sender=actor,
-            actor=actor,
-            recipient=recipient,
+            sender=self.get_login_user(),
+            actor=self.get_login_user(),
+            recipient=self.get_user(),
             verb=verb,
-            action_object=act_obj,
             **kwargs
         )
 
