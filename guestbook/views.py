@@ -44,7 +44,7 @@ class GuestbookView(LoginRequiredMixin, EpulsListView):
                 instance.save()
 
                 give_away_puls(user_profile=sender.profile, type=PulsType.GUESTBOOKS)
-
+                self.send_notification("commented your guestbook")
                 messages.success(request, "An entry has been added!")
 
             else:
