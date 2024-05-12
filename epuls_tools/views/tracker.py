@@ -211,11 +211,3 @@ class EpulsTracker:
             if is_owner
             else getattr(ActionMessage, f"SB_{activity}")
         )
-
-    def get(self, request, *args, **kwargs) -> Any:
-        """
-        Overwrite method and add tracker system.
-        """
-        response = super().get(request, *args, **kwargs)
-        self.tracker()
-        return response
