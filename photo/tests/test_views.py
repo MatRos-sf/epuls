@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import TestCase, tag
 from django.utils import timezone
+from notifications.models import Notification
 
 from account.factories import PASSWORD, UserFactory
 from action.models import Action, ActionMessage
@@ -119,6 +120,30 @@ class PictureDetailViewTestCase(TestCase):
         self.assertEqual(gallery_popularity, 1)
         self.assertEqual(picture_popularity, 1)
         self.assertEqual(PhotoComment.objects.count(), 1)
+
+    def test_should_not_create_notification_when_user_comment_own_photo(self):
+        pk_picture = Picture.objects.first().pk
+        self.client.post(self.url(kwargs={"pk": pk_picture}), data=self.payload)
+
+        self.assertFalse(Notification.objects.count())
+
+    def test_should_create_notification(self):
+        _, new_picture = self.create_new_user_with_picture()
+
+        self.client.post(self.url(kwargs={"pk": new_picture.pk}), data=self.payload)
+
+        self.assertEqual(Notification.objects.count(), 1)
+        n = Notification.objects.first()
+        self.assertEqual(n.recipient, new_picture.profile.user)
+        self.assertEqual(n.actor, self.user)
+
+    def test_should_create_five_notifications(self):
+        _, new_picture = self.create_new_user_with_picture()
+
+        for _ in range(5):
+            self.client.post(self.url(kwargs={"pk": new_picture.pk}), data=self.payload)
+
+        self.assertEqual(Notification.objects.count(), 5)
 
 
 class GalleryListViewTestCase(TestCase):
