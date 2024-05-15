@@ -59,7 +59,7 @@ class EpulsTrackerTestCase(TestCase):
 
     def test_should_capture_user_when_object_has_user_field(self):
         tracker = EpulsTracker()
-        tracker.get_object = MagicMock(return_value=self.user.profile)
+        tracker.object = self.user.profile
 
         expected = tracker.get_user()
 
@@ -71,7 +71,7 @@ class EpulsTrackerTestCase(TestCase):
 
         tracker = EpulsTracker()
         # set MagicMock
-        tracker.get_object = MagicMock(return_value=gallery)
+        tracker.object = gallery
 
         expected = tracker.get_user()
 
