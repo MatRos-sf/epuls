@@ -1,6 +1,6 @@
 from enum import StrEnum, auto
 from functools import wraps
-from typing import Any, Optional
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
