@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase, tag
@@ -70,7 +70,6 @@ class EpulsTrackerTestCase(TestCase):
         expected_user = gallery.profile.user
 
         tracker = EpulsTracker()
-        # set MagicMock
         tracker.object = gallery
 
         expected = tracker.get_user()
