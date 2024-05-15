@@ -95,6 +95,9 @@ class DiaryDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
             puls_valid_time_gap_comments(
                 login_user, self.comment_gap, PulsType.COMMENT_ACTIVITY_DIARY
             )
+            self.send_notification(
+                "commented your diary", action_object=object_instance
+            )
 
         return super().form_valid(form)
 

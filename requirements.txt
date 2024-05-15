@@ -20,3 +20,5 @@ django-filter==24.2
 typing_extensions==4.10.0
 django-silk
 django-debug-toolbar
+django-notifications-hq
+setuptools

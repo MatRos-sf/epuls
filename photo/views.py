@@ -243,6 +243,9 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
             puls_valid_time_gap_comments(
                 login_user, self.comment_gap, PulsType.COMMENT_ACTIVITY_PICTURE
             )
+            self.send_notification(
+                "commented your photo", action_object=object_instance
+            )
 
         # update stats
         self.update_stats(
@@ -276,6 +279,13 @@ class PictureDetailView(LoginRequiredMixin, FormMixin, EpulsDetailView):
         comments = PhotoComment.objects.select_related("author", "author__profile")
         context["comments"] = comments.filter(photo=context["object"])
         return context
+
+    # def noti(self, actor: User, recipient: User, verb: str, act_obj: Any, **kwargs):
+    #     from notifications.signals import notify
+    #
+    #     notify.send(
+    #         sender=actor, actor=actor, recipient=recipient, verb=verb, action_object=act_obj, **kwargs
+    #     )
 
 
 class PictureDeleteView(LoginRequiredMixin, DeleteView):

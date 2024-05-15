@@ -1,6 +1,6 @@
 from enum import StrEnum, auto
 from functools import wraps
-from typing import Any, Optional
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured
@@ -211,11 +211,3 @@ class EpulsTracker:
             if is_owner
             else getattr(ActionMessage, f"SB_{activity}")
         )
-
-    def get(self, request, *args, **kwargs) -> Any:
-        """
-        Overwrite method and add tracker system.
-        """
-        response = super().get(request, *args, **kwargs)
-        self.tracker()
-        return response

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.shortcuts import reverse
 from django.test import tag
+from notifications.models import Notification
 
 from account.factories import PASSWORD
 from account.models import Visitor
@@ -97,3 +98,13 @@ class GuestbookViewTestCase(SimpleDBTestCase):
         visitor = Visitor.objects.first()
         self.assertEqual(visitor.visitor, self.user)
         self.assertEqual(visitor.receiver, user)
+
+    def test_should_create_notification(self):
+        payload = {"entry": "Hello"}
+        user = User.objects.last()
+        self.client.post(
+            self.url(kwargs={"username": user.username}),
+            data=payload,
+        )
+
+        self.assertEqual(Notification.objects.count(), 1)

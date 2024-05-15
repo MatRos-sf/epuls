@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap4",
     "django_extensions",
     "django_filters",
+    "notifications",
 ]
 
 INSTALLED_EXTENSIONS = [
