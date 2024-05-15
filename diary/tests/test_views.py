@@ -5,6 +5,7 @@ from typing import Tuple
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.test import tag
+from notifications.models import Notification
 
 from account.factories import PASSWORD, UserFactory
 from comment.models import DiaryComment
@@ -159,3 +160,42 @@ class DiaryDetailViewTestCase(DiaryDB):
         excepted_puls = PULS_FOR_ACTION[PulsType.COMMENT_ACTIVITY_DIARY]
 
         self.assertEqual(excepted_puls, single_puls.first().quantity)
+
+    def test_should_create_notification_when_user_comment_photo_another_user(self):
+        new_user, new_diary = self.create_new_user_with_diary()
+
+        self.client.post(
+            self.url(kwargs={"pk": new_diary.pk, "username": new_user.username}),
+            data=self.payload,
+        )
+
+        # should create 1 notification
+
+        self.assertEqual(Notification.objects.count(), 1)
+
+        # notification
+        n = Notification.objects.first()
+
+        self.assertEqual(n.actor, self.user)
+        self.assertEqual(n.recipient, new_user)
+        self.assertEqual(n.verb, "commented your diary")
+
+    def test_should_create_five_notification_when_user_comment_photo_another_user(self):
+        new_user, new_diary = self.create_new_user_with_diary()
+
+        for _ in range(5):
+            self.client.post(
+                self.url(kwargs={"pk": new_diary.pk, "username": new_user.username}),
+                data=self.payload,
+            )
+
+        self.assertEqual(Notification.objects.count(), 5)
+
+    def test_should_not_create_notification_when_user_comment_own(self):
+        diary = Diary.objects.first()
+        self.client.post(
+            self.url(kwargs={"pk": diary.pk, "username": self.user.username}),
+            data=self.payload,
+        )
+
+        self.assertFalse(Notification.objects.count())
