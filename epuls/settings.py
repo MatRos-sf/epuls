@@ -43,6 +43,7 @@ INSTALLED_EXTENSIONS = [
     "photo",
     "shouter",
     "comment",
+    "like",
 ]
 
 INSTALLED_APPS += INSTALLED_EXTENSIONS
