@@ -17,10 +17,14 @@ class AbstractLike(models.Model):
         self.save()
 
 
+# https://stackoverflow.com/questions/62879957/how-to-implement-a-like-system-in-django-templates
 class LikePhotoComment(AbstractLike):
     comment = models.ForeignKey(
         PhotoComment, on_delete=models.CASCADE, related_name="likes"
     )
+
+    class Meta:
+        unique_together = ["comment", "user"]
 
     def __str__(self):
         return (
