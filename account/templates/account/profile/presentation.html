@@ -1,6 +1,6 @@
 {% load custom_tags %}
 <div class="shadow p-3 mb-5 bg-body-tertiary rounded m-2">
-    {{ object.presentation|transform_html_code:object }}
+    {% if object.presentation %}{{ object.presentation|transform_html_code:object }}{% endif %}
     {% if self %}
         <div class="container text-end m-1">
             <a type="button"
