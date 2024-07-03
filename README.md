@@ -45,6 +45,9 @@ Alternatively, use Poetry for dependency management:
 ```shell
 poetry install
 ```
+
+## Demo
+[Nagranie ekranu z 03.07.2024 20:37:17.webm](https://github.com/MatRos-sf/epuls/assets/59665130/5ffa2220-aeeb-4be2-8416-ba3304da65c6)
 <!-- CONTACT -->
 ## Contact
 
