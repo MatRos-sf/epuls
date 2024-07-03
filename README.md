@@ -24,7 +24,7 @@ Users can create, search, and manage their accounts. The application allows user
 To get a local copy up and running, follow these simple steps.
 1. Clone the repository:
    ```sh
-   git clone https://github.com/MatRos-sf/Bet-Game-Premier-League.git
+   git clone https://github.com/MatRos-sf/epuls.git
    ```
 2. Create a virtual environment:
    ```sh
@@ -34,21 +34,12 @@ To get a local copy up and running, follow these simple steps.
    ```sh
    pip install -r requirements.txt
    ```
-4. Build the `.env` file using the provided template in the `sample_env` file.
 
-5. Execute the `migration` command:
+4. Execute the `migration` command:
     ```sh
     python3 manage.py migrate
     ```
-6. Additionally, retrieve information about the current season and set up workers:
-    ```sh
-    python3 manage.py pull_fd
-   python3 manage.py set_workers
-    ```
-   If you want, you have to download information about previous seasons:
-    ```sh
-    python3 manage.py pull_history
-   ```
+
 
 Alternatively, use Poetry for dependency management:
 ```shell
@@ -59,7 +50,7 @@ poetry install
 
 Mateusz Rosenkranz - mateuszrosenkranz@gmail.com
 
-Project Link: [https://github.com/MatRos-sf/Bet-Game-Premier-League](https://github.com/MatRos-sf/Bet-Game-Premier-League)
+Project Link: [https://github.com/MatRos-sf/epuls](https://github.com/MatRos-sf/epuls)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
