@@ -1,6 +1,6 @@
 # Epuls
 
-I created the ePuls application inspired by my childhood memories. It replicates the functionality of the former website epuls.py.
+I created the Epuls application inspired by my childhood memories. It replicates the functionality of the former website epuls.py.
 Unfortunately, I was unable to finish this project due to lack of time.
 
 ## About epuls
