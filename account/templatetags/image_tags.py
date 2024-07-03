@@ -1,11 +1,7 @@
 import os
-from typing import Dict, Optional
 
 from django import template
-from django.utils.safestring import mark_safe
 from typing_extensions import LiteralString
-
-from account.models import PROFILE_PICTURE_PATH, Profile, ProfileType
 
 register = template.Library()
 

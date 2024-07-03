@@ -1,6 +1,5 @@
 import os
 import re
-from functools import partial
 from typing import Dict, Optional
 
 from django import template
